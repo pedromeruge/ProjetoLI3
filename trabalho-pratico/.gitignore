@@ -15,3 +15,8 @@ a.out
 *drivers*.csv
 *rides*.csv
 Resultados/
+build
+.vscode
+programa-*
+Dataset_Fase1/
+teste.txt
