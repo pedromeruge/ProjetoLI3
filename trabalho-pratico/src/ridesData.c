@@ -1,7 +1,12 @@
 #include "ridesData.h"
 
 #define SIZE 1000
+#define RIDE_STR_BUFF 32
 
+gint compareRidesByDate (gconstpointer a, gconstpointer b);
+void *sortCity(void *data);
+
+RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
 struct RidesStruct {
 	char *date;
 	short int driver;
@@ -14,13 +19,14 @@ struct RidesStruct {
 	char *comment;
 };
 
-gint compareRidesByDate (gconstpointer a, gconstpointer b);
-RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
-void freeArray(void *data);
 struct CityRides {
 	GPtrArray *array;
 	guint len;
 };
+
+gint compareRidesByDate (gconstpointer a, gconstpointer b);
+RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
+void freeArray(void *data);
 
 void *sortCity(void *data) {
 	GPtrArray *array = *(GPtrArray **)data;
@@ -173,4 +179,40 @@ guint getNumberOfCityRides(CityRides *rides) {
 
 RidesStruct *getCityRidesByID(CityRides *rides, guint ID) {
 	return (RidesStruct *)g_ptr_array_index(rides->array, (int)ID);
+}
+
+char * getRideDate(RidesStruct * ride) {
+	return strndup(ride->date,RIDE_STR_BUFF);
+}
+
+short int getRideDriver(RidesStruct * ride) {
+	return (ride->driver);
+}
+
+char * getRideUser(RidesStruct * ride) {
+	return strdup(ride->user,RIDE_STR_BUFF);
+}
+
+char * getRideCity(RidesStruct * ride) {
+	return strndup(ride->city,RIDE_STR_BUFF);
+}
+
+short int getRideDistance(RidesStruct * ride){
+	return (ride->distance);
+}
+
+short int getRideScore_u(RidesStruct * ride){
+	return (ride->score_u);
+}
+
+short int getRideScore_d(RidesStruct * ride){
+	return (ride->score_d);
+}
+
+float getRideTip(RidesStruct * ride){
+	return (ride->tip);
+}
+
+char * getRideComment(RidesStruct * ride){
+	return strndup(ride->comment,RIDE_STR_BUFF);
 }

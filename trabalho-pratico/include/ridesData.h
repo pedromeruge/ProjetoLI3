@@ -15,13 +15,26 @@ typedef struct {
 	GHashTable *cityTable;
 } RidesData;
 
-DATA getRidesData(FILE *ptr); // fica -> main
-void freeRidesData(DATA data);  // fica -> main
+DATA getRidesData(FILE *ptr); // retorna a estrutura de dados de rides 
+void freeRidesData(DATA data);  // limpa a estrutura das rides
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
 // RidesStruct * getRideByDriver(DATA data, int driver); // not implemented
-CityRides * getRidesByCity(RidesData *data, char *city); // fica -> querries
-guint getNumberOfCityRides(CityRides *rides); // fica -> queeries
-RidesStruct * getRidePtrByID(DATA data, guint ID); // fica -> querries
-RidesStruct * getCityRidesByID(CityRides *rides, guint ID); // fica -> querries (incompleta, deve devolver copia nova)
+CityRides * getRidesByCity(RidesData *data, char *city); // devolve todas as rides associadas a uma cidade
+guint getNumberOfCityRides(CityRides *rides); // devolve o número de rides para uma cidade
+RidesStruct * getCityRidesByID(CityRides *rides, guint ID); // devolve uma ride de uma cidade
+
+// funções para aceder a informações individuais das rides
+RidesStruct * getRidePtrByID(DATA data, guint ID); // devolve a struct com toda a informação de uma ride
+char * getRideDate(RidesStruct *); 
+short int getRideDriver(RidesStruct *);
+char * getRideUser(RidesStruct *);
+char * getRideCity(RidesStruct *);
+short int getRideDistance(RidesStruct *);
+short int getRideScore_u(RidesStruct *);
+short int getRideScore_d(RidesStruct *);
+float getRideTip(RidesStruct *);
+char * getRideComment(RidesStruct *);
+
+
 
 #endif

@@ -4,10 +4,10 @@
 #include "userdata.h"
 #include "driverdata.h"
 #include "ridesData.h"
+#define NS_PER_SECOND 1000000000
 
 int queryRequests (FILE * fp, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
 int writeResults (int commandN, char * strResult);
-#define NS_PER_SECOND 1000000000
-void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td);
+
 
 #endif

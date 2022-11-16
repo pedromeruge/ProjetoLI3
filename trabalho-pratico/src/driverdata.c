@@ -1,6 +1,7 @@
 #include "driverdata.h"
 
 #define SIZE 1000
+#define DRIVER_STR_BUFF 32
 
 struct DriverStruct {
 	// id está subentendido pela posição
@@ -90,6 +91,33 @@ DriverStruct * getDriverPtrByID(DATA data, short int ID) {
 	return result;
 }
 
+char * getDriverName(DriverStruct * driver) {
+	return strndup(driver->name,DRIVER_STR_BUFF);
+}
+
+char * getDriverBirthdate(DriverStruct * driver){
+	return strndup(driver->birthdate,DRIVER_STR_BUFF);
+}
+
+unsigned char getDriverGender(DriverStruct * driver) {
+	return (driver->gender);
+}
+
 unsigned char getDriverCar(DriverStruct * driver) {
-	return driver->carClass;
+	return (driver->carClass);
+}
+char * getDriverPlate(DriverStruct * driver) {
+	return (driver->licensePlate);
+}
+
+char * getDriverCity(DriverStruct * driver) {
+	return (driver->city);
+}
+
+char * getDriverAccCreation(DriverStruct * driver) {
+	return (driver->accountCreation);
+}
+
+unsigned char getDriverStatus(DriverStruct * driver){
+	return (driver->status);
 }
