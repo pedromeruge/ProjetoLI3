@@ -2,6 +2,11 @@
 
 #define SIZE 1000
 
+struct CityRides {
+	GPtrArray *array;
+	guint len;
+};
+
 void *sortCity(void *data) {
 	GPtrArray *array = *(GPtrArray **)data;
 	g_ptr_array_sort(array, compareRidesByDate);
@@ -114,7 +119,16 @@ void freeRidesData(DATA data) {
 }
 
 //devolve a struct(dados) associada à ride número i
-RidesStruct * getRideByID(DATA data, int ID) {
+RidesStruct * getRideByID(DATA data, guint ID) {
+	ID -= 1; // para o primeiro passar a ser 0
+	int i = ID / RIDES_ARR_SIZE;
+	RidesStruct **primaryArray = data,
+	* secondaryArray = primaryArray[i],
+	* result = &(secondaryArray[ID - SIZE*i]);
+	return result;
+}
+
+RidesStruct * getRidePtrByID(DATA data, guint ID) {
 	ID -= 1; // para o primeiro passar a ser 0
 	int i = ID / RIDES_ARR_SIZE;
 	RidesStruct **primaryArray = data,
@@ -139,4 +153,22 @@ gint compareRidesByDate (gconstpointer a, gconstpointer b) {
 	} else {
 		return (strncmp(dateA,dateB, 2));
 	}
+}
+
+CityRides * getRidesByCity(RidesData *data, char *city) {
+	CityRides *resultRides = malloc(sizeof(CityRides));
+	resultRides->array = g_hash_table_lookup(data->cityTable, city);
+	return resultRides;
+}
+
+guint getNumberOfCityRides(CityRides *rides) {
+	return rides->array->len;
+}
+
+RidesStruct *getCityRidesByID(CityRides *rides, guint ID) {
+	RidesStruct *ride = (RidesStruct *)g_ptr_array_index(rides->array, (int)ID),
+	*result = malloc(sizeof(RidesStruct));
+	// FALTA COPIAR AS STRINGS, FAZER COPYRIDE()
+	memcpy(result, ride, sizeof(RidesStruct));
+	return result;
 }

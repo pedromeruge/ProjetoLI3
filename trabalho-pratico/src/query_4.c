@@ -6,22 +6,27 @@ char * query_4(char *city, char *trash1, char *trash2, UserData *userData, Drive
 	guint i;
 	unsigned int distance[3] = {0, 0, 0}, //basic, green, premium
 	numRides[3] = {0, 0, 0};
-	GPtrArray *array = getRidesByCity(ridesData, city);
+	CityRides *rides = getRidesByCity(ridesData, city);
+	
 	RidesStruct *currentRide;
-	DriverStruct *currentDriver;
-	guint len = array->len;
 
+	unsigned char carClass;
+
+	guint len = getNumberOfCityRides(rides);
+	short ID;
 	for (i = 0; i < len; i++) {
-		currentRide = g_ptr_array_index(array, i);
-		currentDriver = getDriverByID(driverData, currentRide->driver);
+		currentRide = getCityRidesByID(rides, i);
+		ID = currentRide->driver;
 
 		// 		  -97 /6
 		// b = 97  0  0
 		// g = 103 6  1
 		// p = 112 15 2
-		distance[(getDriverCarByID(driverData, currentRide->driver) - 97)/6] += currentRide->distance;
-		numRides[(currentDriver->carClass - 97)/6] += 1;
+		carClass = getDriverCarByID(driverData, ID);
+		distance[carClass] += currentRide->distance;
+		numRides[carClass] += 1;
 
+		free(currentRide);
 		// printf("%d %d %d\n", distance[0], distance[1], distance[2]);
 	}
 	// 	Basic: Tarifa mínima = 3.25€ + 0.62€/km
@@ -29,9 +34,11 @@ char * query_4(char *city, char *trash1, char *trash2, UserData *userData, Drive
 	//  Premium: Tarifa mínima = 5.20€ + 0.94€/km
 	
 	float cost = (numRides[0]*3.25 + numRides[1]*4 + numRides[2]*5.2\
-	+ distance[0]*0.62 + distance[1]*0.79 + distance[2]*0.94) / array->len;
+	+ distance[0]*0.62 + distance[1]*0.79 + distance[2]*0.94) / len;
 	
 	char *resultTruncated = malloc(STR_BUFF_SIZE*sizeof(char));
 	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", cost);
 	return resultTruncated;
+
+	free(rides);
 }

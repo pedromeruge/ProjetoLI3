@@ -11,7 +11,7 @@ typedef struct {
 	char *birthdate;
 	unsigned char gender;
 	// estes podem todos ser mudados para alguma coisa melhor
-	unsigned char carClass; // é usado o primeiro char da palavra, não é transformado num numero de 0 até 2
+	unsigned char carClass; // é usado o primeiro char da palavra para converter em 0, 1 ou 2
 	char *licensePlate;
 	char *city;
 	char *accountCreation;
@@ -26,6 +26,9 @@ unsigned char getDriverCarByID(DATA data, int ID);
 //apagar!!!
 DriverStruct * getDriverPtrByID(DATA data, int ID);
 
-DriverStruct * getDriverByID(DATA data, int ID);
+unsigned char getDriverCarByID(DATA data, short int ID);
+//apagar!!!
+DriverStruct * getDriverPtrByID(DATA data, short int ID);
+DriverStruct * getDriverByID(DATA data, short int ID);
 
 #endif

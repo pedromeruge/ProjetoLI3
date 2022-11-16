@@ -14,7 +14,7 @@ DriverStruct * getDrivers(FILE *ptr) {
 		// if (name == NULL) break;
 		driverStructArray[i].birthdate = loadString(ptr);
 		driverStructArray[i].gender = fgetc(ptr); fseek(ptr, 1, SEEK_CUR);
-		driverStructArray[i].carClass = fgetc(ptr); while (fgetc(ptr) != ';');
+		driverStructArray[i].carClass = (fgetc(ptr) - 97)/6; while (fgetc(ptr) != ';');
 		driverStructArray[i].licensePlate = loadString(ptr);
 		driverStructArray[i].city = loadString(ptr);
 		driverStructArray[i].accountCreation = loadString(ptr);
@@ -68,7 +68,7 @@ void freeDriverData(DATA data) {
 }
 
 //devolve a struct(dados) associada ao driver número i
-DriverStruct * getDriverByID(DATA data, int ID) {
+DriverStruct * getDriverByID(DATA data, short int ID) {
 	ID -= 1;
 	int i = ID / SIZE;
 	DriverStruct **primaryArray = data,
@@ -77,7 +77,7 @@ DriverStruct * getDriverByID(DATA data, int ID) {
 	return result;
 }
 
-DriverStruct * getDriverPtrByID(DATA data, int ID) {
+DriverStruct * getDriverPtrByID(DATA data, short int ID) {
 	ID -= 1;
 	int i = ID / SIZE;
 	DriverStruct **primaryArray = data,
@@ -86,6 +86,6 @@ DriverStruct * getDriverPtrByID(DATA data, int ID) {
 	return result;
 }
 
-unsigned char getDriverCarByID(DATA data, int ID) {
+unsigned char getDriverCarByID(DATA data, short int ID) {
 	return ((DriverStruct *)getDriverPtrByID(data, ID))->carClass;
 }

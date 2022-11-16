@@ -6,6 +6,8 @@
 #define RIDES_ARR_SIZE 1000
 #define SIZE 1000
 
+typedef struct CityRides CityRides;
+
 typedef struct {
 	char *date;
 	short int driver;
@@ -26,11 +28,14 @@ typedef struct {
 RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
 DATA getRidesData(FILE *ptr);
 void freeRidesData(DATA data);
-RidesStruct * getRideByID(DATA data, int ID);
+RidesStruct * getRideByID(DATA data, guint ID);
 RidesStruct * getRideByUser(DATA data, char *name); // not implemented
 RidesStruct * getRideByDriver(DATA data, int driver); // not implemented
 void freeArray(void *data);
-#define getRidesByCity(data, city) g_hash_table_lookup(data->cityTable, city)
+CityRides * getRidesByCity(RidesData *data, char *city);
 gint compareRidesByDate (gconstpointer a, gconstpointer b);
+guint getNumberOfCityRides(CityRides *rides);
+RidesStruct * getRidePtrByID(DATA data, guint ID);
+RidesStruct * getCityRidesByID(CityRides *rides, guint ID);
 
 #endif
