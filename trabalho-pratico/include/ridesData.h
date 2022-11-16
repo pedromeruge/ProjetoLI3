@@ -27,7 +27,6 @@ typedef struct {
 
 DATA getRidesData(FILE *ptr); // fica -> main
 void freeRidesData(DATA data);  // fica -> main
-RidesStruct * getRideByID(DATA data, guint ID); // fica -> querries
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
 // RidesStruct * getRideByDriver(DATA data, int driver); // not implemented
 CityRides * getRidesByCity(RidesData *data, char *city); // fica -> querries

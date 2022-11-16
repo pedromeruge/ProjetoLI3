@@ -122,15 +122,6 @@ void freeRidesData(DATA data) {
 }
 
 //devolve a struct(dados) associada à ride número i
-RidesStruct * getRideByID(DATA data, guint ID) {
-	ID -= 1; // para o primeiro passar a ser 0
-	int i = ID / RIDES_ARR_SIZE;
-	RidesStruct **primaryArray = data,
-	* secondaryArray = primaryArray[i],
-	* result = &(secondaryArray[ID - SIZE*i]);
-	return result;
-}
-
 RidesStruct * getRidePtrByID(DATA data, guint ID) {
 	ID -= 1; // para o primeiro passar a ser 0
 	int i = ID / RIDES_ARR_SIZE;

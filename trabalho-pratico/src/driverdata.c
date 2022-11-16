@@ -2,6 +2,19 @@
 
 #define SIZE 1000
 
+struct DriverStruct {
+	// id está subentendido pela posição
+	char *name;
+	char *birthdate;
+	unsigned char gender;
+	// estes podem todos ser mudados para alguma coisa melhor
+	unsigned char carClass; // é usado o primeiro char da palavra para converter em 0, 1 ou 2
+	char *licensePlate;
+	char *city;
+	char *accountCreation;
+	unsigned char status;
+};
+
 DriverStruct * getDrivers(FILE *ptr) {
 	int i, tempchr, count, chr;
 	// char *name;
@@ -68,15 +81,6 @@ void freeDriverData(DATA data) {
 }
 
 //devolve a struct(dados) associada ao driver número i
-DriverStruct * getDriverByID(DATA data, short int ID) {
-	ID -= 1;
-	int i = ID / SIZE;
-	DriverStruct **primaryArray = data,
-	*secondaryArray = primaryArray[i],
-	*result = &(secondaryArray[ID - SIZE*i]);
-	return result;
-}
-
 DriverStruct * getDriverPtrByID(DATA data, short int ID) {
 	ID -= 1;
 	int i = ID / SIZE;
@@ -86,6 +90,6 @@ DriverStruct * getDriverPtrByID(DATA data, short int ID) {
 	return result;
 }
 
-unsigned char getDriverCarByID(DATA data, short int ID) {
-	return ((DriverStruct *)getDriverPtrByID(data, ID))->carClass;
+unsigned char getDriverCar(DriverStruct * driver) {
+	return driver->carClass;
 }

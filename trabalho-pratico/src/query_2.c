@@ -119,7 +119,7 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
     GPtrArray * driverRatingArray = g_ptr_array_new(); // novo garraypointer
     g_ptr_array_set_size(driverRatingArray,driversNumber);
     for (i=0;i<elemNumber;i++) {
-        currentRide = getRideByID(ridesData->ridesArray,i+1);
+        currentRide = getRidePtrByID(ridesData->ridesArray,i+1);
         driverNumber = (gint) currentRide->driver; // o array tem posições de 0 a 9999, os driverID vão de 1 a 10000, daí o driverNumber-1
         currentDriver = getDriverPtrByID(driverData,driverNumber);
         driverStatus = currentDriver->status;

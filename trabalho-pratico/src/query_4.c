@@ -9,7 +9,7 @@ char * query_4(char *city, char *trash1, char *trash2, UserData *userData, Drive
 	CityRides *rides = getRidesByCity(ridesData, city);
 	
 	RidesStruct *currentRide;
-
+	DriverStruct * currentDriver;
 	unsigned char carClass;
 
 	guint len = getNumberOfCityRides(rides);
@@ -17,12 +17,8 @@ char * query_4(char *city, char *trash1, char *trash2, UserData *userData, Drive
 	for (i = 0; i < len; i++) {
 		currentRide = getCityRidesByID(rides, i);
 		ID = currentRide->driver;
-
-		// 		  -97 /6
-		// b = 97  0  0
-		// g = 103 6  1
-		// p = 112 15 2
-		carClass = getDriverCarByID(driverData, ID);
+		currentDriver = getDriverPtrByID(driverData,ID);
+		carClass = getDriverCar(currentDriver);
 		distance[carClass] += currentRide->distance;
 		numRides[carClass] += 1;
 

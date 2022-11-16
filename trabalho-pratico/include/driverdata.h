@@ -18,13 +18,10 @@ typedef struct {
 	unsigned char status;
 } DriverStruct;
 
-DriverStruct * getDrivers(FILE *ptr);
-DATA getDriverData(FILE *ptr);
-void freeDriverData(DATA data);
+DATA getDriverData(FILE *ptr); // fica -> main
+void freeDriverData(DATA data); // fica -> main
 
-unsigned char getDriverCarByID(DATA data, short int ID);
-//apagar!!!
 DriverStruct * getDriverPtrByID(DATA data, short int ID);
-DriverStruct * getDriverByID(DATA data, short int ID);
+unsigned char getDriverCar(DriverStruct *);
 
 #endif
