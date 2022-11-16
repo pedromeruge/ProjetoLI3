@@ -21,10 +21,6 @@ typedef struct {
 DriverStruct * getDrivers(FILE *ptr);
 DATA getDriverData(FILE *ptr);
 void freeDriverData(DATA data);
-unsigned char getDriverCarByID(DATA data, int ID);
-
-//apagar!!!
-DriverStruct * getDriverPtrByID(DATA data, int ID);
 
 unsigned char getDriverCarByID(DATA data, short int ID);
 //apagar!!!

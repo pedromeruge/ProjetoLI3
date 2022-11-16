@@ -9,9 +9,5 @@ int queryRequests (FILE * fp, UserData *userData, DriverStruct *driverData[], Ri
 int writeResults (int commandN, char * strResult);
 #define NS_PER_SECOND 1000000000
 void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td);
-//apagar!!!
-DriverStruct * getDriverPtrByID(DATA data, int ID);
-
-DriverStruct * getDriverByID(DATA data, int ID);
 
 #endif
