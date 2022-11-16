@@ -25,17 +25,14 @@ typedef struct {
 	GHashTable *cityTable;
 } RidesData;
 
-RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
-DATA getRidesData(FILE *ptr);
-void freeRidesData(DATA data);
-RidesStruct * getRideByID(DATA data, guint ID);
-RidesStruct * getRideByUser(DATA data, char *name); // not implemented
-RidesStruct * getRideByDriver(DATA data, int driver); // not implemented
-void freeArray(void *data);
-CityRides * getRidesByCity(RidesData *data, char *city);
-gint compareRidesByDate (gconstpointer a, gconstpointer b);
-guint getNumberOfCityRides(CityRides *rides);
-RidesStruct * getRidePtrByID(DATA data, guint ID);
-RidesStruct * getCityRidesByID(CityRides *rides, guint ID);
+DATA getRidesData(FILE *ptr); // fica -> main
+void freeRidesData(DATA data);  // fica -> main
+RidesStruct * getRideByID(DATA data, guint ID); // fica -> querries
+// RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
+// RidesStruct * getRideByDriver(DATA data, int driver); // not implemented
+CityRides * getRidesByCity(RidesData *data, char *city); // fica -> querries
+guint getNumberOfCityRides(CityRides *rides); // fica -> queeries
+RidesStruct * getRidePtrByID(DATA data, guint ID); // fica -> querries
+RidesStruct * getCityRidesByID(CityRides *rides, guint ID); // fica -> querries (incompleta, deve devolver copia nova)
 
 #endif

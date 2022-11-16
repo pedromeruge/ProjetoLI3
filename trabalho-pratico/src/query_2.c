@@ -3,20 +3,27 @@
 #include "query_2.h"
 #include "commonParsing.h"
 
-#define STR_BUFF_SIZE 64
-//  ./programa-principal Dataset_Fase1 teste.txt
 
-//NOTA funções utlizadas por várias funções devem devolver, por exemplo strings, que são cópias, para caso sejam usadas noutras funções não alterarem essas strings
+#define STR_BUFF_SIZE 64
+
+typedef struct {
+    void  * ratingChart; // void * porque vai guardar um array de ratings de 1 a 5, e mais tarde é convertido para um valor médio desses ratings
+    char * mostRecRideDate;
+    short int driverNumber; // talvez meter em int o valor, ocupa menos espaço com char?
+} driverRatingInfo;
+
+// TODO: Fazer parse de um array com ordem dos users e outro para rides em simultâneo 
+//       função listN (void *array, struct *, comparefunc1,comparefunc2,comparefunc3 )
 
 // função para dar free das structs do ptr_array com informação dos drivers
-void freeRidesRating (void * drivesRating) {
+static void freeRidesRating (void * drivesRating) {
     driverRatingInfo * currentArrayStruct = (driverRatingInfo *) drivesRating;
     free(currentArrayStruct->ratingChart);
     free(currentArrayStruct->mostRecRideDate);
 }
 
 //concatena n linhas com os resultados, para dar return da query_2
-char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *driverData[]) {
+static char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *driverData[]) {
     short int i, driverNumber;
     char * result = malloc(sizeof(char)*STR_BUFF_SIZE*N);
     char * temp = NULL;
@@ -35,7 +42,7 @@ char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *driverData
 } 
 
 
-driverRatingInfo * newDriverRating (char * rideDate, short int driverNumber, short int rating) {
+static driverRatingInfo * newDriverRating (char * rideDate, short int driverNumber, short int rating) {
     driverRatingInfo * new = malloc(sizeof(driverRatingInfo));
     new->ratingChart = calloc(5,sizeof(unsigned int)); // inicializa todas as avaliações como zero
     ((unsigned int *) new->ratingChart)[rating-1] ++;
@@ -60,7 +67,7 @@ static gint sort_byRatings (gconstpointer a, gconstpointer b) {
     return result;
 }
 
-GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
+static GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
     int i;
     float avgRating = 0;
     unsigned int * ratings = NULL;

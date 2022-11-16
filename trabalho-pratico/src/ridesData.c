@@ -2,6 +2,9 @@
 
 #define SIZE 1000
 
+gint compareRidesByDate (gconstpointer a, gconstpointer b);
+RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
+void freeArray(void *data);
 struct CityRides {
 	GPtrArray *array;
 	guint len;

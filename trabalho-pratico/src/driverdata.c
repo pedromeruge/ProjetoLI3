@@ -6,7 +6,7 @@ DriverStruct * getDrivers(FILE *ptr) {
 	int i, tempchr, count, chr;
 	// char *name;
 	DriverStruct *driverStructArray = malloc(SIZE*sizeof(DriverStruct));
-	
+
 	for (i = count = 0; i < SIZE; i++, count++) {
 		while ((chr = fgetc(ptr)) != ';');// && chr != -1); // skip id
 		// name = loadString(ptr);
