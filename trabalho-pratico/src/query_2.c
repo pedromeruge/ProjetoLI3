@@ -26,7 +26,7 @@ char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *driverData
     for (i=arrayLen-1;i>=arrayLen-N;i--) {
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
         driverNumber = currentArrayStruct->driverNumber;
-        currentDriver = getDriverByID(driverData,driverNumber);
+        currentDriver = getDriverPtrByID(driverData,driverNumber);
         temp = malloc(STR_BUFF_SIZE);
         snprintf(temp,STR_BUFF_SIZE,"%012d;%s;%.3f\n",driverNumber,currentDriver->name,*(float *)currentArrayStruct->ratingChart);
         strncat(result,temp,STR_BUFF_SIZE);
@@ -114,7 +114,7 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
     for (i=0;i<elemNumber;i++) {
         currentRide = getRideByID(ridesData->ridesArray,i+1);
         driverNumber = (gint) currentRide->driver; // o array tem posições de 0 a 9999, os driverID vão de 1 a 10000, daí o driverNumber-1
-        currentDriver = getDriverByID(driverData,driverNumber);
+        currentDriver = getDriverPtrByID(driverData,driverNumber);
         driverStatus = currentDriver->status;
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, driverNumber-1); 
         // printf("driver status: %d\n", currentDriver->status);

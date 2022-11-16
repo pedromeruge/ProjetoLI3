@@ -76,3 +76,16 @@ DriverStruct * getDriverByID(DATA data, int ID) {
 	*result = &(secondaryArray[ID - SIZE*i]);
 	return result;
 }
+
+DriverStruct * getDriverPtrByID(DATA data, int ID) {
+	ID -= 1;
+	int i = ID / SIZE;
+	DriverStruct **primaryArray = data,
+	*secondaryArray = primaryArray[i],
+	*result = &(secondaryArray[ID - SIZE*i]);
+	return result;
+}
+
+unsigned char getDriverCarByID(DATA data, int ID) {
+	return ((DriverStruct *)getDriverPtrByID(data, ID))->carClass;
+}

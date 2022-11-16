@@ -19,7 +19,7 @@ char * query_4(char *city, char *trash1, char *trash2, UserData *userData, Drive
 		// b = 97  0  0
 		// g = 103 6  1
 		// p = 112 15 2
-		distance[(currentDriver->carClass - 97)/6] += currentRide->distance;
+		distance[(getDriverCarByID(driverData, currentRide->driver) - 97)/6] += currentRide->distance;
 		numRides[(currentDriver->carClass - 97)/6] += 1;
 
 		// printf("%d %d %d\n", distance[0], distance[1], distance[2]);

@@ -10,7 +10,7 @@ FILE ** open_cmdfiles (char ** argv) {
 
     char fileName[FILEPATH_SIZE]; // buffer para o nome de cada ficheiro de input a abrir
 	strcpy(fileName,dataFolderName);
-	strcat (fileName,"/users.csv");
+	strcat (fileName,"users.csv");
 	FILE *ptr1 = fopen(fileName, "r");
 	if (!ptr1) {
 		perror("File opening error");
@@ -18,7 +18,7 @@ FILE ** open_cmdfiles (char ** argv) {
 	}
 	
 	strcpy(fileName,dataFolderName);
-	strcat (fileName,"/drivers.csv");
+	strcat (fileName,"drivers.csv");
 	FILE *ptr2 = fopen(fileName, "r");
 	if (!ptr2) {
 		perror("File opening error");
@@ -26,7 +26,7 @@ FILE ** open_cmdfiles (char ** argv) {
 	}
 
 	strcpy(fileName,dataFolderName);
-	strcat (fileName,"/rides.csv");
+	strcat (fileName,"rides.csv");
 	FILE *ptr3 = fopen(fileName, "r");
 	if (!ptr3) {
 		perror("File opening error");
