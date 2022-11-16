@@ -1,23 +1,44 @@
-# Ignore all
-*
+#Prerequisites
+*.d
 
-# Unignore all with extensions
-!*.*
-
-# Unignore all dirs
-!*/
-
-# Ignore default executable
-a.out
+# Compiled Object files
+*.slo
+*.lo
 *.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
 *.exe
-*users*.csv
-*drivers*.csv
-*rides*.csv
-Resultados/
-build
-.vscode
+*.out
+*.app
+
 programa-*
-Dataset_Fase1/
+exemplos_de_queries
+Dataset_Fase1
 teste.txt
+Resultados
 .DS_Store
+__MACOSX
+.vscode
+*.zip
+debug
+build
