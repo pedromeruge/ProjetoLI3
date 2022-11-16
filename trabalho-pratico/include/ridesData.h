@@ -8,17 +8,7 @@
 
 typedef struct CityRides CityRides;
 
-typedef struct {
-	char *date;
-	short int driver;
-	char *user;
-	char *city;
-	short int distance,
-	score_u,
-	score_d;
-	float tip;
-	char *comment;
-} RidesStruct;
+typedef struct RidesStruct RidesStruct;
 
 typedef struct {
 	RidesStruct **ridesArray;

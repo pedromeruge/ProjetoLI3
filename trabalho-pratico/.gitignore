@@ -31,6 +31,7 @@
 *.out
 *.app
 programa-*
+
 exemplos_de_queries
 Dataset_Fase1/
 teste.txt

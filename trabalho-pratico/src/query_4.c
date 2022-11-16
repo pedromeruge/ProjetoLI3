@@ -21,8 +21,6 @@ char * query_4(char *city, char *trash1, char *trash2, UserData *userData, Drive
 		carClass = getDriverCar(currentDriver);
 		distance[carClass] += currentRide->distance;
 		numRides[carClass] += 1;
-
-		free(currentRide);
 		// printf("%d %d %d\n", distance[0], distance[1], distance[2]);
 	}
 	// 	Basic: Tarifa mínima = 3.25€ + 0.62€/km

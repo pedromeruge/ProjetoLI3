@@ -2,6 +2,18 @@
 
 #define SIZE 1000
 
+struct RidesStruct {
+	char *date;
+	short int driver;
+	char *user;
+	char *city;
+	short int distance,
+	score_u,
+	score_d;
+	float tip;
+	char *comment;
+};
+
 gint compareRidesByDate (gconstpointer a, gconstpointer b);
 RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
 void freeArray(void *data);
@@ -160,9 +172,5 @@ guint getNumberOfCityRides(CityRides *rides) {
 }
 
 RidesStruct *getCityRidesByID(CityRides *rides, guint ID) {
-	RidesStruct *ride = (RidesStruct *)g_ptr_array_index(rides->array, (int)ID),
-	*result = malloc(sizeof(RidesStruct));
-	// FALTA COPIAR AS STRINGS, FAZER COPYRIDE()
-	memcpy(result, ride, sizeof(RidesStruct));
-	return result;
+	return (RidesStruct *)g_ptr_array_index(rides->array, (int)ID);
 }
