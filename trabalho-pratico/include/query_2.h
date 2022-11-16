@@ -12,9 +12,11 @@ typedef struct {
     short int driverNumber; // talvez meter em int o valor, ocupa menos espaço com char?
 } driverRatingInfo;
 
-char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *driverData[]);
 void freeRidesRating (void * DriverRidesRating);
+char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *driverData[]);
 driverRatingInfo * newDriverRating (char *, short int, short int);
+static gint sort_byRatings (gconstpointer a, gconstpointer b);
+GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize);
 char * query_2(char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
 
 #endif
