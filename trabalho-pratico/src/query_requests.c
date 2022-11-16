@@ -19,12 +19,11 @@ int writeResults (int commandN, char * strResult) {
 		perror("Unable to open/create output file");
         return 1;
     }
-    if (strResult) ret1 = fputs(strResult, fpout); // para nao dar erro se a string for vazia
-    fclose(fpout); 
+    if (strResult) ret1 = fputs(strResult, fpout); // para nao dar erro se a string for vazia 
     if (ret1 == EOF) { // caso ficheiro não abra
-		fclose(fpout);
         return 2;
     }
+    fclose(fpout);
     return 0;
 }
 

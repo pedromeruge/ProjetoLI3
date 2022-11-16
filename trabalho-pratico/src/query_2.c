@@ -8,8 +8,8 @@
 
 //NOTA funções utlizadas por várias funções devem devolver, por exemplo strings, que são cópias, para caso sejam usadas noutras funções não alterarem essas strings
 
-void freeRidesRating (void * DriverRidesRating) {
-    driverRatingInfo * currentArrayStruct = DriverRidesRating;
+void freeRidesRating (void * drivesRating) {
+    driverRatingInfo * currentArrayStruct = (driverRatingInfo *) drivesRating;
     free(currentArrayStruct->ratingChart);
     free(currentArrayStruct->mostRecRideDate);
 }
@@ -148,6 +148,7 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
 
     char * result = strResults(driverRatingArray,number[0]-48, driverData);
 
+    g_ptr_array_set_free_func(driverRatingArray, (GDestroyNotify) freeRidesRating);
     // //para debug
     // for (i=0;i<driversNumber;i++) {
     //     currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
