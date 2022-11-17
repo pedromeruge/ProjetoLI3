@@ -30,9 +30,9 @@
 *.exe
 *.out
 *.app
-programa-*
 
-exemplos_de_queries
+programa-*
+exemplos_de_queries/
 Dataset_Fase1/
 teste.txt
 Resultados
@@ -41,5 +41,4 @@ Resultados
 __MACOSX
 .vscode
 *.zip
-debug
 build

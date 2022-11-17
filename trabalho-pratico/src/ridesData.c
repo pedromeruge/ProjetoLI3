@@ -23,7 +23,6 @@ struct RidesStruct
 struct CityRides
 {
 	GPtrArray *array;
-	guint len;
 }; // array ja tem len embutido, no need?
 
 struct RidesData {
@@ -107,7 +106,7 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable)
 		if ((array = g_hash_table_lookup(cityTable, city)) == NULL)
 		{
 			// if not, insert
-			array = g_ptr_array_sized_new((1 << 17) + (1 << 15));
+			array = g_ptr_array_sized_new(200000); // +/- 195000 por cidade
 			g_ptr_array_add(array, temp);
 			g_hash_table_insert(cityTable, city, array);
 		}
@@ -208,7 +207,7 @@ guint getNumberOfCityRides(CityRides *rides)
 	return rides->array->len;
 }
 
-RidesStruct *getCityRidesByID(CityRides *rides, guint ID)
+RidesStruct *getCityRidesByIndex(CityRides *rides, guint ID)
 {
 	return (RidesStruct *)g_ptr_array_index(rides->array, (int)ID);
 }

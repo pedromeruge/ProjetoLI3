@@ -17,7 +17,7 @@ char *query_4(char *city, char *trash1, char *trash2, UserData *userData, Driver
 	short ID;
 	for (i = 0; i < len; i++)
 	{
-		currentRide = getCityRidesByID(rides, i);
+		currentRide = getCityRidesByIndex(rides, i);
 		ID = getRideDriver(currentRide);
 		currentDriver = getDriverPtrByID(driverData, ID);
 		carClass = getDriverCar(currentDriver);

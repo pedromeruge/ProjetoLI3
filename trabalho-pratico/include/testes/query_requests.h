@@ -6,7 +6,8 @@
 #include "ridesData.h"
 #define NS_PER_SECOND 1000000000
 
-int queryRequests (FILE * fp, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
+void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td);
+int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData);
 int writeResults (int commandN, char * strResult);
 
 

@@ -68,7 +68,7 @@ int writeResults (int commandN, char * strResult) {
 	return compareResult(strResult, resultPath);
 }
 
-int queryRequests (FILE * fp, UserData *userData, DriverStruct *driverData[], RidesData *ridesData) {
+int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData) {
 	clock_t cpu_start, cpu_end;
 	double cpu_time_used;
 	struct timespec start, finish, delta;
