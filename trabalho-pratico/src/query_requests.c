@@ -55,7 +55,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverStruct *driverData[], Ri
         querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr[1],tempsegstr[2],tempsegstr[3],userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
 		writeRet = writeResults(commandN, querryResult);
         if (writeRet) {
-            fprintf(stderr, "error writing file");
+            fprintf(stderr, "error writing output file %d\n", commandN);
             return 1;
         }
 		free (querryResult); // free do buffer de output

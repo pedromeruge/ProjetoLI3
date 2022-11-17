@@ -33,7 +33,6 @@ char *query_4(char *city, char *trash1, char *trash2, UserData *userData, Driver
 
 	char *resultTruncated = malloc(STR_BUFF_SIZE * sizeof(char));
 	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", cost);
-	return resultTruncated;
-
 	free(rides);
+	return resultTruncated;
 }

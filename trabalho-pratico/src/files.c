@@ -13,7 +13,7 @@ FILE ** open_cmdfiles (char ** argv) {
 	strcat (fileName,"users.csv");
 	FILE *ptr1 = fopen(fileName, "r");
 	if (!ptr1) {
-		perror("File opening error");
+		fprintf(stderr, "File opening error on file %s\n", fileName);
 		exit(1);
 	}
 	
@@ -21,7 +21,7 @@ FILE ** open_cmdfiles (char ** argv) {
 	strcat (fileName,"drivers.csv");
 	FILE *ptr2 = fopen(fileName, "r");
 	if (!ptr2) {
-		perror("File opening error");
+		fprintf(stderr, "File opening error on file %s\n", fileName);
 		exit(1);
 	}
 
@@ -29,13 +29,13 @@ FILE ** open_cmdfiles (char ** argv) {
 	strcat (fileName,"rides.csv");
 	FILE *ptr3 = fopen(fileName, "r");
 	if (!ptr3) {
-		perror("File opening error");
+		fprintf(stderr, "File opening error on file %s\n", fileName);
 		exit(1);
 	}
 
 	FILE *teste = fopen(queryFileName,"r");
 	if (!teste) {
-		perror("File opening error");
+		fprintf(stderr, "File opening error on file %s\n", fileName);
 		exit(1);
 	}
 
