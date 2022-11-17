@@ -35,7 +35,7 @@ static char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *dri
         driverNumber = currentArrayStruct->driverNumber;
         currentDriver = getDriverPtrByID(driverData,driverNumber);
         temp = malloc(STR_BUFF_SIZE);
-        snprintf(temp,STR_BUFF_SIZE,"%012d;%s;%.3f\n",driverNumber,currentDriver->name,*(float *)currentArrayStruct->ratingChart);
+        snprintf(temp,STR_BUFF_SIZE,"%012d;%s;%.3f\n",driverNumber,getDriverName(currentDriver),*(float *)currentArrayStruct->ratingChart);
         strncat(result,temp,STR_BUFF_SIZE);
     }
     return result;
@@ -120,29 +120,21 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
     g_ptr_array_set_size(driverRatingArray,driversNumber);
     for (i=0;i<elemNumber;i++) {
         currentRide = getRidePtrByID(ridesData->ridesArray,i+1);
-        driverNumber = (gint) currentRide->driver; // o array tem posições de 0 a 9999, os driverID vão de 1 a 10000, daí o driverNumber-1
+        driverNumber = (gint) getRideDriver(currentRide); // o array tem posições de 0 a 9999, os driverID vão de 1 a 10000, daí o driverNumber-1
         currentDriver = getDriverPtrByID(driverData,driverNumber);
-        driverStatus = currentDriver->status;
+        driverStatus = getDriverStatus(currentDriver);
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, driverNumber-1); 
-        // printf("driver status: %d\n", currentDriver->status);
-        // printf("00 is array pos %d not occupied: %d, iteration: %d\n",driverNumber-1,currentArrayStruct == 0,i+1);
-        //printf(">>>current ride date:%s\n", currentRide->date);
         if (currentArrayStruct == 0 && driverStatus == 1) { // verifica se no local atual ainda n existe informação de um driver, e se este tem o estado ativo
-            //printf(">>> entrou no if\n");
-            newStruct = newDriverRating(currentRide->date,(short int) driverNumber,currentRide->score_d);
-            //printf(">>>newstruct driver saved:%d\n",newStruct->driverNumber);
+            newStruct = newDriverRating(getRideDate(currentRide),(short int) driverNumber,getRideScore_d(currentRide));
             g_ptr_array_index(driverRatingArray, driverNumber-1) = newStruct;
-            //printf(">>>000 is array pos %d not occupied: %d\n",driverNumber-1,g_array_index(driverRatingArray, driverRatingInfo *, driverNumber-1) == 0);
-            // printf(">>>|||arraypos: %d ridedriver:%d\n", driverNumber-1, currentRide->driver);
             currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, driverNumber-1); 
-            // printf("driver various ratings: %d %d %d %d %d\n\n",((unsigned int *) currentArrayStruct->ratingChart)[0],((unsigned int *) currentArrayStruct->ratingChart)[1],((unsigned int *) currentArrayStruct->ratingChart)[2],((unsigned int *) currentArrayStruct->ratingChart)[3],((unsigned int *) currentArrayStruct->ratingChart)[4]);
         }
         else if (driverStatus == 1) { // se já existir informação de um driver (de rides prévias); supõe-se que tem estado ativo
             // printf("<<< entrou no else if\n");
             // printf("\nrepetição aqui\n\n");
-            ((unsigned int *) currentArrayStruct->ratingChart)[(currentRide->score_d)-1] += 1; // dependendo da avaliação na ride atual, no array ratingChart , incrementa em 1 o número da avalições de valor 1,2,3,4 ou 5. 
-            if (compDates(currentRide->date,currentArrayStruct->mostRecRideDate) >= 0) {
-                currentArrayStruct->mostRecRideDate = currentRide->date;
+            ((unsigned int *) currentArrayStruct->ratingChart)[getRideScore_d(currentRide)-1] += 1; // dependendo da avaliação na ride atual, no array ratingChart , incrementa em 1 o número da avalições de valor 1,2,3,4 ou 5. 
+            if (compDates(getRideDate(currentRide),currentArrayStruct->mostRecRideDate) >= 0) {
+                currentArrayStruct->mostRecRideDate = getRideDate(currentRide);
             }
             // printf(">>>|||ridedriver:%d\n", currentRide->driver);
             currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, driverNumber-1); 

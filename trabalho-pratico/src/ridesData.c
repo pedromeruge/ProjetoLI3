@@ -3,103 +3,115 @@
 #define SIZE 1000
 #define RIDE_STR_BUFF 32
 
-gint compareRidesByDate (gconstpointer a, gconstpointer b);
+gint compareRidesByDate(gconstpointer a, gconstpointer b);
 void *sortCity(void *data);
 
-RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
-struct RidesStruct {
+RidesStruct *getRides(FILE *ptr, GHashTable *cityTable);
+struct RidesStruct
+{
 	char *date;
 	short int driver;
 	char *user;
 	char *city;
 	short int distance,
-	score_u,
-	score_d;
+		score_u,
+		score_d;
 	float tip;
 	char *comment;
 };
 
-struct CityRides {
+struct CityRides
+{
 	GPtrArray *array;
 	guint len;
 };
 
-gint compareRidesByDate (gconstpointer a, gconstpointer b);
-RidesStruct * getRides(FILE *ptr, GHashTable *cityTable);
+gint compareRidesByDate(gconstpointer a, gconstpointer b);
+RidesStruct *getRides(FILE *ptr, GHashTable *cityTable);
 void freeArray(void *data);
 
-void *sortCity(void *data) {
+void *sortCity(void *data)
+{
 	GPtrArray *array = *(GPtrArray **)data;
 	g_ptr_array_sort(array, compareRidesByDate);
 	g_thread_exit(NULL);
 	return NULL;
 }
 
-DATA getRidesData(FILE *ptr) {
-	RidesStruct **ridesData = malloc(RIDES_ARR_SIZE*sizeof(RidesStruct *));
+DATA getRidesData(FILE *ptr)
+{
+	RidesStruct **ridesData = malloc(RIDES_ARR_SIZE * sizeof(RidesStruct *));
 	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeArray); // keys levam malloc do array normal, nao vou dar free aqui
 	int i;
-	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	for (i = 0; i < RIDES_ARR_SIZE; i++) ridesData[i] = getRides(ptr, cityTable);
+	while (fgetc(ptr) != '\n')
+		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
+	for (i = 0; i < RIDES_ARR_SIZE; i++)
+		ridesData[i] = getRides(ptr, cityTable);
 
 	RidesData *data = malloc(sizeof(RidesData));
 	data->ridesArray = ridesData;
 	data->cityTable = cityTable;
-	
 
 	// MUDAR ISTO PARA ITERATOR SOBRE A HASHTABLE !!!!!!!!!!!!!!!!!!!!!!!!!!
 	guint len;
-	const gchar ** cities = (const gchar **)g_hash_table_get_keys_as_array(cityTable, &len);
+	const gchar **cities = (const gchar **)g_hash_table_get_keys_as_array(cityTable, &len);
 	GThread *threads[len];
 	gpointer args[len];
 
-	for (i = 0; i < (const int)len; i++) {
+	for (i = 0; i < (const int)len; i++)
+	{
 		args[i] = g_hash_table_lookup(cityTable, cities[i]);
 		threads[i] = g_thread_new(NULL, sortCity, &args[i]);
 		// sortCity(&args[i]);
 	}
-	for (i = 0; i < (const int)len; i++) g_thread_join(threads[i]);
+	for (i = 0; i < (const int)len; i++)
+		g_thread_join(threads[i]);
 	free(cities);
 
 	return data;
 }
 
-RidesStruct * getRides(FILE *ptr, GHashTable *cityTable) {
+RidesStruct *getRides(FILE *ptr, GHashTable *cityTable)
+{
 	int i, count, chr;
 	char tempBuffer[16], *city;
 	GPtrArray *array;
-	RidesStruct *ridesStructArray = malloc(SIZE*sizeof(RidesStruct)), *temp;
-	for (i = count = 0; i < SIZE; i++, count++) {
-		while ((chr = fgetc(ptr)) != ';');// && chr != -1); // skip id
+	RidesStruct *ridesStructArray = malloc(SIZE * sizeof(RidesStruct)), *temp;
+	for (i = count = 0; i < SIZE; i++, count++)
+	{
+		while ((chr = fgetc(ptr)) != ';')
+			; // && chr != -1); // skip id
 		ridesStructArray[i].date = loadString(ptr);
 		writeString(ptr, tempBuffer);
-		ridesStructArray[i].driver = (short) atoi(tempBuffer);
+		ridesStructArray[i].driver = (short)atoi(tempBuffer);
 		ridesStructArray[i].user = loadString(ptr);
 		city = loadString(ptr);
 		ridesStructArray[i].city = city;
 		writeString(ptr, tempBuffer);
-		ridesStructArray[i].distance = (short) atoi(tempBuffer);
+		ridesStructArray[i].distance = (short)atoi(tempBuffer);
 		writeString(ptr, tempBuffer);
-		ridesStructArray[i].score_u = (short) atoi(tempBuffer);
+		ridesStructArray[i].score_u = (short)atoi(tempBuffer);
 		writeString(ptr, tempBuffer);
-		ridesStructArray[i].score_d = (short) atoi(tempBuffer);
+		ridesStructArray[i].score_d = (short)atoi(tempBuffer);
 		writeString(ptr, tempBuffer);
-		ridesStructArray[i].tip = (short) atof(tempBuffer);
+		ridesStructArray[i].tip = (short)atof(tempBuffer);
 		ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????
 
 		temp = &(ridesStructArray[i]);
 		// check if city is not already in hash table
-		if ((array = g_hash_table_lookup(cityTable, city)) == NULL) {
+		if ((array = g_hash_table_lookup(cityTable, city)) == NULL)
+		{
 			// if not, insert
 			array = g_ptr_array_sized_new((1 << 17) + (1 << 15));
 			g_ptr_array_add(array, temp);
 			g_hash_table_insert(cityTable, city, array);
-		} else {
+		}
+		else
+		{
 			// if yes, append to all the other data
 			g_ptr_array_add(array, temp);
 			// printf("Adding to %s a ride in %s\n", city, temp->city);
 		}
-
 	}
 
 	// for (i = 0; i < count; i++) {
@@ -117,16 +129,19 @@ RidesStruct * getRides(FILE *ptr, GHashTable *cityTable) {
 	return ridesStructArray;
 }
 
-void freeRidesData(DATA data) {
+void freeRidesData(DATA data)
+{
 	RidesData *dataStruct = data;
 	RidesStruct **ridesData = dataStruct->ridesArray;
 	GHashTable *table = dataStruct->cityTable;
 	g_hash_table_destroy(table);
 	int i, j;
 	RidesStruct *segment, block;
-	for (i = 0; i < RIDES_ARR_SIZE; i++) {
+	for (i = 0; i < RIDES_ARR_SIZE; i++)
+	{
 		segment = ridesData[i];
-		for (j = 0; j < SIZE; j++) {
+		for (j = 0; j < SIZE; j++)
+		{
 			block = segment[j];
 			free(block.date);
 			free(block.user);
@@ -139,80 +154,100 @@ void freeRidesData(DATA data) {
 	free(dataStruct);
 }
 
-//devolve a struct(dados) associada à ride número i
-RidesStruct * getRidePtrByID(DATA data, guint ID) {
+// devolve a struct(dados) associada à ride número i
+RidesStruct *getRidePtrByID(DATA data, guint ID)
+{
 	ID -= 1; // para o primeiro passar a ser 0
 	int i = ID / RIDES_ARR_SIZE;
 	RidesStruct **primaryArray = data,
-	* secondaryArray = primaryArray[i],
-	* result = &(secondaryArray[ID - SIZE*i]);
+				*secondaryArray = primaryArray[i],
+				*result = &(secondaryArray[ID - SIZE * i]);
 	return result;
 }
 
-void freeArray(void *data) {
+void freeArray(void *data)
+{
 	GPtrArray *array = (GPtrArray *)data;
 	g_ptr_array_free(array, TRUE);
 }
 
-gint compareRidesByDate (gconstpointer a, gconstpointer b) {
+gint compareRidesByDate(gconstpointer a, gconstpointer b)
+{
 	gint res;
 	char *dateA = (*(RidesStruct **)a)->date, *dateB = (*(RidesStruct **)b)->date;
-	//DD/MM/YYYY
-	if ((res = strncmp(dateA + 6, dateB + 6, 4)) != 0) {
+	// DD/MM/YYYY
+	if ((res = strncmp(dateA + 6, dateB + 6, 4)) != 0)
+	{
 		return res;
-	} else if ((res = strncmp(dateA + 3,dateB + 3, 2)) != 0) {
+	}
+	else if ((res = strncmp(dateA + 3, dateB + 3, 2)) != 0)
+	{
 		return res;
-	} else {
-		return (strncmp(dateA,dateB, 2));
+	}
+	else
+	{
+		return (strncmp(dateA, dateB, 2));
 	}
 }
 
-CityRides * getRidesByCity(RidesData *data, char *city) {
+CityRides *getRidesByCity(RidesData *data, char *city)
+{
 	CityRides *resultRides = malloc(sizeof(CityRides));
 	resultRides->array = g_hash_table_lookup(data->cityTable, city);
 	return resultRides;
 }
 
-guint getNumberOfCityRides(CityRides *rides) {
+guint getNumberOfCityRides(CityRides *rides)
+{
 	return rides->array->len;
 }
 
-RidesStruct *getCityRidesByID(CityRides *rides, guint ID) {
+RidesStruct *getCityRidesByID(CityRides *rides, guint ID)
+{
 	return (RidesStruct *)g_ptr_array_index(rides->array, (int)ID);
 }
 
-char * getRideDate(RidesStruct * ride) {
-	return strndup(ride->date,RIDE_STR_BUFF);
+char *getRideDate(RidesStruct *ride)
+{
+	return strndup(ride->date, RIDE_STR_BUFF);
 }
 
-short int getRideDriver(RidesStruct * ride) {
+short int getRideDriver(RidesStruct *ride)
+{
 	return (ride->driver);
 }
 
-char * getRideUser(RidesStruct * ride) {
-	return strdup(ride->user,RIDE_STR_BUFF);
+char *getRideUser(RidesStruct *ride)
+{
+	return strndup(ride->user, RIDE_STR_BUFF);
 }
 
-char * getRideCity(RidesStruct * ride) {
-	return strndup(ride->city,RIDE_STR_BUFF);
+char *getRideCity(RidesStruct *ride)
+{
+	return strndup(ride->city, RIDE_STR_BUFF);
 }
 
-short int getRideDistance(RidesStruct * ride){
+short int getRideDistance(RidesStruct *ride)
+{
 	return (ride->distance);
 }
 
-short int getRideScore_u(RidesStruct * ride){
+short int getRideScore_u(RidesStruct *ride)
+{
 	return (ride->score_u);
 }
 
-short int getRideScore_d(RidesStruct * ride){
+short int getRideScore_d(RidesStruct *ride)
+{
 	return (ride->score_d);
 }
 
-float getRideTip(RidesStruct * ride){
+float getRideTip(RidesStruct *ride)
+{
 	return (ride->tip);
 }
 
-char * getRideComment(RidesStruct * ride){
-	return strndup(ride->comment,RIDE_STR_BUFF);
+char *getRideComment(RidesStruct *ride)
+{
+	return strndup(ride->comment, RIDE_STR_BUFF);
 }
