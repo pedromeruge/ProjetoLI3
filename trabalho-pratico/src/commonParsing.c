@@ -98,5 +98,7 @@ int compDates(char *dateA, char *dateB)
 	else if ((res = strncmp(dateA + 3, dateB + 3, 2)) != 0)
 	{
 		return res;
+	} else {
+		return strncmp(dateA, dateB, 2);
 	}
 }

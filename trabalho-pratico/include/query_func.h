@@ -7,7 +7,7 @@
 //#include "query3.c"
 #include "query_4.h"
 //#include "query5.c"
-//#include "query6.c"
+#include "query_6.h"
 //#include "query7.c"
 //#include "query8.c"
 //#include "query9.c"
@@ -21,7 +21,6 @@ char * query_2 (char *, char *, char *, UserData *userData, DriverData *, RidesD
 char * query_3 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 
 char * query_5 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
-char * query_6 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 char * query_7 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 char * query_8 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 char * query_9 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);

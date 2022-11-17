@@ -38,7 +38,7 @@ char *NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverData
 
 int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesData *ridesData)
 {
-    query_func *queryList[9] = {query_1, query_2, NOP, query_4, NOP, NOP, NOP, NOP, NOP};
+    query_func *queryList[9] = {query_1, query_2, NOP, query_4, NOP, query_6, NOP, NOP, NOP};
     char *strBuffer = malloc(sizeof(char) * LINE_SIZE); // buffer de cada linha lida
     char *querryResult = NULL;                          // pointer para a string resultante de cada querry
     char *tempsegstr[4];                                // array para atribuir o segmento correto do input
