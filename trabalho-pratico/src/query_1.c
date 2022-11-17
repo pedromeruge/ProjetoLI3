@@ -53,21 +53,21 @@
 
 char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, DriverData * driverData, RidesData *ridesData)
 {
-    if (g_hash_table_contains(userData->table, idstr))
+    int numero;
+    if ((numero = atoi(idstr)) != 0)
     {
-        Userstruct *userInf = (Userstruct *)g_hash_table_lookup(userData->table, idstr);
-        char *userResult = malloc(STR_BUFF_SIZE * sizeof(char));
-        snprintf(userResult, STR_BUFF_SIZE, "%s,%c", userInf->name, userInf->gender);
-        return userResult;
-    }
-    else
-    {
-        DriverStruct *driverInf = getDriverPtrByID(driverData, (short int)idstr[0]);
+        DriverStruct *driverInf = getDriverPtrByID(driverData, numero);
         char *d_name = getDriverName(driverInf);
         char *driverResult = malloc(STR_BUFF_SIZE * sizeof(char));
         snprintf(driverResult, STR_BUFF_SIZE, "%s,%c", d_name, getDriverGender(driverInf));
         free(d_name);
         return driverResult;
     }
-    return 0;
+    else
+    {
+        Userstruct *userInf = (Userstruct *)g_hash_table_lookup(userData->table, idstr);
+        char *userResult = malloc(STR_BUFF_SIZE * sizeof(char));
+        snprintf(userResult, STR_BUFF_SIZE, "%s,%c", userInf->name, userInf->gender);
+        return userResult;
+    }
 }
