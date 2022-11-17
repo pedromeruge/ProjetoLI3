@@ -23,7 +23,7 @@ static void freeRidesRating (void * drivesRating) {
 }
 
 //concatena n linhas com os resultados, para dar return da query_2
-static char * strResults(GPtrArray * driverRatingArray, int N, DriverStruct *driverData[]) {
+static char * strResults(GPtrArray * driverRatingArray, int N, DriverData *driverData) {
     short int i, driverNumber;
     char * result = malloc(sizeof(char)*STR_BUFF_SIZE*N);
     char * temp = NULL;
@@ -107,11 +107,11 @@ static GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
 }
 
 //TODO: free dos elementos do g_ptr_array
-char * query_2 (char * number, char * trash1, char * trash2, UserData *userData, DriverStruct *driverData[], RidesData *ridesData) {
-    int i,driverStatus;
-    gint driverNumber;
-    gint driversNumber = (gint) DRIVER_ARR_SIZE * SIZE;
-    gint elemNumber = (gint) RIDES_ARR_SIZE * SIZE; // numero de elem do array
+char * query_2 (char * number, char * trash1, char * trash2, UserData *userData, DriverData * driverData, RidesData *ridesData) {
+    int i,driverStatus = 0;
+    short int driverNumber = 0;
+    int driversNumber = DRIVER_ARR_SIZE * SIZE;
+    int elemNumber = RIDES_ARR_SIZE * SIZE; // numero de elem do array
     driverRatingInfo * newStruct = NULL,// pointer para struct que vai ser guardada em cada pos do array
     * currentArrayStruct = NULL;
     RidesStruct * currentRide = NULL; // pointer para a ride correspondente no ficheiro csv
@@ -119,9 +119,9 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
     GPtrArray * driverRatingArray = g_ptr_array_new(); // novo garraypointer
     g_ptr_array_set_size(driverRatingArray,driversNumber);
     for (i=0;i<elemNumber;i++) {
-        currentRide = getRidePtrByID(ridesData->ridesArray,i+1);
-        driverNumber = (gint) getRideDriver(currentRide); // o array tem posições de 0 a 9999, os driverID vão de 1 a 10000, daí o driverNumber-1
-        currentDriver = getDriverPtrByID(driverData,driverNumber);
+        currentRide = getRidePtrByID(ridesData, i+1);
+        driverNumber = getRideDriver(currentRide); // o array tem posições de 0 a 9999, os driverID vão de 1 a 10000, daí o driverNumber-1
+        currentDriver = getDriverPtrByID(driverData, driverNumber);
         driverStatus = getDriverStatus(currentDriver);
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, driverNumber-1); 
         if (currentArrayStruct == 0 && driverStatus == 1) { // verifica se no local atual ainda n existe informação de um driver, e se este tem o estado ativo

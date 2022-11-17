@@ -51,7 +51,7 @@
 //     printf(final_year);
 // }
 
-char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, DriverStruct *driverData[], RidesData *ridesData)
+char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, DriverData * driverData, RidesData *ridesData)
 {
     if (g_hash_table_contains(userData->table, idstr))
     {

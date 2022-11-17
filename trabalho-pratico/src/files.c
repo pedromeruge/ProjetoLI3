@@ -33,8 +33,8 @@ FILE ** open_cmdfiles (char ** argv) {
 		exit(1);
 	}
 
-	FILE *teste = fopen(queryFileName,"r");
-	if (!teste) {
+	FILE *querries = fopen(queryFileName,"r");
+	if (!querries) {
 		fprintf(stderr, "File opening error on file %s\n", fileName);
 		exit(1);
 	}
@@ -43,6 +43,6 @@ FILE ** open_cmdfiles (char ** argv) {
 	retArray[0]= ptr1;
 	retArray[1]= ptr2;
 	retArray[2]= ptr3;
-	retArray[3]= teste;
+	retArray[3]= querries;
     return retArray;
 }

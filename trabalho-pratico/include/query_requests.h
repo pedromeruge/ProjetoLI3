@@ -5,8 +5,8 @@
 #include "driverdata.h"
 #include "ridesData.h"
 
-int queryRequests (FILE * fp, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
+int queryRequests (FILE * fp, UserData *userData, DriverData * driverData, RidesData *ridesData);
 int writeResults (int commandN, char * strResult);
-char * NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
+char * NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverData * driverData, RidesData *ridesData);
 
 #endif

@@ -7,10 +7,12 @@
 
 typedef struct DriverStruct DriverStruct;
 
-DATA getDriverData(FILE *ptr); // fica -> main
-void freeDriverData(DATA data); // fica -> main
+typedef struct DriverData DriverData;
 
-DriverStruct * getDriverPtrByID(DATA data, short int ID);
+DriverData * getDriverData(FILE *ptr); // fica -> main
+void freeDriverData(DriverData * data); // fica -> main
+
+DriverStruct * getDriverPtrByID(DriverData *, guint);
 
 char * getDriverName(DriverStruct *);
 char * getDriverBirthdate(DriverStruct *);

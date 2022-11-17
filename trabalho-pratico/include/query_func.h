@@ -16,16 +16,16 @@
 
 
 // isto devia tar definido nos .h de cada querry
-char * query_1 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
-char * query_2 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
-char * query_3 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
+char * query_1 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
+char * query_2 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
+char * query_3 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 
-char * query_5 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
-char * query_6 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
-char * query_7 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
-char * query_8 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
-char * query_9 (char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
+char * query_5 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
+char * query_6 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
+char * query_7 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
+char * query_8 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
+char * query_9 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 
-typedef char * query_func (char * inp1, char * inp2, char * inp3, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
+typedef char * query_func (char * inp1, char * inp2, char * inp3, UserData *userData, DriverData *, RidesData *ridesData);
 
 #endif

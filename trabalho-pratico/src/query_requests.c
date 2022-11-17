@@ -27,11 +27,11 @@ int writeResults (int commandN, char * strResult) {
     return 0;
 }
 
-char * NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverStruct *driverData[], RidesData *ridesData) {
+char * NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverData * DriverData, RidesData *ridesData) {
 	return NULL;
 }
 
-int queryRequests (FILE * fp, UserData *userData, DriverStruct *driverData[], RidesData *ridesData) {
+int queryRequests (FILE * fp, UserData *userData, DriverData * driverData, RidesData *ridesData) {
 	query_func * queryList[9] = {query_1, query_2, NOP, query_4, NOP, NOP, NOP, NOP, NOP};
     char * strBuffer = malloc(sizeof(char)*LINE_SIZE); // buffer de cada linha lida
     char * querryResult = NULL; // pointer para a string resultante de cada querry

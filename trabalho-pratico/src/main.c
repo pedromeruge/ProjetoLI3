@@ -19,9 +19,9 @@ int main (int argc, char **argv) {
 
 	DATA users = getUserData(files[0]);
 	
-	DATA drivers = getDriverData(files[1]);
+	DriverData * drivers = getDriverData(files[1]);
 
-	DATA rides = getRidesData(files[2]);
+	RidesData * rides = getRidesData(files[2]);
 	
 	int ret = queryRequests(files[3], users, drivers, rides);
     if (ret) {
@@ -35,7 +35,7 @@ int main (int argc, char **argv) {
 	fclose(files[3]);
 
 	freeUserData(users);
-	freeDriverData(drivers);
+	//freeDriverData(drivers);
 	freeRidesData(rides);
 	free(files);
 

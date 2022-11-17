@@ -10,21 +10,20 @@ typedef struct CityRides CityRides;
 
 typedef struct RidesStruct RidesStruct;
 
-typedef struct {
-	RidesStruct **ridesArray;
-	GHashTable *cityTable;
-} RidesData;
+typedef struct RidesData RidesData; // devia ser encoberto?? 
 
 DATA getRidesData(FILE *ptr); // retorna a estrutura de dados de rides 
 void freeRidesData(DATA data);  // limpa a estrutura das rides
+
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
 // RidesStruct * getRideByDriver(DATA data, int driver); // not implemented
 CityRides * getRidesByCity(RidesData *data, char *city); // devolve todas as rides associadas a uma cidade
 guint getNumberOfCityRides(CityRides *rides); // devolve o número de rides para uma cidade
 RidesStruct * getCityRidesByID(CityRides *rides, guint ID); // devolve uma ride de uma cidade
 
+//função para aceder ao array das rides
 // funções para aceder a informações individuais das rides
-RidesStruct * getRidePtrByID(DATA data, guint ID); // devolve a struct com toda a informação de uma ride
+RidesStruct * getRidePtrByID(RidesData * data, guint ID); // devolve a struct com toda a informação de uma ride
 char * getRideDate(RidesStruct *); 
 short int getRideDriver(RidesStruct *);
 char * getRideUser(RidesStruct *);

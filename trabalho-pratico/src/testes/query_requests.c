@@ -12,7 +12,7 @@
 #define PATH_SIZE 64
 #define TEST_PATH "exemplos_de_queries/tests_1/command%d_output.txt"
 
-char * query_not_implemented(char *trash0, char *trash1, char *trash2, UserData *userData, DriverStruct *driverData[], RidesData *ridesData) {
+char * query_not_implemented(char *trash0, char *trash1, char *trash2, UserData *userData, DriverData * DriverData, RidesData *ridesData) {
 	fprintf(stderr, "ERROR: querry not implemented\n");
 	return NULL;
 }

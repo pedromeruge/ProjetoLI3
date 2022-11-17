@@ -5,8 +5,8 @@
 
 gint compareRidesByDate(gconstpointer a, gconstpointer b);
 void *sortCity(void *data);
-
 RidesStruct *getRides(FILE *ptr, GHashTable *cityTable);
+
 struct RidesStruct
 {
 	char *date;
@@ -24,6 +24,11 @@ struct CityRides
 {
 	GPtrArray *array;
 	guint len;
+}; // array ja tem len embutido, no need?
+
+struct RidesData {
+	RidesStruct **ridesArray;
+	GHashTable *cityTable;
 };
 
 gint compareRidesByDate(gconstpointer a, gconstpointer b);
@@ -155,11 +160,12 @@ void freeRidesData(DATA data)
 }
 
 // devolve a struct(dados) associada à ride número i
-RidesStruct *getRidePtrByID(DATA data, guint ID)
+RidesStruct *getRidePtrByID(RidesData * data, guint ID)
 {
 	ID -= 1; // para o primeiro passar a ser 0
 	int i = ID / RIDES_ARR_SIZE;
-	RidesStruct **primaryArray = data,
+
+	RidesStruct **primaryArray = data->ridesArray,
 				*secondaryArray = primaryArray[i],
 				*result = &(secondaryArray[ID - SIZE * i]);
 	return result;

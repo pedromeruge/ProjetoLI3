@@ -5,6 +5,6 @@
 #include "driverdata.h"
 #include "userdata.h"
 
-char * query_2(char *, char *, char *, UserData *userData, DriverStruct *driverData[], RidesData *ridesData);
+char * query_2(char *, char *, char *, UserData *, DriverData *, RidesData *);
 
 #endif

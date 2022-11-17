@@ -17,6 +17,11 @@ struct DriverStruct
 	unsigned char status;
 };
 
+struct DriverData {
+	DriverStruct ** driverArray;
+	// capacidade para expandir no futuro, se for preciso
+};
+
 DriverStruct *getDrivers(FILE *ptr)
 {
 	int i, tempchr, count, chr;
@@ -60,27 +65,28 @@ DriverStruct *getDrivers(FILE *ptr)
 	return driverStructArray;
 }
 
-DATA getDriverData(FILE *ptr)
+DriverData * getDriverData(FILE *ptr)
 {
-	DriverStruct **driverData = malloc(DRIVER_ARR_SIZE * sizeof(DriverStruct *));
-
+	DriverData * newDriverData = malloc(sizeof(DriverData));
+	DriverStruct ** driverarray = malloc(DRIVER_ARR_SIZE * sizeof(DriverStruct *));
 	int i;
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
 	for (i = 0; i < DRIVER_ARR_SIZE; i++)
-		driverData[i] = getDrivers(ptr);
+		driverarray[i] = getDrivers(ptr);
 
-	return driverData;
+	newDriverData->driverArray = driverarray;
+	return newDriverData;
 }
 
-void freeDriverData(DATA data)
+void freeDriverData(DriverData * data)
 {
-	DriverStruct **driverData = data;
+	DriverStruct ** driverarray = data->driverArray;
 	int i, j;
 	DriverStruct *segment, block;
 	for (i = 0; i < DRIVER_ARR_SIZE; i++)
 	{
-		segment = driverData[i];
+		segment = driverarray[i];
 		for (j = 0; j < SIZE; j++)
 		{
 			block = segment[j];
@@ -92,16 +98,17 @@ void freeDriverData(DATA data)
 		}
 		free(segment);
 	}
-	free(driverData);
+	free(driverarray);
+	free(data);
 }
 
 // devolve a struct(dados) associada ao driver número i
-DriverStruct *getDriverPtrByID(DATA data, short int ID)
+DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
 {
 	ID -= 1;
 	int i = ID / SIZE;
-	DriverStruct **primaryArray = data,
-				 *secondaryArray = primaryArray[i],
+	DriverStruct ** primaryArray = data->driverArray;
+	DriverStruct *secondaryArray = primaryArray[i],
 				 *result = &(secondaryArray[ID - SIZE * i]);
 	return result;
 }
