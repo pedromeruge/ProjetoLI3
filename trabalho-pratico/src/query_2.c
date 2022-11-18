@@ -25,8 +25,8 @@ static void freeRidesRating (void * drivesRating) {
 //concatena n linhas com os resultados, para dar return da query_2
 static char * strResults(GPtrArray * driverRatingArray, int N, DriverData *driverData) {
     short int i, driverNumber;
-    char * result = malloc(sizeof(char)*STR_BUFF_SIZE*N);
-    char * temp = NULL;
+	char * result = calloc(N*STR_BUFF_SIZE, sizeof(char));
+    char temp[STR_BUFF_SIZE];
     DriverStruct * currentDriver = NULL;
     driverRatingInfo * currentArrayStruct = NULL;
     int arrayLen = driverRatingArray->len;
@@ -34,10 +34,11 @@ static char * strResults(GPtrArray * driverRatingArray, int N, DriverData *drive
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
         driverNumber = currentArrayStruct->driverNumber;
         currentDriver = getDriverPtrByID(driverData,driverNumber);
-        temp = malloc(STR_BUFF_SIZE);
-        snprintf(temp,STR_BUFF_SIZE,"%012d;%s;%.3f\n",driverNumber,getDriverName(currentDriver),*(float *)currentArrayStruct->ratingChart);
+        snprintf(temp,STR_BUFF_SIZE,"%0*d;%s;%.3f\n", 12, driverNumber,getDriverName(currentDriver),*(float *)currentArrayStruct->ratingChart);
+		// printf("temp:%s\n", temp);
         strncat(result,temp,STR_BUFF_SIZE);
     }
+	// printf("result %s\n", result);
     return result;
 } 
 

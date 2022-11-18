@@ -58,11 +58,24 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
 
         // mais rápido assim ou fazer só sscanf com vários ifs para cada query??
         temp = strBuffer;
-        for (j = 0; j < 4 && (strHolder = strsep(&strBuffer, " ")); j++)
+		
+		
+		// for safety in case strings are unititialized
+        // this only impacts debug printf
+		// ... = {NULL} doesnt work???
+		tempsegstr[0] = NULL;
+		tempsegstr[1] = NULL;
+		tempsegstr[2] = NULL;
+		tempsegstr[3] = NULL;
+		
+		
+		for (j = 0; j < 4 && (strHolder = strsep(&strBuffer, " ")); j++)
         { // j<4 por segurança
             tempsegstr[j] = strHolder;
         }
         strBuffer = temp;
+
+
 
         fprintf(stderr, "command (%d), query |%d| input first segment: <%.16s> <%.16s> <%.16s>\n",commandN,(*tempsegstr[0]) - 49 + 1,tempsegstr[1],tempsegstr[2],tempsegstr[3]);
 

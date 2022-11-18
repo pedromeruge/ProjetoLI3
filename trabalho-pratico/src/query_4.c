@@ -29,7 +29,7 @@ char *query_4(char *city, char *trash1, char *trash2, UserData *userData, Driver
 	//  Green: Tarifa mínima = 4.00€ + 0.79€/km
 	//  Premium: Tarifa mínima = 5.20€ + 0.94€/km
 
-	float cost = (numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94) / len;
+	double cost = ((double)(numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94)) / (double)len;
 
 	char *resultTruncated = malloc(STR_BUFF_SIZE * sizeof(char));
 	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", cost);
