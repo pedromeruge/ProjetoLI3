@@ -52,7 +52,7 @@
 //     printf(final_year);
 // }
 
-char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, DriverData * driverData, RidesData *ridesData)
+char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, DriverData *driverData, RidesData *ridesData)
 {
     int numero;
     if ((numero = atoi(idstr)) != 0)
@@ -60,15 +60,15 @@ char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, Drive
         DriverStruct *driverInf = getDriverPtrByID(driverData, numero);
         char *d_name = getDriverName(driverInf);
         char *driverResult = malloc(STR_BUFF_SIZE * sizeof(char));
-        snprintf(driverResult, STR_BUFF_SIZE, "%s,%c\n", d_name, getDriverGender(driverInf));
+        snprintf(driverResult, STR_BUFF_SIZE, "%s;%c\n", d_name, getDriverGender(driverInf));
         free(d_name);
         return driverResult;
     }
     else
     {
-        UserStruct *userInf = getUserPtrByUsername(userData,idstr);
+        UserStruct *userInf = getUserPtrByUsername(userData, idstr);
         char *userResult = malloc(STR_BUFF_SIZE * sizeof(char));
-        snprintf(userResult, STR_BUFF_SIZE, "%s,%c\n", getUserName(userInf), getUserGender(userInf));
+        snprintf(userResult, STR_BUFF_SIZE, "%s;%c\n", getUserName(userInf), getUserGender(userInf));
         return userResult;
     }
 }
