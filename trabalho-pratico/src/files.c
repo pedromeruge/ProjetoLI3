@@ -8,11 +8,15 @@ FILE **open_cmdfiles(char **argv)
 
 	char *dataFolderName = argv[1];
 	char *queryFileName = argv[2];
-	printf("1º arg:<%s> 2ºarg: <%s>\n", dataFolderName, queryFileName);
+
+	fprintf(stderr,"1º arg:<%s> 2ºarg: <%s>\n", dataFolderName, queryFileName);
+	
 	char fileName[FILEPATH_SIZE]; // buffer para o nome de cada ficheiro de input a abrir
 	strcpy(fileName, dataFolderName);
 	strcat(fileName, "/users.csv");
-	printf("filename: <%s>\n", fileName);
+
+	fprintf(stderr,"filename: <%s>\n", fileName);
+
 	FILE *ptr1 = fopen(fileName, "r");
 	if (!ptr1)
 	{
@@ -22,7 +26,9 @@ FILE **open_cmdfiles(char **argv)
 
 	strcpy(fileName, dataFolderName);
 	strcat(fileName, "/drivers.csv");
-	printf("filename: <%s>\n", fileName);
+
+	fprintf(stderr,"filename: <%s>\n", fileName);
+
 	FILE *ptr2 = fopen(fileName, "r");
 	if (!ptr2)
 	{

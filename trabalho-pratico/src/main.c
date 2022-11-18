@@ -25,7 +25,7 @@ int main (int argc, char **argv) {
 	
 	int ret = queryRequests(files[3], users, drivers, rides);
     if (ret) {
-    	fprintf(stderr, "Error reading query requests");
+    	fprintf(stderr, "Error reading query requests, return value: %d\n",ret);
         return 2;
     }
 

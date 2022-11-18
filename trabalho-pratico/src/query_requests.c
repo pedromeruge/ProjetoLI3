@@ -15,16 +15,19 @@ int writeResults(int commandN, char *strResult)
     char resultPath[64];
     snprintf(resultPath, 64, TEST_PATH, commandN);
 
+    fprintf(stderr, "command (%d), file output NULL?: [%d]\n",commandN,strResult == NULL);
+
     FILE *fpout = fopen(resultPath, "w");
     if (!fpout)
     {
-        perror("Unable to open/create output file");
+        fprintf(stderr,"Open/create output file error, path: %s\n", resultPath);
         return 1;
     }
     if (strResult)
         ret1 = fputs(strResult, fpout); // para nao dar erro se a string for vazia
     if (ret1 == EOF)
     { // caso ficheiro não abra
+        fprintf(stderr, "Write on output file error\n");
         return 2;
     }
     fclose(fpout);
@@ -60,6 +63,8 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
             tempsegstr[j] = strHolder;
         }
         strBuffer = temp;
+
+        fprintf(stderr, "command (%d), query |%d| input: <%s> <%s> <%s>\n",commandN,(*tempsegstr[0]) - 49 + 1,tempsegstr[1],tempsegstr[2],tempsegstr[3]);
 
         querryResult = queryList[(*tempsegstr[0]) - 49](tempsegstr[1], tempsegstr[2], tempsegstr[3], userData, driverData, ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
         writeRet = writeResults(commandN, querryResult);
