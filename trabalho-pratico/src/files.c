@@ -9,8 +9,8 @@ FILE **open_cmdfiles(char **argv)
 	char *dataFolderName = argv[1];
 	char *queryFileName = argv[2];
 
-	fprintf(stderr,"1º arg:<%s> 2ºarg: <%s>\n", dataFolderName, queryFileName);
-	
+	fprintf(stderr,"exec-path: <%s>, 1º arg:<%s> 2ºarg: <%s>\n", argv[0], dataFolderName, queryFileName);
+
 	char fileName[FILEPATH_SIZE]; // buffer para o nome de cada ficheiro de input a abrir
 	strcpy(fileName, dataFolderName);
 	strcat(fileName, "/users.csv");
