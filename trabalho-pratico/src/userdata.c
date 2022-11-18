@@ -1,18 +1,43 @@
 #include "userdata.h"
 
 #define LINES 100000
+#define USER_STR_BUFF 32
 
-DATA getUserData(FILE *ptr)
+struct UserStruct{
+	// char *username;
+	char *name;
+	unsigned char gender;
+	char *birthdate;
+	char *accountCreation;
+	unsigned char payMethod;
+	unsigned char status;
+};
+
+struct UserData 
+{
+	GHashTable *table;
+};
+
+void freeTableData(void *userData)
+{
+	UserStruct *data = userData;
+	free(data->name);
+	free(data->birthdate);
+	free(data->accountCreation);
+	free(data);
+}
+
+UserData * getUserData(FILE *ptr)
 {
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha
 	int line;
 	char *username, tempchr;
-	Userstruct *userstruct;
+	UserStruct *userstruct;
 	GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, free, freeTableData); /////// NOT FREE
 	for (line = 0; line < LINES; line++)
 	{
-		userstruct = malloc(sizeof(Userstruct));
+		userstruct = malloc(sizeof(UserStruct));
 		username = loadString(ptr);
 		userstruct->name = loadString(ptr);
 		userstruct->gender = fgetc(ptr);
@@ -41,19 +66,39 @@ DATA getUserData(FILE *ptr)
 	return data;
 }
 
-void freeTableData(void *userData)
-{
-	Userstruct *data = userData;
-	free(data->name);
-	free(data->birthdate);
-	free(data->accountCreation);
-	free(data);
+UserStruct * getUserPtrByUsername(UserData * data, char * name) {
+	GHashTable *table = data->table;
+	UserStruct * result = malloc(sizeof(UserStruct));
+	*result = *(UserStruct *) (g_hash_table_lookup(table,name));
+	return result;
 }
 
-void freeUserData(DATA userdata)
-{
-	UserData * data = (UserData *) userdata;
-	g_hash_table_destroy(data->table);
-	free(data);
+char * getUserName (UserStruct * data) {
+	return strndup(data->name,USER_STR_BUFF);
 }
 
+unsigned char getUserGender(UserStruct * data) {
+	return(data->gender);
+}
+
+char * getUserBirthdate(UserStruct* data) {
+	return strndup(data->birthdate,USER_STR_BUFF);
+}
+
+char * getUserAccCreation (UserStruct * data) {
+	return strndup(data->accountCreation,USER_STR_BUFF);
+}
+
+unsigned char getUserPayMethod(UserStruct * data) {
+	return (data->payMethod);
+}
+
+unsigned char getUserStatus (UserStruct * data) {
+	return (data->status);
+}
+
+void freeUserData(UserData * userData)
+{
+	g_hash_table_destroy(userData->table);
+	free(userData);
+}

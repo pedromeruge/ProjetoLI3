@@ -3,8 +3,9 @@
 #include "userdata.h"
 #include "driverdata.h"
 #include "ridesData.h"
-//#include "query2.c"
-//#include "query3.c"
+#include "query_1.h"
+#include "query_2.h"
+//#include "query3.h"
 #include "query_4.h"
 //#include "query5.c"
 #include "query_6.h"
@@ -16,8 +17,6 @@
 
 
 // isto devia tar definido nos .h de cada querry
-char * query_1 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
-char * query_2 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 char * query_3 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
 
 char * query_5 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);

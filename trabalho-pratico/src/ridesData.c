@@ -23,7 +23,7 @@ struct RidesStruct
 struct CityRides
 {
 	GPtrArray *array;
-}; // array ja tem len embutido, no need?
+}; 
 
 struct RidesData {
 	RidesStruct **ridesArray;
@@ -158,18 +158,6 @@ void freeRidesData(DATA data)
 	free(dataStruct);
 }
 
-// devolve a struct(dados) associada à ride número i
-RidesStruct *getRidePtrByID(RidesData * data, guint ID)
-{
-	ID -= 1; // para o primeiro passar a ser 0
-	int i = ID / RIDES_ARR_SIZE;
-
-	RidesStruct **primaryArray = data->ridesArray,
-				*secondaryArray = primaryArray[i],
-				*result = &(secondaryArray[ID - SIZE * i]);
-	return result;
-}
-
 void freeArray(void *data)
 {
 	GPtrArray *array = (GPtrArray *)data;
@@ -210,6 +198,18 @@ guint getNumberOfCityRides(CityRides *rides)
 RidesStruct *getCityRidesByIndex(CityRides *rides, guint ID)
 {
 	return (RidesStruct *)g_ptr_array_index(rides->array, (int)ID);
+}
+
+// devolve a struct(dados) associada à ride número i
+RidesStruct *getRidePtrByID(RidesData * data, guint ID)
+{
+	ID -= 1; // para o primeiro passar a ser 0
+	int i = ID / RIDES_ARR_SIZE;
+
+	RidesStruct **primaryArray = data->ridesArray,
+				*secondaryArray = primaryArray[i],
+				*result = &(secondaryArray[ID - SIZE * i]);
+	return result;
 }
 
 char *getRideDate(RidesStruct *ride)

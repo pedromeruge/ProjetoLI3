@@ -4,8 +4,9 @@
 #include "userdata.h"
 #include "driverdata.h"
 #include "ridesData.h"
+#include "query_1.h"
 
-#define STR_BUFF_SIZE 16
+#define STR_BUFF_SIZE 64
 
 // void user_age(char *idstr, UserData *userData)
 // {
@@ -59,15 +60,15 @@ char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, Drive
         DriverStruct *driverInf = getDriverPtrByID(driverData, numero);
         char *d_name = getDriverName(driverInf);
         char *driverResult = malloc(STR_BUFF_SIZE * sizeof(char));
-        snprintf(driverResult, STR_BUFF_SIZE, "%s,%c", d_name, getDriverGender(driverInf));
+        snprintf(driverResult, STR_BUFF_SIZE, "%s,%c\n", d_name, getDriverGender(driverInf));
         free(d_name);
         return driverResult;
     }
     else
     {
-        Userstruct *userInf = (Userstruct *)g_hash_table_lookup(userData->table, idstr);
+        UserStruct *userInf = getUserPtrByUsername(userData,idstr);
         char *userResult = malloc(STR_BUFF_SIZE * sizeof(char));
-        snprintf(userResult, STR_BUFF_SIZE, "%s,%c", userInf->name, userInf->gender);
+        snprintf(userResult, STR_BUFF_SIZE, "%s,%c\n", getUserName(userInf), getUserGender(userInf));
         return userResult;
     }
 }

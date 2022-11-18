@@ -57,7 +57,6 @@ static gint sort_byRatings (gconstpointer a, gconstpointer b) {
     const driverRatingInfo * driver2 = *(driverRatingInfo **) b;
     float drv2Rating = *(float *)driver2->ratingChart;
     float diff = drv1Rating - drv2Rating;
-    //printf("drv1Rating: %f drv2Rating: %f diff %f",drv1Rating,drv2Rating,diff);
     gint result = diff * 10000; // suponho três casas decimais de precisão no máximo (10^3~1024)
     if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
         result = compDates(driver1->mostRecRideDate,driver2->mostRecRideDate);
@@ -73,12 +72,10 @@ static GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
     unsigned int * ratings = NULL;
     driverRatingInfo * currentArrayStruct = NULL;
     for (i = 0;i<arraySize;i++) {
-        //printf("iteration: %d\n",i);
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
         if (currentArrayStruct) {
             ratings = (unsigned int *) currentArrayStruct->ratingChart;
             avgRating = 0;
-            //printf(">driver: %d, mostrecridedate: %s, ratings: %d %d %d %d %d\n",currentArrayStruct->driverNumber,currentArrayStruct->mostRecRideDate,ratings[0],ratings[1],ratings[2],ratings[3],ratings[4]);
             unsigned int numRatings = 0;
             int j;
             for (j=0;j<5;j++) {
@@ -90,9 +87,7 @@ static GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
             currentArrayStruct->ratingChart = malloc(sizeof(float));
             *(float *)(currentArrayStruct->ratingChart) = avgRating;
             currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
-            //printf(">>driver: %d, mostrecridedate: %s, frating: %f\n",currentArrayStruct->driverNumber,currentArrayStruct->mostRecRideDate,*(float *)(currentArrayStruct->ratingChart));
-        }
-        else{ // caso não haja informação do driver em rides (driver não ativo)
+        } else{ // caso não haja informação do driver em rides (driver não ativo)
             driverRatingInfo * newStruct = malloc(sizeof(driverRatingInfo));
             newStruct->ratingChart = malloc(sizeof(float));
             * (float *) (newStruct->ratingChart) = 0;
@@ -100,7 +95,6 @@ static GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
             newStruct->mostRecRideDate = NULL; // não será usado
             g_ptr_array_index(driverRatingArray, i) = newStruct;
             currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i); 
-            //printf(">EMPTY: driver: %d, mostrecridedate: %s, frating: %f\n",currentArrayStruct->driverNumber,currentArrayStruct->mostRecRideDate,*(float *) (currentArrayStruct->ratingChart));
         }
     }
     return driverRatingArray;
@@ -130,15 +124,11 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
             currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, driverNumber-1); 
         }
         else if (driverStatus == 1) { // se já existir informação de um driver (de rides prévias); supõe-se que tem estado ativo
-            // printf("<<< entrou no else if\n");
-            // printf("\nrepetição aqui\n\n");
             ((unsigned int *) currentArrayStruct->ratingChart)[getRideScore_d(currentRide)-1] += 1; // dependendo da avaliação na ride atual, no array ratingChart , incrementa em 1 o número da avalições de valor 1,2,3,4 ou 5. 
             if (compDates(getRideDate(currentRide),currentArrayStruct->mostRecRideDate) >= 0) {
                 currentArrayStruct->mostRecRideDate = getRideDate(currentRide);
             }
-            // printf(">>>|||ridedriver:%d\n", currentRide->driver);
             currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, driverNumber-1); 
-            // printf("driver various ratings: %d %d %d %d %d; saved ride date: %s\n\n",((unsigned int *) currentArrayStruct->ratingChart)[0],((unsigned int *) currentArrayStruct->ratingChart)[1],((unsigned int *) currentArrayStruct->ratingChart)[2],((unsigned int *) currentArrayStruct->ratingChart)[3],((unsigned int *) currentArrayStruct->ratingChart)[4], currentArrayStruct->mostRecRideDate);
         }
     }
     //função de calcular a média de ratings para cada driver ; insere nodos com rating 0, para riders que não aparecem no ficheiro rides.csv
@@ -149,12 +139,7 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
     char * result = strResults(driverRatingArray,number[0]-48, driverData);
 
     g_ptr_array_set_free_func(driverRatingArray, (GDestroyNotify) freeRidesRating);
-    // //para debug
-    // for (i=0;i<driversNumber;i++) {
-    //     currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
-    //     //printf("driver rating:%.5f most recent ride: %s driver number: %d\n", *(float *) currentArrayStruct->ratingChart, currentArrayStruct->mostRecRideDate, currentArrayStruct->driverNumber);
-    //     }
-   
+
     // NOTA: query 3 é indentica a função query_2 mas usa outros valores e outra compare func. Fazer um ptr_array com toda a informação e ordená-lo segundo a função dada talvez??
     // NOTA: a maior parte das funções de queries resume-se a "n primeiros" e "valores médios" apenas variando os parâmetros de comparação e o abrangimento dos dados de input. Estas funções mais básicas devem ser capazes de receber diferentes categorias (mais ou menos restritas) de dados e ordená-las com base nos parâmetros dados
     // NOTA: no modo interativo pode ser preciso chamar a mesma função vºarias vezes, guardar as estruturas resultantes da primeira vez que a querry é usada e reutiliza-los das vezes seguintes
