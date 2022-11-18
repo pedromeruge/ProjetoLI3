@@ -25,7 +25,8 @@ static void freeRidesRating (void * drivesRating) {
 //concatena n linhas com os resultados, para dar return da query_2
 static char * strResults(GPtrArray * driverRatingArray, int N, DriverData *driverData) {
     short int i, driverNumber;
-	char * result = calloc(N*STR_BUFF_SIZE, sizeof(char));
+	char * result = malloc( N * STR_BUFF_SIZE * sizeof(char));
+    result[0] = '\0';
     char temp[STR_BUFF_SIZE];
     DriverStruct * currentDriver = NULL;
     driverRatingInfo * currentArrayStruct = NULL;
@@ -34,8 +35,7 @@ static char * strResults(GPtrArray * driverRatingArray, int N, DriverData *drive
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
         driverNumber = currentArrayStruct->driverNumber;
         currentDriver = getDriverPtrByID(driverData,driverNumber);
-        snprintf(temp,STR_BUFF_SIZE,"%0*d;%s;%.3f\n", 12, driverNumber,getDriverName(currentDriver),*(float *)currentArrayStruct->ratingChart);
-		// printf("temp:%s\n", temp);
+        snprintf(temp,STR_BUFF_SIZE,"%0*d;%s;%.3f\n", 12, driverNumber,getDriverName(currentDriver),*(double *)currentArrayStruct->ratingChart);
         strncat(result,temp,STR_BUFF_SIZE);
     }
 	// printf("result %s\n", result);
@@ -54,12 +54,14 @@ static driverRatingInfo * newDriverRating (char * rideDate, short int driverNumb
 
 static gint sort_byRatings (gconstpointer a, gconstpointer b) {
     const driverRatingInfo * driver1 = *(driverRatingInfo **) a;
-    float drv1Rating = *(float *)driver1->ratingChart;
+    double drv1Rating = *(double *)driver1->ratingChart;
     const driverRatingInfo * driver2 = *(driverRatingInfo **) b;
-    float drv2Rating = *(float *)driver2->ratingChart;
-    float diff = drv1Rating - drv2Rating;
-    gint result = diff * 10000; // suponho três casas decimais de precisão no máximo (10^3~1024)
-    if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
+    double drv2Rating = *(double *)driver2->ratingChart;
+    double diff = drv1Rating - drv2Rating;
+    gint result = 0;
+    if (diff > 0) result = 1;
+    else if (diff <0) result = -1;
+    else if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
         result = compDates(driver1->mostRecRideDate,driver2->mostRecRideDate);
         if (!result) 
             result = driver1->driverNumber - driver2->driverNumber;
@@ -69,15 +71,16 @@ static gint sort_byRatings (gconstpointer a, gconstpointer b) {
 
 static GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
     int i;
-    float avgRating = 0;
-    unsigned int * ratings = NULL;
+    double avgRating = 0;
+    unsigned int * ratings = NULL,
+                   numRatings = 0;
     driverRatingInfo * currentArrayStruct = NULL;
     for (i = 0;i<arraySize;i++) {
         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
         if (currentArrayStruct) {
             ratings = (unsigned int *) currentArrayStruct->ratingChart;
             avgRating = 0;
-            unsigned int numRatings = 0;
+            numRatings = 0;
             int j;
             for (j=0;j<5;j++) {
                 avgRating += ratings[j]*(j+1);
@@ -85,13 +88,13 @@ static GPtrArray * sumRatings (GPtrArray * driverRatingArray, gint arraySize) {
             }
             avgRating /= numRatings;
             free(ratings);
-            currentArrayStruct->ratingChart = malloc(sizeof(float));
-            *(float *)(currentArrayStruct->ratingChart) = avgRating;
+            currentArrayStruct->ratingChart = malloc(sizeof(double));
+            *(double *)(currentArrayStruct->ratingChart) = avgRating;
             currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray, i);
         } else{ // caso não haja informação do driver em rides (driver não ativo)
             driverRatingInfo * newStruct = malloc(sizeof(driverRatingInfo));
-            newStruct->ratingChart = malloc(sizeof(float));
-            * (float *) (newStruct->ratingChart) = 0;
+            newStruct->ratingChart = malloc(sizeof(double));
+            * (double *) (newStruct->ratingChart) = 0;
             newStruct->driverNumber = (short int) (i+1);
             newStruct->mostRecRideDate = NULL; // não será usado
             g_ptr_array_index(driverRatingArray, i) = newStruct;
@@ -137,7 +140,7 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
 
     g_ptr_array_sort(driverRatingArray,sort_byRatings);
 
-    char * result = strResults(driverRatingArray,number[0]-48, driverData);
+    char * result = strResults(driverRatingArray,atoi(number), driverData);
 
     g_ptr_array_set_free_func(driverRatingArray, (GDestroyNotify) freeRidesRating);
 

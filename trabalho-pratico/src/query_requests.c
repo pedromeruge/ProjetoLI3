@@ -68,7 +68,6 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
 		tempsegstr[2] = NULL;
 		tempsegstr[3] = NULL;
 		
-		
 		for (j = 0; j < 4 && (strHolder = strsep(&strBuffer, " ")); j++)
         { // j<4 por segurança
             tempsegstr[j] = strHolder;
