@@ -35,7 +35,7 @@ void freeArray(void *data);
 
 void *sortCity(void *data)
 {
-	GPtrArray *array = *(GPtrArray **)data;
+	GPtrArray *array = (GPtrArray *)data;
 	g_ptr_array_sort(array, compareRidesByDate);
 	g_thread_exit(NULL);
 	return NULL;
@@ -65,7 +65,7 @@ DATA getRidesData(FILE *ptr)
 	g_hash_table_iter_init (&iter, cityTable);
 	for (i = 0; g_hash_table_iter_next (&iter, &key, &value); i++)
 	{
-		threads[i] = g_thread_new(NULL, sortCity, &value);
+		threads[i] = g_thread_new(NULL, sortCity, value);
 		// sortCity(&args[i]);
 	}
 
