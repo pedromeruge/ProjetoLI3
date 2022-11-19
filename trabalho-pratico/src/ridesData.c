@@ -2,7 +2,6 @@
 
 #define SIZE 1000
 #define RIDE_STR_BUFF 32
-
 gint compareRidesByDate(gconstpointer a, gconstpointer b);
 void *sortCity(void *data);
 RidesStruct *getRides(FILE *ptr, GHashTable *cityTable);
@@ -56,21 +55,23 @@ DATA getRidesData(FILE *ptr)
 	data->ridesArray = ridesData;
 	data->cityTable = cityTable;
 
-	// MUDAR ISTO PARA ITERATOR SOBRE A HASHTABLE !!!!!!!!!!!!!!!!!!!!!!!!!!
-	guint len;
-	const gchar **cities = (const gchar **)g_hash_table_get_keys_as_array(cityTable, &len);
-	GThread *threads[len];
-	gpointer args[len];
 
-	for (i = 0; i < (const int)len; i++)
+	// tentei usar GThreadPool, desisti
+	guint num_keys = g_hash_table_size(cityTable);
+	GThread *threads[num_keys];
+
+	GHashTableIter iter;
+	gpointer key, value;
+	g_hash_table_iter_init (&iter, cityTable);
+	for (i = 0; g_hash_table_iter_next (&iter, &key, &value); i++)
 	{
-		args[i] = g_hash_table_lookup(cityTable, cities[i]);
-		threads[i] = g_thread_new(NULL, sortCity, &args[i]);
+		threads[i] = g_thread_new(NULL, sortCity, &value);
 		// sortCity(&args[i]);
 	}
-	for (i = 0; i < (const int)len; i++)
+
+	for (i = 0; i < (int)num_keys; i++) {
 		g_thread_join(threads[i]);
-	free(cities);
+	}
 
 	return data;
 }

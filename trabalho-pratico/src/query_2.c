@@ -115,6 +115,8 @@ static GPtrArray * sumRatings (GPtrArray * driverRatingArray) {
 
 //TODO: free dos elementos do g_ptr_array
 char * query_2 (char * number, char * trash1, char * trash2, UserData *userData, DriverData * driverData, RidesData *ridesData) {
+	int num = atoi(number);
+	if (num == 0) return NULL;
     int i,driverStatus = 0;
     short int driverNumber = 0, scoreD = 0;
     int driversNumber = DRIVER_ARR_SIZE * SIZE;
@@ -157,7 +159,7 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
 
     g_ptr_array_sort(driverRatingArray,sort_byRatings);
 
-    char * result = strResults(driverRatingArray,atoi(number), driverData);
+    char * result = strResults(driverRatingArray,num, driverData);
 
     g_ptr_array_free(driverRatingArray, TRUE);
 

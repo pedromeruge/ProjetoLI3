@@ -34,23 +34,13 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 	// codigo emprestado de https://www.codewithc.com/c-program-for-linear-exponential-curve-fitting/
 	// https://blog.mbedded.ninja/mathematics/curve-fitting/linear-curve-fitting/
 	
-	long double y, sumy=0,sumxy=0, m, b;
-	long int sumx=0, sumx2=0;
+	long double y, sumy=0,sumxy=0, m, b, firsty = 0;
+	long int sumx=0, sumx2=0, firstx = 0;
 
-	// acho que do while nao dava por causa do N
-	clock_gettime(CLOCK_REALTIME, &start);
-	snprintf(str, 16, "%d", 0);
+	//warmup cache ?????
+	snprintf(str, 16, "%d", 1);
 	res = query_2(str, NULL, NULL, userData, driverData, ridesData);
 	free(res);
-	clock_gettime(CLOCK_REALTIME, &finish);
-	sub_timespec(start, finish, &delta);
-	snprintf(buff, 16, "%d.%ld", (int)delta.tv_sec, delta.tv_nsec);
-	sscanf(buff, "%Lf", &y);
-	sumx += N;
-	sumy += y;
-	sumx2 += N*N;
-	sumxy += N*y;
-	b = y;
 
 	for (total = 1; sec < 10 && N < NUMBER_OF_DRIVERS; total++) {
 		clock_gettime(CLOCK_REALTIME, &start);
@@ -60,25 +50,45 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 		clock_gettime(CLOCK_REALTIME, &finish);
 		sub_timespec(start, finish, &delta);
 		sec = (int)delta.tv_sec;
+		// printf("%d Took %d.%.9ld seconds for N=%d\n", i, (int)delta.tv_sec, delta.tv_nsec, N);
 		snprintf(buff, 16, "%d.%ld", (int)delta.tv_sec, delta.tv_nsec);
 		sscanf(buff, "%Lf", &y);
+		printf("x:%d y:%Lf\n", N, y);
 		sumx += N;
 		sumy += y;
 		sumx2 += N*N;
 		sumxy += N*y;
+		if (firsty == 0 && firstx == 0) {
+			firstx = N; firsty = y;
+		}
+		
 		N *= 2;
 	}
 
 	if (sec != 10) {
-		sumxy=sumxy/total;
-		sumx=sumx/total;
-		sumy=sumy/total;
-		sumx2=sumx2/total;
-		m=(sumxy-sumx*sumy)/(sumx2-sumx*sumx);
+		// for(i = 0; i < total; i++) {
+		// 	sumx=sumx +x[i];
+		// 	sumx2=sumx2 +x[i]*x[i];
+		// 	sumy=sumy +y[i];
+		// 	sumxy=sumxy +x[i]*y[i];
+		// }
+		// printf("%ld %ld %lf %lf \n", sumx, sumx2, sumy, sumxy);
+    	m=((total*sumxy-sumx*sumy)*1.0/(total*sumx2-sumx*sumx)*1.0);
+		b=((sumx2*sumy -sumx*sumxy)*1.0/(total*sumx2-sumx*sumx)*1.0);
+		// sumxy=sumxy/total;
+		// sumx=sumx/total;
+		// sumy=sumy/total;
+		// sumx2=sumx2/total;
+		// m=(sumxy-sumx*sumy)/(sumx2-sumx*sumx);
 		
+		// printf("\n\nThe line is Y=%Lf X + (%Lf)\n",m,b);
 		printf("Estimated N for 10 seconds of time taken:%Lf\n", (10.0 - b) / m);
+		printf("Rougher aproximation: %Lf\n", (10*((N/2) - firstx)) / (y - firsty));
 	}
-	else printf("For N=%d, time was %Lf seconds\n", N/2, y);
+
+
+	
+	//printf("Wall clock time:%d.%.9ld\n\n", (int)delta.tv_sec, delta.tv_nsec);
 }
 
 void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
