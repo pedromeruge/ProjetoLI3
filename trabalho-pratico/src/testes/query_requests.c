@@ -34,7 +34,7 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 	// codigo emprestado de https://www.codewithc.com/c-program-for-linear-exponential-curve-fitting/
 	// https://blog.mbedded.ninja/mathematics/curve-fitting/linear-curve-fitting/
 	
-	double y, sumy=0,sumxy=0, m, b;
+	long double y, sumy=0,sumxy=0, m, b;
 	long int sumx=0, sumx2=0;
 
 	// acho que do while nao dava por causa do N
@@ -45,7 +45,7 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 	clock_gettime(CLOCK_REALTIME, &finish);
 	sub_timespec(start, finish, &delta);
 	snprintf(buff, 16, "%d.%ld", (int)delta.tv_sec, delta.tv_nsec);
-	sscanf(buff, "%lf", &y);
+	sscanf(buff, "%Lf", &y);
 	sumx += N;
 	sumy += y;
 	sumx2 += N*N;
@@ -61,7 +61,7 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 		sub_timespec(start, finish, &delta);
 		sec = (int)delta.tv_sec;
 		snprintf(buff, 16, "%d.%ld", (int)delta.tv_sec, delta.tv_nsec);
-		sscanf(buff, "%lf", &y);
+		sscanf(buff, "%Lf", &y);
 		sumx += N;
 		sumy += y;
 		sumx2 += N*N;
@@ -76,9 +76,9 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 		sumx2=sumx2/total;
 		m=(sumxy-sumx*sumy)/(sumx2-sumx*sumx);
 		
-		printf("Estimated N for 10 seconds of time taken:%lf\n", (10.0 - b) / m);
+		printf("Estimated N for 10 seconds of time taken:%Lf\n", (10.0 - b) / m);
 	}
-	else printf("For N=%d, time was %lf seconds\n", N/2, y);
+	else printf("For N=%d, time was %Lf seconds\n", N/2, y);
 }
 
 void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
