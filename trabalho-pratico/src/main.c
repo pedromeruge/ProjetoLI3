@@ -6,8 +6,6 @@
 #include "ridesData.h"
 #include "query_requests.h"
 #include "files.h"
-#include <unistd.h>
-#include <limits.h>
 
 int main (int argc, char **argv) {
     // se não for dado o ficheiro e as querries no terminal - fase 2
@@ -15,14 +13,6 @@ int main (int argc, char **argv) {
         fprintf(stderr, "Modo interativo por implementar!\n");
 		exit(1);
 	}
-	// debug temporário para o path do input
-	char cwd[PATH_MAX];
-   	if (getcwd(cwd, sizeof(cwd)) != NULL) {
-    	printf("Current working dir: %s\n", cwd);
-   	} else {
-    	perror("getcwd() error");
-    	return 1;
-   	}
 
 	//caso seja facultado o ficheiro e as querries no terminal - fase 1
     FILE ** files = open_cmdfiles(argv); // array com pointers para os ficheiros {users,drivers,rides,querries}
@@ -34,6 +24,7 @@ int main (int argc, char **argv) {
 	RidesData * rides = getRidesData(files[2]);
 	
 	int ret = queryRequests(files[3], users, drivers, rides);
+
     if (ret) {
     	fprintf(stderr, "Error reading query requests, return value: %d\n",ret);
         return 2;
@@ -45,7 +36,7 @@ int main (int argc, char **argv) {
 	fclose(files[3]);
 
 	freeUserData(users);
-	//freeDriverData(drivers);
+	freeDriverData(drivers);
 	freeRidesData(rides);
 	free(files);
 

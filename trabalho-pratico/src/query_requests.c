@@ -76,7 +76,7 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
 
 
 
-        fprintf(stderr, "command (%d), query |%d| input first segment: <%.16s> <%.16s> <%.16s>\n",commandN,(*tempsegstr[0]) - 49 + 1,tempsegstr[1],tempsegstr[2],tempsegstr[3]);
+        fprintf(stderr, "command (%d), query |%d| input segments: <%.16s> <%.16s> <%.16s>\n",commandN,(*tempsegstr[0]) - 49 + 1,tempsegstr[1],tempsegstr[2],tempsegstr[3]);
 
         querryResult = queryList[(*tempsegstr[0]) - 49](tempsegstr[1], tempsegstr[2], tempsegstr[3], userData, driverData, ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
         writeRet = writeResults(commandN, querryResult);
