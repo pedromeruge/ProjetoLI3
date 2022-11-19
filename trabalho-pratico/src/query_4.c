@@ -14,7 +14,7 @@ char *query_4(char *city, char *trash1, char *trash2, UserData *userData, Driver
 	unsigned char carClass;
 
 	guint len = getNumberOfCityRides(rides);
-	if (len == 0) return NULL;
+	if (len == 0) { free(rides); return NULL; }
 	short ID;
 	for (i = 0; i < len; i++)
 	{
