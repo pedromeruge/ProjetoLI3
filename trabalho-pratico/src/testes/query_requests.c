@@ -10,11 +10,75 @@
 
 #define LINE_SIZE 128
 #define PATH_SIZE 64
-#define TEST_PATH "exemplos_de_queries/tests_1/command%d_output.txt"
+#define TEST_PATH "exemplos_de_queries/tests_custom/command%d_output.txt"
+
+typedef void q_test_func (UserData* userData, DriverData *driverData, RidesData *ridesData);
 
 char * query_not_implemented(char *trash0, char *trash1, char *trash2, UserData *userData, DriverData * DriverData, RidesData *ridesData) {
 	fprintf(stderr, "ERROR: querry not implemented\n");
 	return NULL;
+}
+
+void q_test_undefined(UserData* userData, DriverData *driverData, RidesData *ridesData) {
+	fprintf(stderr, "Querry not implemented or time does not directly depend on input (but only on data)\n");
+}
+
+void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData) {
+	struct timespec start, finish, delta;
+	int sec = 0, N = 50, total;
+	char str[16], *res, buff[16];
+	int NUMBER_OF_DRIVERS = 10000; // mudar isto!!!!
+
+	//aproximação por linear curve fitting
+
+	// codigo emprestado de https://www.codewithc.com/c-program-for-linear-exponential-curve-fitting/
+	// https://blog.mbedded.ninja/mathematics/curve-fitting/linear-curve-fitting/
+	
+	double y, sumy=0,sumxy=0, m, b;
+	long int sumx=0, sumx2=0;
+
+	// acho que do while nao dava por causa do N
+	clock_gettime(CLOCK_REALTIME, &start);
+	snprintf(str, 16, "%d", 0);
+	res = query_2(str, NULL, NULL, userData, driverData, ridesData);
+	free(res);
+	clock_gettime(CLOCK_REALTIME, &finish);
+	sub_timespec(start, finish, &delta);
+	snprintf(buff, 16, "%d.%ld", (int)delta.tv_sec, delta.tv_nsec);
+	sscanf(buff, "%lf", &y);
+	sumx += N;
+	sumy += y;
+	sumx2 += N*N;
+	sumxy += N*y;
+	b = y;
+
+	for (total = 1; sec < 10 && N < NUMBER_OF_DRIVERS; total++) {
+		clock_gettime(CLOCK_REALTIME, &start);
+		snprintf(str, 16, "%d", N);
+		res = query_2(str, NULL, NULL, userData, driverData, ridesData);
+		free(res);
+		clock_gettime(CLOCK_REALTIME, &finish);
+		sub_timespec(start, finish, &delta);
+		sec = (int)delta.tv_sec;
+		snprintf(buff, 16, "%d.%ld", (int)delta.tv_sec, delta.tv_nsec);
+		sscanf(buff, "%lf", &y);
+		sumx += N;
+		sumy += y;
+		sumx2 += N*N;
+		sumxy += N*y;
+		N *= 2;
+	}
+
+	if (sec != 10) {
+		sumxy=sumxy/total;
+		sumx=sumx/total;
+		sumy=sumy/total;
+		sumx2=sumx2/total;
+		m=(sumxy-sumx*sumy)/(sumx2-sumx*sumx);
+		
+		printf("Estimated N for 10 seconds of time taken:%lf\n", (10.0 - b) / m);
+	}
+	else printf("For N=%d, time was %lf seconds\n", N/2, y);
 }
 
 void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td)
@@ -45,7 +109,7 @@ int compareResult(char *resultStr, char *resultPath) {
 	}
 	if (resultStr == NULL) {
 		chr = fgetc(fpout);
-		if (chr == EOF) ret = 1; // deu NULL e devia dar NULL (ou não conseguiu ler o ficheiro -> fgetc tem o mesmo return)
+		if (chr == EOF) ret = 0; // deu NULL e devia dar NULL (ou não conseguiu ler o ficheiro -> fgetc tem o mesmo return)
 		else ret = 2; // deu NULL, e devia dar valores;
 	} else {
 		fseek(fpout,-1,SEEK_CUR); // retrocede um caractér (movido pelo fgetc) // melhor que rewind ou pior??
@@ -73,7 +137,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 	double cpu_time_used;
 	struct timespec start, finish, delta;
 
-	query_func * queryList[9] = {query_1, query_2, query_not_implemented, query_4, query_not_implemented, query_not_implemented, query_not_implemented, query_not_implemented, query_not_implemented};
+	query_func * queryList[9] = {query_1, query_2, query_not_implemented, query_4, query_not_implemented, query_6, query_not_implemented, query_not_implemented, query_not_implemented};
     char * strBuffer = malloc(sizeof(char)*LINE_SIZE); // buffer de cada linha lida
     char * querryResult = NULL; // pointer para a string resultante de cada querry
     char * tempsegstr[4]; // array para atribuir o segmento correto do input
@@ -81,6 +145,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
     ssize_t read; size_t len = LINE_SIZE; // para o getline
     int i,j, commandN = 1, writeRet;
 	char full_command[LINE_SIZE];
+	q_test_func *test_funcs[9] = {q_test_undefined, test_q_2, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined};
     
     // lê linhas individualmente até chegar ao fim do ficheiro
 	for (i=0; (read = getline(&strBuffer, &len, fp) != -1); i++, commandN++) {
@@ -117,8 +182,11 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 			fprintf(stderr, "-->ERROR: Results differ\nCommand:%s\nExpected:%s\nGot:%s\nError file:exemplos_de_queries/tests_1/command%d_output.txt\n", full_command, "see file :)", querryResult, commandN);
 		} else {
 			printf("Correct answer\n");
+			printf("Testing upper bounds, might take a while\n");
+			test_funcs[(*tempsegstr[0]) - 49](userData, driverData, ridesData);
 		}
 		
+		printf("Time taken to answer input:\n");
 		printf("CPU time:%g\n", cpu_time_used);
 		printf("Wall clock time:%d.%.9ld\n\n", (int)delta.tv_sec, delta.tv_nsec);
 
