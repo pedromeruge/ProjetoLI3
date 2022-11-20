@@ -16,6 +16,10 @@ typedef struct CityRides CityRides;
 //estrtura de dados com informações de todas as rides, ordenada com base em posição no ficheiro de input
 typedef struct RidesData RidesData; 
 
+//permite iterar sobre todas as cidades (semelhante aos GHashTableIter)
+// typedef struct CityIterator CityIterator;
+// typedef void iterator_func(void *, void *);
+
 //funções de criar e destruir estrutura de dados de rides
 RidesData * getRidesData(FILE *); // retorna a estrutura de dados de rides 
 void freeRidesData(DATA);  // limpa a estrutura de dados das rides
@@ -24,6 +28,13 @@ void freeRidesData(DATA);  // limpa a estrutura de dados das rides
 CityRides * getRidesByCity(RidesData *, char *); // devolve todas as rides associadas a uma cidade
 guint getNumberOfCityRides(CityRides *); // devolve o número de rides para uma cidade
 RidesStruct * getCityRidesByIndex(CityRides *, guint); // devolve uma ride de uma cidade
+/* aplica iterator_func a todas as CityRides (ou seja, a todas as cidades)
+   iterator_func tem 1 pointer para dados (CityRides de cada cidade) e outro para onde escrever resultados ou passar dados à função
+   data é passado como segundo argumento da funçao */
+void iterateOverCities(RidesData*, void *data, void (*iterator_func)(void *, void*));
+// CityIterator * cityIteratorInit(RidesData *); // retorna um iterador (precisa de free depois)
+// gboolean cityIteratorNext(CityIterator *); // itera pelas cidades
+// CityRides * cityIteratorGetRides(CityIterator *); // devolve o CityRides* associado à cidade atual
 
 //funções de rides associadas a drivers
 

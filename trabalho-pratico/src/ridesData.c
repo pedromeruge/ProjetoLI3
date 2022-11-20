@@ -60,9 +60,9 @@ RidesData * getRidesData(FILE *ptr)
 	GThread *threads[num_keys];
 
 	GHashTableIter iter;
-	gpointer key, value;
+	gpointer value;
 	g_hash_table_iter_init (&iter, cityTable);
-	for (i = 0; g_hash_table_iter_next (&iter, &key, &value); i++)
+	for (i = 0; g_hash_table_iter_next (&iter, NULL, &value); i++)
 	{
 		threads[i] = g_thread_new(NULL, sortCity, value);
 		// sortCity(&args[i]);
@@ -198,6 +198,18 @@ guint getNumberOfCityRides(CityRides *rides)
 RidesStruct *getCityRidesByIndex(CityRides *rides, guint ID)
 {
 	return (RidesStruct *)g_ptr_array_index(rides->array, (int)ID);
+}
+
+void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(void *, void*)) {
+	GHashTableIter iter;
+	g_hash_table_iter_init(&iter, rides->cityTable);
+	gpointer value;
+	CityRides cityRides;
+	while (g_hash_table_iter_next(&iter, NULL, &value)) {
+		// value é gptrarray mas temos de passar como cityTable
+		cityRides.array = (GPtrArray *)value;
+		iterator_func(&cityRides, data);
+	}
 }
 
 // devolve a struct(dados) associada à ride número i

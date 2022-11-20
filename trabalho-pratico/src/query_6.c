@@ -31,9 +31,6 @@ char *query_6(char *city, char *dateA, char *dateB, UserData *userData, DriverDa
 	
 		// printf("%d %d %d\n", distance[0], distance[1], distance[2]);
 	}
-	// 	Basic: Tarifa mínima = 3.25€ + 0.62€/km
-	//  Green: Tarifa mínima = 4.00€ + 0.79€/km
-	//  Premium: Tarifa mínima = 5.20€ + 0.94€/km
 
 	if (total == 0) { free(rides); return NULL; }
 
