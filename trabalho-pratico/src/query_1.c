@@ -5,6 +5,7 @@
 #include "driverdata.h"
 #include "ridesData.h"
 #include "query_1.h"
+#include "ridesByDriver.h"
 
 #define STR_BUFF_SIZE 64
 #define REFERENCE_DATE 9
@@ -33,7 +34,6 @@ char user_age(char *idstr, UserData *userData)
         present_month = present_month + 12;
     }
     int final_year = present_year - atoi(year);
-    printf("%d", final_year);
     free(u_age);
     return final_year;
 }
@@ -60,7 +60,6 @@ char driver_age(char *idstr, DriverData *driverData)
         present_month = present_month + 12;
     }
     int final_year = present_year - atoi(year);
-    printf("%d", final_year);
     free(d_age);
     return final_year;
 }
@@ -102,42 +101,24 @@ double user_total_spent(char *idstr, UserData *UserData, RidesData *ridesdata, D
 {
     int ridesArr = RIDES_ARR_SIZE * SIZE, i;
     double total_spent = 0;
+    unsigned int distance[3] = {0, 0, 0}, numRides[3] = {0, 0, 0};
+    double tip = 0;
     for (i = 0; i < ridesArr; i++)
     {
         RidesStruct *currentRide = getRidePtrByID(ridesdata, i + 1);
-        double distance = getRideDistance(currentRide);
         int driver_ID = getRideDriver(currentRide);
         DriverStruct *currentDriver = getDriverPtrByID(driverData, driver_ID);
         char *ride_user = getRideUser(currentRide);
         unsigned char carClass = getDriverCar(currentDriver);
-        if (carClass == 0)
+        if (strcmp(ride_user, idstr) == 0)
         {
-            if (strcmp(ride_user, idstr) == 0)
-            {
-                double trip_total = 3.25 + 0.62 * distance;
-                total_spent += (double)getRideTip(currentRide) + trip_total;
-            }
-            free(ride_user);
+            distance[carClass] += getRideDistance(currentRide);
+            numRides[carClass] += 1;
+            tip += (double)getRideTip(currentRide);
         }
-        if (carClass == 1)
-        {
-            if (strcmp(ride_user, idstr) == 0)
-            {
-                double trip_total = 4.00 + 0.79 * distance;
-                total_spent += (double)getRideTip(currentRide) + trip_total;
-            }
-            free(ride_user);
-        }
-        if (carClass == 2)
-        {
-            if (strcmp(ride_user, idstr) == 0)
-            {
-                double trip_total = 5.20 + 0.94 * distance;
-                total_spent += (double)getRideTip(currentRide) + trip_total;
-            }
-            free(ride_user);
-        }
+        free(ride_user);
     }
+    total_spent = ((double)(numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94) + tip);
     return total_spent;
 }
 

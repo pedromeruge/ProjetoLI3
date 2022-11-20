@@ -3,7 +3,8 @@
 #define LINES 100000
 #define USER_STR_BUFF 32
 
-struct UserStruct{
+struct UserStruct
+{
 	// char *username;
 	char *name;
 	unsigned char gender;
@@ -13,7 +14,7 @@ struct UserStruct{
 	unsigned char status;
 };
 
-struct UserData 
+struct UserData
 {
 	GHashTable *table;
 };
@@ -27,7 +28,7 @@ void freeTableData(void *userData)
 	free(data);
 }
 
-UserData * getUserData(FILE *ptr)
+UserData *getUserData(FILE *ptr)
 {
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha
@@ -66,38 +67,43 @@ UserData * getUserData(FILE *ptr)
 	return data;
 }
 
-UserStruct * getUserPtrByUsername(UserData * data, char * name) {
+UserStruct *getUserPtrByUsername(UserData *data, char *name)
+{
 	GHashTable *table = data->table;
-	UserStruct * result = malloc(sizeof(UserStruct));
-	*result = *(UserStruct *) (g_hash_table_lookup(table,name));
-	return result;
+	return (UserStruct *)(g_hash_table_lookup(table, name));
 }
 
-char * getUserName (UserStruct * data) {
-	return strndup(data->name,USER_STR_BUFF);
+char *getUserName(UserStruct *data)
+{
+	return strndup(data->name, USER_STR_BUFF);
 }
 
-unsigned char getUserGender(UserStruct * data) {
-	return(data->gender);
+unsigned char getUserGender(UserStruct *data)
+{
+	return (data->gender);
 }
 
-char * getUserBirthdate(UserStruct* data) {
-	return strndup(data->birthdate,USER_STR_BUFF);
+char *getUserBirthdate(UserStruct *data)
+{
+	return strndup(data->birthdate, USER_STR_BUFF);
 }
 
-char * getUserAccCreation (UserStruct * data) {
-	return strndup(data->accountCreation,USER_STR_BUFF);
+char *getUserAccCreation(UserStruct *data)
+{
+	return strndup(data->accountCreation, USER_STR_BUFF);
 }
 
-unsigned char getUserPayMethod(UserStruct * data) {
+unsigned char getUserPayMethod(UserStruct *data)
+{
 	return (data->payMethod);
 }
 
-unsigned char getUserStatus (UserStruct * data) {
+unsigned char getUserStatus(UserStruct *data)
+{
 	return (data->status);
 }
 
-void freeUserData(UserData * userData)
+void freeUserData(UserData *userData)
 {
 	g_hash_table_destroy(userData->table);
 	free(userData);
