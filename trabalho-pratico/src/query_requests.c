@@ -41,7 +41,7 @@ char *NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverData
 
 int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesData *ridesData)
 {
-    query_func *queryList[9] = {query_1, query_2, NOP, query_4, NOP, query_6, NOP, NOP, NOP};
+    query_func *queryList[9] = {query_1, query_2, query_3, query_4, NOP, query_6, NOP, NOP, NOP};
     char *strBuffer = malloc(sizeof(char) * LINE_SIZE); // buffer de cada linha lida
     char *querryResult = NULL;                          // pointer para a string resultante de cada querry
     char *tempsegstr[4];                                // array para atribuir o segmento correto do input
@@ -56,7 +56,6 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
 
         strBuffer[strcspn(strBuffer, "\n")] = 0; // para remover o newline
 
-        // mais rápido assim ou fazer só sscanf com vários ifs para cada query??
         temp = strBuffer;
 		
 		

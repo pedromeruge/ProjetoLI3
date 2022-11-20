@@ -1,6 +1,5 @@
 #include "ridesData.h"
 
-#define SIZE 1000
 #define RIDE_STR_BUFF 32
 gint compareRidesByDate(gconstpointer a, gconstpointer b);
 void *sortCity(void *data);
@@ -41,7 +40,7 @@ void *sortCity(void *data)
 	return NULL;
 }
 
-DATA getRidesData(FILE *ptr)
+RidesData * getRidesData(FILE *ptr)
 {
 	RidesStruct **ridesData = malloc(RIDES_ARR_SIZE * sizeof(RidesStruct *));
 	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeArray); // keys levam malloc do array normal, nao vou dar free aqui
@@ -99,7 +98,7 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable)
 		writeString(ptr, tempBuffer);
 		ridesStructArray[i].score_d = (short)atoi(tempBuffer);
 		writeString(ptr, tempBuffer);
-		ridesStructArray[i].tip = (short)atof(tempBuffer);
+		ridesStructArray[i].tip = atof(tempBuffer);
 		ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????
 
 		temp = &(ridesStructArray[i]);

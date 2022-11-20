@@ -1,6 +1,5 @@
 #include "driverdata.h"
 
-#define SIZE 1000
 #define DRIVER_STR_BUFF 32
 
 struct DriverStruct

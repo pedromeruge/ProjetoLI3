@@ -10,20 +10,22 @@
 //informações de uma ride
 typedef struct RidesStruct RidesStruct;
 
-//?? estrutura de dados com informações de todas as rides, ordenada com base em cidade
+//estrutura de dados com informações de todas as rides, divido em cidades e ordenada com base em data
 typedef struct CityRides CityRides;
 
-// ?? estrtura de dados com informações de todas as rides, ordenada com base em posição no ficheiro de input
+//estrtura de dados com informações de todas as rides, ordenada com base em posição no ficheiro de input
 typedef struct RidesData RidesData; 
 
 //funções de criar e destruir estrutura de dados de rides
-DATA getRidesData(FILE *); // retorna a estrutura de dados de rides 
+RidesData * getRidesData(FILE *); // retorna a estrutura de dados de rides 
 void freeRidesData(DATA);  // limpa a estrutura de dados das rides
 
 //funções de rides associadas a cidades
 CityRides * getRidesByCity(RidesData *, char *); // devolve todas as rides associadas a uma cidade
 guint getNumberOfCityRides(CityRides *); // devolve o número de rides para uma cidade
 RidesStruct * getCityRidesByIndex(CityRides *, guint); // devolve uma ride de uma cidade
+
+//funções de rides associadas a drivers
 
 //receber a informação de uma ride
 RidesStruct * getRidePtrByID(RidesData *, guint);
