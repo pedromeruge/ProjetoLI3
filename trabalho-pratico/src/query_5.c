@@ -3,19 +3,19 @@
 #define STR_BUFF_SIZE 16
 
 typedef struct {
-	unsigned int *distance,
-	*numRides;
-	char *dateA, *dateB;
-	DriverData *driverData;
+	unsigned int *m_distance,
+	*m_numRides;
+	char *m_dateA, *m_dateB;
+	DriverData *m_driverData;
 } DataStruct;
 
 void result_func (void *cityData, void *otherData) {
 	DataStruct * data = (DataStruct *)otherData;
 	CityRides *rides = (CityRides *)cityData;
 	guint i, len = getNumberOfCityRides(rides);
-	unsigned int *distance = data->distance, *numRides = data->numRides;
-	DriverData * driverData = data->driverData;
-	char *dateA = data->dateA, *dateB = data->dateB;
+	unsigned int *distance = data->m_distance, *numRides = data->m_numRides;
+	DriverData * driverData = data->m_driverData;
+	char *dateA = data->m_dateA, *dateB = data->m_dateB;
 
 	DriverStruct * currentDriver;
 	RidesStruct * currentRide;
@@ -47,7 +47,7 @@ char * query_5 (char *dateA, char *dateB, char *trash, UserData *userData, Drive
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	DataStruct data = {
-		.distance = distance, .numRides = numRides, dateA = dateA, dateB = dateB, driverData = driverData
+		.m_distance = distance, .m_numRides = numRides, .m_dateA = dateA, .m_dateB = dateB, .m_driverData = driverData
 	};
 	iterateOverCities(ridesData, (void *)&data, result_func);
 
