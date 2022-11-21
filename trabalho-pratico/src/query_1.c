@@ -1,10 +1,5 @@
 #include "query_1.h"
 
-#define STR_BUFF_SIZE 64
-#define REFERENCE_DATE 9
-#define REFERENCE_MONTH 10
-#define REFERENCE_YEAR 2022
-
 char user_age(char *idstr, UserData *userData)
 {
     int month1[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
