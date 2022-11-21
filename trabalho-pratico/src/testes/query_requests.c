@@ -10,7 +10,7 @@
 
 #define LINE_SIZE 128
 #define PATH_SIZE 64
-#define TEST_PATH "exemplos_de_queries/tests_custom/command%d_output.txt"
+#define TEST_PATH "exemplos_de_queries/tests_1/command%d_output.txt"
 
 typedef void q_test_func (UserData* userData, DriverData *driverData, RidesData *ridesData);
 

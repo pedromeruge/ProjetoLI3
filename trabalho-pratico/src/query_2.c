@@ -7,21 +7,25 @@
 
 //concatena n linhas com os resultados, para dar return da query_2
 static char * strResults(const ridesByDriver * driverRatingArray, int N, DriverData *driverData) {
-    short int i, driverNumber;
-
-	char * result = malloc( N * STR_BUFF_SIZE * sizeof(char));
+    short int i, j,driverNumber;
+    unsigned char driverStatus;
+	char * result = malloc( N * STR_BUFF_SIZE * sizeof(char)); // recebe free em query_requests
     result[0] = '\0';
     char temp[STR_BUFF_SIZE], * driverName = NULL;
     DriverStruct * currentDriver = NULL;
     const driverRatingInfo * currentArrayStruct = NULL;
     short int arrayLen = getridesByDriverArraySize(driverRatingArray);
-    for (i=arrayLen;i>=arrayLen-N+1;i--) {
+    for (i=arrayLen, j = N; j>0 && i>0 ;i--) {
         currentArrayStruct = getDriverInfo(driverRatingArray, i);
         driverNumber = getDriverNumber(currentArrayStruct);
         currentDriver = getDriverPtrByID(driverData,driverNumber);
         driverName = getDriverName(currentDriver);
+        driverStatus = getDriverStatus(currentDriver);
+        if (driverStatus == 1) {
         snprintf(temp,STR_BUFF_SIZE,"%0*d;%s;%.3f\n", 12, driverNumber, driverName, getDriverAvgRating(currentArrayStruct));
         strncat(result,temp,STR_BUFF_SIZE);
+        j--;
+        }
         free(driverName);
     }
 	// printf("result %s\n", result);
@@ -42,7 +46,11 @@ static gint sort_byRatings (gconstpointer a, gconstpointer b) {
     if (diff > 0) result = 1;
     else if (diff <0) result = -1;
     else if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
-        result = compDates(getDriverMostRecRideDate(driver1),getDriverMostRecRideDate(driver2));
+        char * driver1RecDate = getDriverMostRecRideDate(driver1);
+        char * driver2RecDate = getDriverMostRecRideDate(driver2);
+        result = compDates(driver1RecDate,driver2RecDate);
+        free(driver1RecDate);
+        free(driver2RecDate);
         if (!result) 
             result = getDriverNumber(driver1) - getDriverNumber(driver2);
     }
@@ -65,7 +73,7 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
 
     char * result = strResults(driverRatingArray,num, driverData);
 
-    //g_ptr_array_free(driverRatingArray, TRUE);
+    free((ridesByDriver *) driverRatingArray);
 
     // NOTA: query 3 é indentica a função query_2 mas usa outros valores e outra compare func. Fazer um ptr_array com toda a informação e ordená-lo segundo a função dada talvez??
     // NOTA: a maior parte das funções de queries resume-se a "n primeiros" e "valores médios" apenas variando os parâmetros de comparação e o abrangimento dos dados de input. Estas funções mais básicas devem ser capazes de receber diferentes categorias (mais ou menos restritas) de dados e ordená-las com base nos parâmetros dados
