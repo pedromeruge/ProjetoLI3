@@ -1,11 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "query_func.h"
-#include "userdata.h"
-#include "driverdata.h"
-#include "ridesData.h"
 #include "query_1.h"
-#include "ridesByDriver.h"
 
 #define STR_BUFF_SIZE 64
 #define REFERENCE_DATE 9

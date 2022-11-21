@@ -17,7 +17,7 @@ int main (int argc, char **argv) {
 	//caso seja facultado o ficheiro e as querries no terminal - fase 1
     FILE ** files = open_cmdfiles(argv); // array com pointers para os ficheiros {users,drivers,rides,querries}
 
-	DATA users = getUserData(files[0]);
+	UserData * users = getUserData(files[0]);
 	
 	DriverData * drivers = getDriverData(files[1]);
 
