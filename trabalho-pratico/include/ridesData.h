@@ -53,6 +53,7 @@ float getDriverTipsTotal (const driverRatingInfo *);
 char * getDriverMostRecRideDate (const driverRatingInfo *);
 short int getDriverRidesNumber(const driverRatingInfo *);
 short int getDriverNumber(const driverRatingInfo *);
+short int getDriverDistTraveled (const driverRatingInfo *);
 
 //aplica uma função de sort ao array 
 // TODO: inclusivo de outros tipos de array

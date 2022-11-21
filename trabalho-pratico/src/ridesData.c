@@ -29,8 +29,8 @@ struct driverRatingInfo {
     void * ratingChart; // void * porque vai guardar um array de ratings de 1 a 5 e distância viajada, e mais tarde é convertido para um (double *) do valor médio desses ratings
     float tips; // inicialmente guarda número de tips, depois guarda o total_auferido
     char * mostRecRideDate; // ride mais decente
-    short int ridesNumber; // guardar número de rides
-    short int driverNumber; // talvez meter em int o valor, ocupa menos espaço com char?
+    short int  * ridesNumber, // guardar [número de rides, total viajado]
+    		   driverNumber; // talvez meter em int o valor, ocupa menos espaço com char?
 };
 
 struct RidesData {
@@ -185,14 +185,15 @@ driverRatingInfo * newDriverInfo (RidesStruct * currentRide) {
 
     driverRatingInfo * new = malloc(sizeof(driverRatingInfo));
 
-    new->ratingChart = calloc(6,sizeof(unsigned int));
+    new->ratingChart = calloc(5,sizeof(unsigned int));
     unsigned int * ratings = (unsigned int *) new->ratingChart;
     ratings[(currentRide->score_d)-1] ++;
-    ratings[5] = currentRide->distance;
+	new->ridesNumber = calloc(2,sizeof(short int)); // não é utilizada até ao final do ciclo do addRides
+	short int * ridesTracker = (short int *) new->ridesNumber;
+    ridesTracker[1] = currentRide->distance;
     new->tips = currentRide->tip;
     new->mostRecRideDate = strdup(currentRide->date); // devo copiar a string para a nova struct, para não haver dependências no futuro??
     new->driverNumber = currentRide->driver;
-    new->ridesNumber = 0; // não é utilizada até ao final do ciclo do addRides
 	//printf("dentro do new| tips:%f, date:%s\n" , new->tips, new->mostRecRideDate);
     return new;
 }
@@ -204,9 +205,11 @@ driverRatingInfo * appendDriverInfo (driverRatingInfo * currentArrayStruct, Ride
    currentArrayStruct->tips += currentRide->tip;
 
     unsigned int * ratings = (unsigned int *) currentArrayStruct->ratingChart;
+	ratings[(currentRide->score_d)-1] ++; // dependendo da avaliação na ride atual, no array ratingChart , incrementa em 1 o número da avalições de valor 1,2,3,4 ou 5. 
+    
+	short int * ridesTracker = (short int *) currentArrayStruct->ridesNumber;
+	ridesTracker[1] += currentRide->distance;
 
-    ratings[(currentRide->score_d)-1] ++; // dependendo da avaliação na ride atual, no array ratingChart , incrementa em 1 o número da avalições de valor 1,2,3,4 ou 5. 
-    ratings[5] += currentRide->distance;
     if (compDates(rideDate,currentArrayStruct->mostRecRideDate) >= 0) {
         free(currentArrayStruct->mostRecRideDate);
         currentArrayStruct->mostRecRideDate = strdup(rideDate);
@@ -244,7 +247,7 @@ driverRatingInfo * sumValues (driverRatingInfo * currentArrayStruct) {
     }
     avgRating /= numRides;
     free(ratings);
-    currentArrayStruct->ridesNumber = numRides;
+    currentArrayStruct->ridesNumber[0] = numRides;
     currentArrayStruct->ratingChart = malloc(sizeof(double));
     *(double *)(currentArrayStruct->ratingChart) = avgRating;
     return (currentArrayStruct);
@@ -311,6 +314,7 @@ void freeRidesRating (void * drivesRating) {
     driverRatingInfo * currentArrayStruct = (driverRatingInfo *) drivesRating;
     free(currentArrayStruct->ratingChart);
     free(currentArrayStruct->mostRecRideDate);
+	free(currentArrayStruct->ridesNumber);
     free(currentArrayStruct);
 }
 
@@ -353,7 +357,11 @@ char * getDriverMostRecRideDate (const driverRatingInfo * currentArrayStruct) {
 }
 
 short int getDriverRidesNumber(const driverRatingInfo * currentArrayStruct) {
-	return currentArrayStruct->ridesNumber;
+	return (currentArrayStruct->ridesNumber[0]);
+}
+
+short int getDriverDistTraveled (const driverRatingInfo * currentArrayStruct) {
+	return (currentArrayStruct->ridesNumber[1]);
 }
 
 short int getDriverNumber(const driverRatingInfo * currentArrayStruct) {

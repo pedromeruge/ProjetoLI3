@@ -58,8 +58,9 @@ char * query_2 (char * number, char * trash1, char * trash2, UserData *userData,
 
     const ridesByDriver * driverRatingArray = getRidesByDriver (ridesData);
 
-    //driverRatingInfo * currentArrayStruct = getDriverInfo(driverRatingArray,8899);
-    //printf("number: %d, avg-rating: %f, number of rides: %d most-rec-ride: %s\n",getDriverNumber(currentArrayStruct),getDriverAvgRating(currentArrayStruct),getDriverRidesNumber(currentArrayStruct),getDriverMostRecRideDate(currentArrayStruct));
+    //const driverRatingInfo * currentArrayStruct = getDriverInfo(driverRatingArray,8899);
+    //printf("number: %d, avg-rating: %f, number of rides: %d most-rec-ride: %s dist-traveled: %d\n",getDriverNumber(currentArrayStruct),getDriverAvgRating(currentArrayStruct),getDriverRidesNumber(currentArrayStruct),getDriverMostRecRideDate(currentArrayStruct),getDriverDistTraveled(currentArrayStruct));
+    
     qSortArray(driverRatingArray,&sort_byRatings);
 
     char * result = strResults(driverRatingArray,num, driverData);
