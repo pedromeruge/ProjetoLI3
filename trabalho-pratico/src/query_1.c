@@ -115,12 +115,30 @@ double user_total_spent(char *idstr, UserData *UserData, RidesData *ridesdata, D
     return total_spent;
 }
 
+double driver_total_earned(int idstr, RidesData *ridesdata, DriverData *driverData)
+{
+    double total_spent = 0;
+    double tip = 0;
+    unsigned int distance[3] = {0, 0, 0}, numRides[3] = {0, 0, 0};
+    DriverStruct *currentDriver = getDriverPtrByID(driverData, idstr);
+    unsigned char carClass = getDriverCar(currentDriver);
+    const ridesByDriver *ridesInf = getRidesByDriver(ridesdata);
+    const driverRatingInfo *driver_r_Inf = getDriverInfo(ridesInf, idstr);
+    tip = getDriverTipsTotal(driver_r_Inf);
+    distance[carClass] = getDriverDistTraveled(driver_r_Inf);
+    numRides[carClass] = getDriverRidesNumber(driver_r_Inf);
+    total_spent = ((double)(numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94) + tip);
+    return total_spent;
+}
+
 char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, DriverData *driverData, RidesData *ridesData)
 {
     int numero;
     if ((numero = atoi(idstr)) != 0)
     {
         DriverStruct *driverInf = getDriverPtrByID(driverData, numero);
+        const ridesByDriver *ridesInf = getRidesByDriver(ridesData);
+        const driverRatingInfo *driver_r_Inf = getDriverInfo(ridesInf, numero);
         if (getDriverStatus(driverInf) == INACTIVE)
         {
             return NULL;
@@ -129,7 +147,7 @@ char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, Drive
         {
             char *d_name = getDriverName(driverInf);
             char *driverResult = malloc(STR_BUFF_SIZE * sizeof(char));
-            snprintf(driverResult, STR_BUFF_SIZE, "%s;%c;%d;\n", d_name, getDriverGender(driverInf), driver_age(idstr, driverData));
+            snprintf(driverResult, STR_BUFF_SIZE, "%s;%c;%d;%.3f;%d;%.3f\n", d_name, getDriverGender(driverInf), driver_age(idstr, driverData), getDriverAvgRating(driver_r_Inf), getDriverRidesNumber(driver_r_Inf), driver_total_earned(numero, ridesData, driverData));
             free(d_name);
             return driverResult;
         }
