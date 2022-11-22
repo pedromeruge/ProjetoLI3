@@ -149,6 +149,7 @@ char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, Drive
             free((ridesByDriver *)ridesInf);
             return driverResult;
         }
+        free((ridesByDriver *)ridesInf);
     }
     else
     {

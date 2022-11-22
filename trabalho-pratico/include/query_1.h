@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "query_func.h"
 #include "userdata.h"
 #include "driverdata.h"
 #include "ridesData.h"

@@ -32,31 +32,6 @@ static char * strResults(const ridesByDriver * driverRatingArray, int N, DriverD
     return result;
 }
 
-static gint sort_byRatings (gconstpointer a, gconstpointer b) {
-    const driverRatingInfo * driver1 = *(driverRatingInfo **) a;
-    const driverRatingInfo * driver2 = *(driverRatingInfo **) b;
-    double drv1Rating,
-    drv2Rating;
-	/*if (driver1 == NULL) drv1Rating = 0; 
-    else*/ drv1Rating = getDriverAvgRating(driver1);
-	/*if (driver2 == NULL) drv2Rating = 0; 
-    else*/ drv2Rating = getDriverAvgRating(driver2);
-    double diff = drv1Rating - drv2Rating;	
-    gint result = 0;
-    if (diff > 0) result = 1;
-    else if (diff <0) result = -1;
-    else if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
-        char * driver1RecDate = getDriverMostRecRideDate(driver1);
-        char * driver2RecDate = getDriverMostRecRideDate(driver2);
-        result = compDates(driver1RecDate,driver2RecDate);
-        free(driver1RecDate);
-        free(driver2RecDate);
-        if (!result) 
-            result = getDriverNumber(driver1) - getDriverNumber(driver2);
-    }
-    return result;
-}
-
 //TODO: free dos elementos do g_ptr_array
 // !!!! Teste de meter a struct pública mas return const, para n poder mexer nela
 

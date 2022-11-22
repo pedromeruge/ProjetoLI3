@@ -353,6 +353,24 @@ short int getridesByDriverArraySize(const ridesByDriver *driverRatingArray)
 	return (driverRatingArray->ridesArray->len);
 }
 
+gint sort_byRatings (gconstpointer a, gconstpointer b) {
+    const driverRatingInfo * driver1 = *(driverRatingInfo **) a;
+    const driverRatingInfo * driver2 = *(driverRatingInfo **) b;
+    double drv1Rating,drv2Rating;
+	drv1Rating = *(double *) driver1->ratingChart;
+	drv2Rating = *(double *) driver2->ratingChart;
+    double diff = drv1Rating - drv2Rating;	
+    gint result = 0;
+    if (diff > 0) result = 1;
+    else if (diff <0) result = -1;
+    else if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
+        result = compDates(driver1->mostRecRideDate,driver2->mostRecRideDate);
+        if (!result) 
+            result = driver1->driverNumber - driver2->driverNumber;
+    }
+    return result;
+}
+
 void qSortArray(const ridesByDriver *ridesByDriver, gint (*sort_byRatings)(gconstpointer a, gconstpointer b))
 {
 	g_ptr_array_sort(ridesByDriver->ridesArray, *sort_byRatings);

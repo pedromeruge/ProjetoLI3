@@ -54,9 +54,14 @@ short int getDriverRidesNumber(const driverRatingInfo *);
 short int getDriverNumber(const driverRatingInfo *);
 short int getDriverDistTraveled(const driverRatingInfo *);
 
-// aplica uma função de sort ao array
-//  TODO: inclusivo de outros tipos de array
-void qSortArray(const ridesByDriver *driverRatingArray, gint (*sort_byRatings)(gconstpointer a, gconstpointer b));
+// funções para dar sort ao array
+// função que compara dois elementos de um array com base em avaliação média, data de viagem mais recente e nº do condutor, por esta ordem de importância
+gint sort_byRatings (gconstpointer a, gconstpointer b); 
+
+// usa uma função de comparação entre dois elementos recebida como argumento para dar sort a um array, também recebido como argumento
+//  TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)
+void qSortArray(const ridesByDriver *driverRatingArray, gint (*sortFunction)(gconstpointer a, gconstpointer b));
+
 
 // receber a informação de uma ride
 RidesStruct *getRidePtrByID(RidesData *, guint);
@@ -74,6 +79,5 @@ float getRideTip(RidesStruct *);          // retorna a tip de uma ride
 char *getRideComment(RidesStruct *);      // retorna o comentário de uma ride
 
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
-// RidesStruct * getRideByDriver(DATA data, int driver); // not implemented
 
 #endif
