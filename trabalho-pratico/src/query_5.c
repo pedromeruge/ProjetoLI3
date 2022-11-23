@@ -12,7 +12,6 @@ typedef struct {
 void result_func (void *cityData, void *otherData) {
 	DataStruct * data = (DataStruct *)otherData;
 	CityRides *rides = (CityRides *)cityData;
-	guint i, len = getNumberOfCityRides(rides);
 	unsigned int *distance = data->m_distance, *numRides = data->m_numRides;
 	DriverData * driverData = data->m_driverData;
 	char *dateA = data->m_dateA, *dateB = data->m_dateB;
@@ -21,25 +20,20 @@ void result_func (void *cityData, void *otherData) {
 	RidesStruct * currentRide;
 	short ID;
 	unsigned char carClass;
-	char *currentDate;
 
-	for (i = 0; i < len; i++) {
-		currentRide = getCityRidesByIndex(rides, i);
-		ID = getRideDriver(currentRide);
-		currentDriver = getDriverPtrByID(driverData, ID);
-		carClass = getDriverCar(currentDriver);
-		currentDate = getRideDate(currentRide);
-		// A < B retorna -1
-		if (compDates(currentDate, dateA) >= 0) {
-			if (compDates(currentDate, dateB) > 0) {
-				free(currentDate);
-				break;
-			} else {
-				distance[carClass] += getRideDistance(currentRide);
-				numRides[carClass] += 1;
-			}
+	int start = searchCityRidesByDate(rides, dateA), end = searchCityRidesByDate(rides, dateB), i;
+	if (end == -1) end = getNumberOfCityRides(rides) - 1;
+	
+	if (start != -1) {
+		for (i = start; i <= end; i++) {
+			currentRide = getCityRidesByIndex(rides, i);
+			ID = getRideDriver(currentRide);
+			currentDriver = getDriverPtrByID(driverData, ID);
+			carClass = getDriverCar(currentDriver);
+			// A < B retorna -1
+			distance[carClass] += getRideDistance(currentRide);
+			numRides[carClass] += 1;
 		}
-		free(currentDate);
 	}
 }
 

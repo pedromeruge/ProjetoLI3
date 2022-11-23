@@ -192,8 +192,9 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 			fprintf(stderr, "-->ERROR: Results differ\nCommand:%s\nExpected:%s\nGot:%s\nError file:exemplos_de_queries/tests_1/command%d_output.txt\n", full_command, "see file :)", querryResult, commandN);
 		} else {
 			printf("Correct answer\n");
-			printf("Testing upper bounds, might take a while\n");
-			test_funcs[(*tempsegstr[0]) - 49](userData, driverData, ridesData);
+			// isto afinal é meio inútil, por agora fica comentado
+			// printf("Testing upper bounds, might take a while\n");
+			// test_funcs[(*tempsegstr[0]) - 49](userData, driverData, ridesData);
 		}
 		
 		printf("Time taken to answer input:\n");

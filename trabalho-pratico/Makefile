@@ -24,12 +24,11 @@ DEBUG_FLAGS := -O0 -g3 $(STD_FLAGS) #-ggdb3
 # get .c files, remove original path and turn into .o
 SRCS_ALL := $(shell ls $(SRC_DIR) | grep '.c')
 
-# needs updated bash??
 # gets files common between tests and src to avoid conflicts
 REPETITIONS := $(shell ./Scripts/get_file_repetitions.sh $(SRC_DIR) $(TEST_SRC_DIR))
 OBJ_WITHOUT_REPETITIONS := $(subst .c,.o,$(filter-out $(REPETITIONS), $(SRCS_ALL)))
 
-# nao é preciso?????? se dermos include aos .h de teste primeiro
+# nao é preciso?????? se dermos include aos .h de teste primeiro por causa dos ifndefs
 # INC_REPETITIONS := $(shell ./Scripts/get_file_repetitions.sh $(INC_DIR) $(TEST_INC_DIR))
 # INC_WITHOUT_REPETITIONS := $(subst .c,.o,$(filter-out $(INC_REPETITIONS), $(SRCS_ALL)))
 

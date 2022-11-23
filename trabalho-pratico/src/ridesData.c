@@ -438,6 +438,30 @@ void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(void 
 	}
 }
 
+int compFuncForBSearch(const void *key, const void *p) {
+	return compDates((char *)key, (*(RidesStruct **)p)->date);
+}
+
+int searchCityRidesByDate(CityRides *rides, char *dateA) {
+	gpointer *ptr;
+	GPtrArray *array = rides->array;
+	ptr = bsearch(dateA, array->pdata, array->len, sizeof(gpointer), compFuncForBSearch);
+	int index = -1;
+	if (ptr) {
+		RidesStruct *currentRide = *(RidesStruct **)ptr;
+		index = ((char *)ptr - (char *)array->pdata) / sizeof(gpointer *);
+		int cmp = 0;
+		do {
+			index --;
+			currentRide = (RidesStruct *)g_ptr_array_index(array, index);
+			cmp = compDates(dateA, currentRide->date);
+		} while (cmp == 0 && index >= 0);
+		index++;
+	} // else not found
+	return index;
+}
+
+
 // devolve a struct(dados) associada à ride número i
 RidesStruct *getRidePtrByID(RidesData *data, guint ID)
 {
