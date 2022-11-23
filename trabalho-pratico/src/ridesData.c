@@ -442,23 +442,43 @@ int compFuncForBSearch(const void *key, const void *p) {
 	return compDates((char *)key, (*(RidesStruct **)p)->date);
 }
 
-int searchCityRidesByDate(CityRides *rides, char *dateA) {
-	gpointer *ptr;
+//bsearch está errado, a data pode não existir lá
+//MODE é uma manhosice, mas é para saber se estamos à procura de limite inferior ou superior
+int searchCityRidesByDate(CityRides *rides, char *dateA, int MODE) {
 	GPtrArray *array = rides->array;
-	ptr = bsearch(dateA, array->pdata, array->len, sizeof(gpointer), compFuncForBSearch);
-	int index = -1;
-	if (ptr) {
-		RidesStruct *currentRide = *(RidesStruct **)ptr;
-		index = ((char *)ptr - (char *)array->pdata) / sizeof(gpointer *);
-		int cmp = 0;
+	int base = 0, lim = (int)array->len;
+	if (lim == 0) return -1;
+	RidesStruct *ride;
+	int cmp, index;
+	for (; lim != 0; lim >>= 1) {
+		index = base + (lim >> 1);
+		ride = g_ptr_array_index(array, index);
+		cmp = compDates(dateA, ride->date);
+		if (cmp == 0) {
+			return index;
+		}
+		if (cmp > 0) {
+			base = index;
+			lim--;
+		}
+	}
+	// como a data pode não ser exata, ver aproximação mais próxima que ainda a inclua
+	// ao chegar aqui temos a certeza que não deu return
+	// MODE == 0 -> estamos a procurar o menor, dar return do mais próximo mas que seja maior
+	if (MODE == 0) {
 		do {
-			index --;
-			currentRide = (RidesStruct *)g_ptr_array_index(array, index);
-			cmp = compDates(dateA, currentRide->date);
-		} while (cmp == 0 && index >= 0);
-		index++;
-	} // else not found
-	return index;
+			index++;
+			ride = g_ptr_array_index(array, index);
+			cmp = compDates(dateA, ride->date);
+		} while (cmp > 0 && index <= (const) array->len);
+	} else {
+		do {
+			index++;
+			ride = g_ptr_array_index(array, index);
+			cmp = compDates(dateA, ride->date);
+		} while (cmp < 0 && index <= (const) array->len);
+	}
+	return (index - 1);
 }
 
 

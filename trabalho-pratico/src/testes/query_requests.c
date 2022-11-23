@@ -155,7 +155,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
     ssize_t read; size_t len = LINE_SIZE; // para o getline
     int i,j, commandN = 1, writeRet;
 	char full_command[LINE_SIZE];
-	q_test_func *test_funcs[9] = {q_test_undefined, test_q_2, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined};
+	// q_test_func *test_funcs[9] = {q_test_undefined, test_q_2, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined};
     
     // lê linhas individualmente até chegar ao fim do ficheiro
 	for (i=0; (read = getline(&strBuffer, &len, fp) != -1); i++, commandN++) {
@@ -189,10 +189,10 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 		
 		//return 2 : deu NULL e devia dar valores; return 3: deu valores diferentes
 		if (writeRet == 2 || writeRet == 3) {
-			fprintf(stderr, "-->ERROR: Results differ\nCommand:%s\nExpected:%s\nGot:%s\nError file:exemplos_de_queries/tests_1/command%d_output.txt\n", full_command, "see file :)", querryResult, commandN);
+			fprintf(stderr, "-->ERROR: Results differ\nCommand:%s\nExpected:%s\nGot:'%s'\nError file:exemplos_de_queries/tests_1/command%d_output.txt\n", full_command, "see file :)", querryResult, commandN);
 		} else {
 			printf("Correct answer\n");
-			// isto afinal é meio inútil, por agora fica comentado
+			// isto afinal é meio inútil, por agora fica comentado e linha 158 tbm
 			// printf("Testing upper bounds, might take a while\n");
 			// test_funcs[(*tempsegstr[0]) - 49](userData, driverData, ridesData);
 		}

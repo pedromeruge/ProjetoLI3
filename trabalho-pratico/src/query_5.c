@@ -21,7 +21,7 @@ void result_func (void *cityData, void *otherData) {
 	short ID;
 	unsigned char carClass;
 
-	int start = searchCityRidesByDate(rides, dateA), end = searchCityRidesByDate(rides, dateB), i;
+	int start = searchCityRidesByDate(rides, dateA, 0), end = searchCityRidesByDate(rides, dateB, 1), i;
 	if (end == -1) end = getNumberOfCityRides(rides) - 1;
 	
 	if (start != -1) {
