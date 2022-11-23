@@ -438,10 +438,6 @@ void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(void 
 	}
 }
 
-int compFuncForBSearch(const void *key, const void *p) {
-	return compDates((char *)key, (*(RidesStruct **)p)->date);
-}
-
 //bsearch está errado, a data pode não existir lá
 //MODE é uma manhosice, mas é para saber se estamos à procura de limite inferior ou superior
 int searchCityRidesByDate(CityRides *rides, char *dateA, int MODE) {
@@ -466,17 +462,17 @@ int searchCityRidesByDate(CityRides *rides, char *dateA, int MODE) {
 	// ao chegar aqui temos a certeza que não deu return
 	// MODE == 0 -> estamos a procurar o menor, dar return do mais próximo mas que seja maior
 	if (MODE == 0) {
-		do {
-			index++;
+		while (cmp > 0 && index < (const int) array->len) {
 			ride = g_ptr_array_index(array, index);
 			cmp = compDates(dateA, ride->date);
-		} while (cmp > 0 && index <= (const) array->len);
+			index++;
+		}
 	} else {
-		do {
-			index++;
+		while (cmp < 0 && index < (const int) array->len) {
 			ride = g_ptr_array_index(array, index);
 			cmp = compDates(dateA, ride->date);
-		} while (cmp < 0 && index <= (const) array->len);
+			index++;
+		}
 	}
 	return (index - 1);
 }

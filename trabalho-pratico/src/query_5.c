@@ -21,19 +21,40 @@ void result_func (void *cityData, void *otherData) {
 	short ID;
 	unsigned char carClass;
 
-	int start = searchCityRidesByDate(rides, dateA, 0), end = searchCityRidesByDate(rides, dateB, 1), i;
-	if (end == -1) end = getNumberOfCityRides(rides) - 1;
+	// int start = searchCityRidesByDate(rides, dateA, 0), end = searchCityRidesByDate(rides, dateB, 1), i;
+	// if (end == -1) end = getNumberOfCityRides(rides) - 1;
 	
-	if (start != -1) {
-		for (i = start; i <= end; i++) {
-			currentRide = getCityRidesByIndex(rides, i);
-			ID = getRideDriver(currentRide);
-			currentDriver = getDriverPtrByID(driverData, ID);
-			carClass = getDriverCar(currentDriver);
-			// A < B retorna -1
-			distance[carClass] += getRideDistance(currentRide);
-			numRides[carClass] += 1;
+	// if (start != -1) {
+	// 	for (i = start; i <= end; i++) {
+	// 		currentRide = getCityRidesByIndex(rides, i);
+	// 		ID = getRideDriver(currentRide);
+	// 		currentDriver = getDriverPtrByID(driverData, ID);
+	// 		carClass = getDriverCar(currentDriver);
+	// 		// A < B retorna -1
+	// 		distance[carClass] += getRideDistance(currentRide);
+	// 		numRides[carClass] += 1;
+	// 	}
+	// }
+	int i;
+	guint len = getNumberOfCityRides(rides);
+	char * currentDate;
+	for (i = 0; i < (const int)len; i++) {
+		currentRide = getCityRidesByIndex(rides, i);
+		ID = getRideDriver(currentRide);
+		currentDriver = getDriverPtrByID(driverData, ID);
+		carClass = getDriverCar(currentDriver);
+		currentDate = getRideDate(currentRide);
+		// A < B retorna -1
+		if (compDates(currentDate, dateA) >= 0) {
+			if (compDates(currentDate, dateB) > 0) {
+				free(currentDate);
+				break;
+			} else {
+				distance[carClass] += getRideDistance(currentRide);
+				numRides[carClass] += 1;
+			}
 		}
+		free(currentDate);
 	}
 }
 
