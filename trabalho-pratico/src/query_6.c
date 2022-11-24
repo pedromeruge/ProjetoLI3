@@ -8,18 +8,15 @@ char *query_6(char *city, char *dateA, char *dateB, UserData *userData, DriverDa
 
 	RidesStruct *currentRide;
 
-	int start = searchCityRidesByDate(rides, dateA, 0), end = searchCityRidesByDate(rides, dateB, 1), i;
-	if (end == -1) end = getNumberOfCityRides(rides) - 1;
-	
-	int total = 0;
-	if (start != -1) {
-		total = 0;
-		for (i = start; i <= end; i++) {
-			currentRide = getCityRidesByIndex(rides, i);
-			// A < B retorna -1
-			distance += getRideDistance(currentRide);
-			total ++;
-		}
+	int start, end, total = 0, i;
+	searchCityRidesByDate(rides, dateA, dateB, &start, &end);
+	if ((start | end) < 0) return NULL;
+
+	for (i = start; i <= end; i++) {
+		currentRide = getCityRidesByIndex(rides, i);
+		// A < B retorna -1
+		distance += getRideDistance(currentRide);
+		total ++;
 	}
 
 	if (total == 0) { free(rides); return NULL; }

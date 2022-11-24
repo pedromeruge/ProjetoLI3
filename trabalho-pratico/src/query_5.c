@@ -7,6 +7,7 @@ typedef struct {
 	*m_numRides;
 	char *m_dateA, *m_dateB;
 	DriverData *m_driverData;
+	// int reps;
 } DataStruct;
 
 void result_func (void *cityData, void *otherData) {
@@ -21,40 +22,23 @@ void result_func (void *cityData, void *otherData) {
 	short ID;
 	unsigned char carClass;
 
-	// int start = searchCityRidesByDate(rides, dateA, 0), end = searchCityRidesByDate(rides, dateB, 1), i;
-	// if (end == -1) end = getNumberOfCityRides(rides) - 1;
-	
-	// if (start != -1) {
-	// 	for (i = start; i <= end; i++) {
-	// 		currentRide = getCityRidesByIndex(rides, i);
-	// 		ID = getRideDriver(currentRide);
-	// 		currentDriver = getDriverPtrByID(driverData, ID);
-	// 		carClass = getDriverCar(currentDriver);
-	// 		// A < B retorna -1
-	// 		distance[carClass] += getRideDistance(currentRide);
-	// 		numRides[carClass] += 1;
-	// 	}
-	// }
-	int i;
-	guint len = getNumberOfCityRides(rides);
-	char * currentDate;
-	for (i = 0; i < (const int)len; i++) {
+	int start, end, i;
+
+	searchCityRidesByDate(rides, dateA, dateB, &start, &end);
+	if ((start | end) < 0) return;
+	// char ola[64];
+	// snprintf(ola, 64, "idk%d.txt", data->reps);
+	// data->reps += 1;
+	// dumpCityRidesDate(ola, rides);
+
+	for (i = start; i <= end; i++) {
 		currentRide = getCityRidesByIndex(rides, i);
 		ID = getRideDriver(currentRide);
 		currentDriver = getDriverPtrByID(driverData, ID);
 		carClass = getDriverCar(currentDriver);
-		currentDate = getRideDate(currentRide);
 		// A < B retorna -1
-		if (compDates(currentDate, dateA) >= 0) {
-			if (compDates(currentDate, dateB) > 0) {
-				free(currentDate);
-				break;
-			} else {
-				distance[carClass] += getRideDistance(currentRide);
-				numRides[carClass] += 1;
-			}
-		}
-		free(currentDate);
+		distance[carClass] += getRideDistance(currentRide);
+		numRides[carClass] += 1;
 	}
 }
 
@@ -62,7 +46,7 @@ char * query_5 (char *dateA, char *dateB, char *trash, UserData *userData, Drive
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	DataStruct data = {
-		.m_distance = distance, .m_numRides = numRides, .m_dateA = dateA, .m_dateB = dateB, .m_driverData = driverData
+		.m_distance = distance, .m_numRides = numRides, .m_dateA = dateA, .m_dateB = dateB, .m_driverData = driverData//, .reps = 0
 	};
 	iterateOverCities(ridesData, (void *)&data, result_func);
 

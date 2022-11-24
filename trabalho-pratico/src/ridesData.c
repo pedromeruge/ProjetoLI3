@@ -438,43 +438,120 @@ void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(void 
 	}
 }
 
-//bsearch está errado, a data pode não existir lá
-//MODE é uma manhosice, mas é para saber se estamos à procura de limite inferior ou superior
-int searchCityRidesByDate(CityRides *rides, char *dateA, int MODE) {
-	GPtrArray *array = rides->array;
-	int base = 0, lim = (int)array->len;
-	if (lim == 0) return -1;
+#define BSEARCH_START 0
+#define BSEARCH_END 1
+
+// coisa mais manhosa que a manhosidade
+// adaptação do bsearch que pode ou não funcionar
+// se der errado ao menos é rápido
+int custom_bsearch(GPtrArray *array, char *date, int mode) {
+	int lim = array->len - 1,
+	base = 0,
+	cmp = 0,
+	index = 0, len = array->len;
 	RidesStruct *ride;
-	int cmp, index;
 	for (; lim != 0; lim >>= 1) {
 		index = base + (lim >> 1);
 		ride = g_ptr_array_index(array, index);
-		cmp = compDates(dateA, ride->date);
+		cmp = compDates(date, ride->date);
 		if (cmp == 0) {
-			return index;
+			// return index;
+			break;
 		}
 		if (cmp > 0) {
-			base = index;
+			base = index + 1; // + 1 ??? que coisa maquiavélica
 			lim--;
 		}
 	}
-	// como a data pode não ser exata, ver aproximação mais próxima que ainda a inclua
-	// ao chegar aqui temos a certeza que não deu return
-	// MODE == 0 -> estamos a procurar o menor, dar return do mais próximo mas que seja maior
-	if (MODE == 0) {
-		while (cmp > 0 && index < (const int) array->len) {
+	
+	// bounds check????????
+	// printf("initial cmp: %d\n", cmp);
+	if (cmp > 0) {
+		for (; cmp > 0; index ++) {
 			ride = g_ptr_array_index(array, index);
-			cmp = compDates(dateA, ride->date);
-			index++;
+			cmp = compDates(date, ride->date);
 		}
-	} else {
-		while (cmp < 0 && index < (const int) array->len) {
+		index--;
+		if (mode == BSEARCH_END) index--;
+	} else if (cmp < 0) {
+		for (; cmp < 0; index --) {
 			ride = g_ptr_array_index(array, index);
-			cmp = compDates(dateA, ride->date);
+			cmp = compDates(date, ride->date);
+		}
+		index++;
+		if (mode == BSEARCH_START) index++;
+	} else { //???????????? parece funcionar
+		if (mode == BSEARCH_START && index > 0) {
+			do {
+				index --;
+				ride = g_ptr_array_index(array, index);
+				cmp = compDates(date, ride->date);
+			} while (index >= 0 && cmp == 0);
 			index++;
+		} else if (index < len - 1) {
+			do {
+				index++;
+				ride = g_ptr_array_index(array, index);
+				cmp = compDates(date, ride->date);
+			} while (index < len && cmp == 0);
+			index--;
 		}
 	}
-	return (index - 1);
+
+	return index;
+}
+
+void searchCityRidesByDate(CityRides *rides, char *dateA, char *dateB, int *res_start, int *res_end) {
+	GPtrArray *array = rides->array;
+	int len = array->len;
+	char *first, *last;
+	RidesStruct *ride;
+	ride = g_ptr_array_index(array, 0);
+	first = ride->date;
+	ride = g_ptr_array_index(array, len - 1);
+	last = ride->date;
+
+	// printf("-------------------------------\nRequested dates: %s %s\n", dateA, dateB);
+	// printf("First: %s last: %s\n", first, last);
+
+	//???????
+	if (compDates(dateA, first) < 0) {
+		if (compDates(dateB, last) > 0) {
+			*res_start = 0;
+			*res_end = len - 1;
+		} else if (compDates(dateB, first)) {
+			*res_start = -1;
+			*res_end = -1;
+		} else {
+			*res_start = 0;
+			*res_end = custom_bsearch(array, dateB, BSEARCH_END);
+		}
+	} else {
+		if (compDates(dateA, last) > 0) {
+			*res_start = -1;
+			*res_end = -1;
+		} else if (compDates(dateB, last) < 0) {
+			*res_start = custom_bsearch(array, dateA, BSEARCH_START);
+			*res_end = custom_bsearch(array, dateB, BSEARCH_END);
+		} else {
+			*res_start = custom_bsearch(array, dateA, BSEARCH_START);
+			*res_end = len - 1;
+		}
+	}
+	// printf("got indices: %d %d\n", *res_start, *res_end);
+	// printf("these correspond to %s %s\n", ((RidesStruct *)g_ptr_array_index(array, *res_start))->date, ((RidesStruct *)g_ptr_array_index(array, *res_end))->date);
+}
+
+void dumpCityRidesDate (char * filename, CityRides * rides) {
+	FILE *fp = fopen(filename, "w");
+	int i;
+	GPtrArray *array = rides->array;
+	RidesStruct *ride;
+	for (i = 0; i < (const int)array->len; i++) {
+		ride = g_ptr_array_index(array, i);
+		fprintf(fp, "%d %s\n", i, ride->date);
+	}
+	fclose(fp);
 }
 
 
