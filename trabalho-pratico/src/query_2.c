@@ -32,19 +32,13 @@ static char * strResults(const ridesByDriver * driverRatingArray, int N, DriverD
     return result;
 }
 
-//TODO: free dos elementos do g_ptr_array
-// !!!! Teste de meter a struct pública mas return const, para n poder mexer nela
-
 char * query_2 (char * number, char * trash1, char * trash2, UserData *userData, DriverData * driverData, RidesData *ridesData) {
 	int num = atoi(number);
 	if (num == 0) return NULL;
 
     const ridesByDriver * driverRatingArray = getRidesByDriver (ridesData);
 
-    //const driverRatingInfo * currentArrayStruct = getDriverInfo(driverRatingArray,8899);
-    //printf("number: %d, avg-rating: %f, number of rides: %d most-rec-ride: %s dist-traveled: %d\n",getDriverNumber(currentArrayStruct),getDriverAvgRating(currentArrayStruct),getDriverRidesNumber(currentArrayStruct),getDriverMostRecRideDate(currentArrayStruct),getDriverDistTraveled(currentArrayStruct));
-    
-    qSortArray(driverRatingArray,&sort_byRatings);
+    //qSortArray(driverRatingArray,&sort_byRatings); // dá sort todas as vezes, corrigir !!!
 
     char * result = strResults(driverRatingArray,num, driverData);
 

@@ -78,6 +78,7 @@ RidesData * getRidesData(FILE *ptr)
 		ridesData[i] = getRides(ptr, cityTable,driverRatingArray);
 
 	driverRatingArray = getPresentableValues(driverRatingArray);
+	g_ptr_array_sort(driverRatingArray, sort_byRatings); // sort prévio do array em função da avaliação média dos drivers
 
 	RidesData *data = malloc(sizeof(RidesData));
 	data->ridesArray = ridesData;
