@@ -425,7 +425,7 @@ RidesStruct *getCityRidesByIndex(CityRides *rides, guint ID)
 	return (RidesStruct *)g_ptr_array_index(rides->array, (int)ID);
 }
 
-void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(void *, void *))
+void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(CityRides *, void *))
 {
 	GHashTableIter iter;
 	g_hash_table_iter_init(&iter, rides->cityTable);

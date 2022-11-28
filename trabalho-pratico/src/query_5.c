@@ -10,9 +10,9 @@ typedef struct {
 	// int reps;
 } DataStruct;
 
-void result_func (void *cityData, void *otherData) {
+void result_func (CityRides *rides, void *otherData) {
 	DataStruct * data = (DataStruct *)otherData;
-	CityRides *rides = (CityRides *)cityData;
+	// CityRides *rides = (CityRides *)cityData;
 	unsigned int *distance = data->m_distance, *numRides = data->m_numRides;
 	DriverData * driverData = data->m_driverData;
 	char *dateA = data->m_dateA, *dateB = data->m_dateB;

@@ -36,7 +36,7 @@ RidesStruct *getCityRidesByIndex(CityRides *, guint); // devolve uma ride de uma
 /* aplica iterator_func a todas as CityRides (ou seja, a todas as cidades)
    iterator_func tem 1 pointer para dados (CityRides de cada cidade) e outro para onde escrever resultados ou passar dados à função
    data é passado como segundo argumento da funçao */
-void iterateOverCities(RidesData *, void *data, void (*iterator_func)(void *, void *));
+void iterateOverCities(RidesData *, void *data, void (*iterator_func)(CityRides *, void *));
 void searchCityRidesByDate(CityRides *rides, char *dateA, char *dateB, int *res_start, int *res_end); // binary search de cityrides por data
 void dumpCityRidesDate (char * filename, CityRides * rides); // debug
 
