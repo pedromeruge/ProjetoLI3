@@ -16,21 +16,33 @@ struct DriverStruct
 	unsigned char status;
 };
 
+typedef struct {
+	int len;
+	DriverStruct array[SIZE]; // já sabemos que vai levar malloc de SIZE e já, e assim usamos g_ptr_array
+} SecondaryDriverArray;
+
 struct DriverData {
-	DriverStruct ** driverArray;
+	GPtrArray* driverArray;
+	int last_len;
 	// capacidade para expandir no futuro, se for preciso
 };
 
-DriverStruct *getDrivers(FILE *ptr)
+void freeDriverPtrArray(void * data);
+
+SecondaryDriverArray *getDrivers(FILE *ptr)
 {
 	int i, tempchr, count, chr;
 	// char *name;
-	DriverStruct *driverStructArray = malloc(SIZE * sizeof(DriverStruct));
+
+	SecondaryDriverArray *resArray = malloc(sizeof(SecondaryDriverArray));
+	DriverStruct * driverStructArray = resArray->array;
 
 	for (i = count = 0; i < SIZE; i++, count++)
 	{
-		while ((chr = fgetc(ptr)) != ';')
-			; // && chr != -1); // skip id
+		while ((chr = fgetc(ptr)) != ';' && chr != EOF); // && chr != -1); // skip id
+		if (chr == EOF) {
+			break; //break feio
+		}
 		// name = loadString(ptr);
 		driverStructArray[i].name = loadString(ptr);
 		// if (name == NULL) break;
@@ -38,18 +50,22 @@ DriverStruct *getDrivers(FILE *ptr)
 		driverStructArray[i].gender = fgetc(ptr);
 		fseek(ptr, 1, SEEK_CUR);
 		driverStructArray[i].carClass = (fgetc(ptr) - 97) / 6;
-		while (fgetc(ptr) != ';')
-			;
+		while (fgetc(ptr) != ';');
 		driverStructArray[i].licensePlate = loadString(ptr);
 		driverStructArray[i].city = loadString(ptr);
 		driverStructArray[i].accountCreation = loadString(ptr);
 		driverStructArray[i].status = getAccountStatus(ptr);
 
 		// avaçar até proxima linha
-		while ((tempchr = fgetc(ptr)) != '\n')
-			; // && (tempchr != -1));
+		while ((tempchr = fgetc(ptr)) != '\n'); // && (tempchr != -1));
 	}
 
+	resArray->len = i;// - 1 ????
+	if (chr == EOF && i == 0) {
+			free(resArray);
+			resArray = NULL; //fim do ficheiro e não recebemos info nenhuma
+	}
+	
 	// for (i = 0; i < count; i++) {
 	// 	printf("%s %s %d %c %s %s %s %d\n", driverStructArray[i].name,
 	// 	driverStructArray[i].birthdate,
@@ -61,54 +77,60 @@ DriverStruct *getDrivers(FILE *ptr)
 	// 	driverStructArray[i].status);
 	// }
 
-	return driverStructArray;
+	return resArray;
 }
 
 DriverData * getDriverData(FILE *ptr)
 {
 	DriverData * newDriverData = malloc(sizeof(DriverData));
-	DriverStruct ** driverarray = malloc(DRIVER_ARR_SIZE * sizeof(DriverStruct *));
-	int i;
+	GPtrArray * driverarray = g_ptr_array_new_with_free_func(freeDriverPtrArray);
+	SecondaryDriverArray *secondaryArray;
+
+	int last_len = 0;
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	for (i = 0; i < DRIVER_ARR_SIZE; i++)
-		driverarray[i] = getDrivers(ptr);
+	secondaryArray = getDrivers(ptr);
+	while (secondaryArray != NULL) {
+		g_ptr_array_add(driverarray, secondaryArray);
+		secondaryArray = getDrivers(ptr);
+	}
 
 	newDriverData->driverArray = driverarray;
+	newDriverData->last_len = last_len;
 	return newDriverData;
 }
 
 void freeDriverData(DriverData * data)
 {
-	DriverStruct ** driverarray = data->driverArray;
-	int i, j;
-	DriverStruct *segment, block;
-	for (i = 0; i < DRIVER_ARR_SIZE; i++)
-	{
-		segment = driverarray[i];
-		for (j = 0; j < SIZE; j++)
-		{
-			block = segment[j];
-			free(block.name);
-			free(block.birthdate);
-			free(block.licensePlate);
-			free(block.city);
-			free(block.accountCreation);
-		}
-		free(segment);
-	}
-	free(driverarray);
+	g_ptr_array_free(data->driverArray, TRUE);
 	free(data);
+}
+
+void freeDriverPtrArray(void * data) {
+	SecondaryDriverArray *secondaryArray = (SecondaryDriverArray *)data;
+	DriverStruct * array = secondaryArray->array;
+	
+	int i;
+	DriverStruct block;
+	for (i = 0; i < (const int)secondaryArray->len; i++) {
+		block = array[i];
+		free(block.name);
+		free(block.birthdate);
+		free(block.licensePlate);
+		free(block.city);
+		free(block.accountCreation);
+	}
+	free(secondaryArray);
 }
 
 // devolve a struct(dados) associada ao driver número i
 DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
 {
+	// no bounds checking
 	ID -= 1;
 	int i = ID / SIZE;
-	DriverStruct ** primaryArray = data->driverArray;
-	DriverStruct *secondaryArray = primaryArray[i],
-				 *result = &(secondaryArray[ID - SIZE * i]);
+	SecondaryDriverArray *secondaryArray = g_ptr_array_index(data->driverArray, i);
+	DriverStruct * result = &(secondaryArray->array[ID - SIZE * i]);
 	return result;
 }
 

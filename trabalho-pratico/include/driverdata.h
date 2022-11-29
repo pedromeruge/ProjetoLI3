@@ -4,6 +4,7 @@
 #include "commonParsing.h"
 
 #define SIZE 1000
+
 #define DRIVER_ARR_SIZE 10
 
 //informações de um driver
