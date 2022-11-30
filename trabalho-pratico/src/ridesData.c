@@ -57,7 +57,7 @@ void *sortCity(void *data)
 {
 	GPtrArray *array = (GPtrArray *)data;
 	g_ptr_array_sort(array, compareRidesByDate);
-	g_thread_exit(NULL);
+	// g_thread_exit(NULL);
 	return NULL;
 }
 
@@ -89,14 +89,19 @@ RidesData * getRidesData(FILE *ptr)
 	guint num_keys = g_hash_table_size(cityTable);
 	GThread *threads[num_keys];
 
+	num_keys --; // a city final é feita pela main thread
+
 	GHashTableIter iter;
 	gpointer value;
 	g_hash_table_iter_init (&iter, cityTable);
-	for (i = 0; g_hash_table_iter_next (&iter, NULL, &value); i++)
+	for (i = 0; g_hash_table_iter_next (&iter, NULL, &value) && i < (int)num_keys; i++)
 	{
 		threads[i] = g_thread_new(NULL, sortCity, value);
 		// sortCity(&args[i]);
 	}
+	// mudei isto, a main thread ficava sem fazer nada, assim faz uma das cities
+	g_hash_table_iter_next (&iter, NULL, &value);
+	sortCity(value);
 
 	for (i = 0; i < (int)num_keys; i++) {
 		g_thread_join(threads[i]);

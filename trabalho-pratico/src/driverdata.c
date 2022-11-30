@@ -23,8 +23,6 @@ typedef struct {
 
 struct DriverData {
 	GPtrArray* driverArray;
-	int last_len;
-	// capacidade para expandir no futuro, se for preciso
 };
 
 void freeDriverPtrArray(void * data);
@@ -86,7 +84,6 @@ DriverData * getDriverData(FILE *ptr)
 	GPtrArray * driverarray = g_ptr_array_new_with_free_func(freeDriverPtrArray);
 	SecondaryDriverArray *secondaryArray;
 
-	int last_len = 0;
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
 	secondaryArray = getDrivers(ptr);
@@ -96,7 +93,6 @@ DriverData * getDriverData(FILE *ptr)
 	}
 
 	newDriverData->driverArray = driverarray;
-	newDriverData->last_len = last_len;
 	return newDriverData;
 }
 
