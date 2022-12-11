@@ -7,6 +7,6 @@
 
 int queryRequests (FILE * fp, UserData *userData, DriverData * driverData, RidesData *ridesData);
 int writeResults (int commandN, char * strResult);
-char * NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverData * driverData, RidesData *ridesData);
+char * NOP(char * inputStr[], UserData *userData, DriverData * driverData, RidesData *ridesData);
 
 #endif

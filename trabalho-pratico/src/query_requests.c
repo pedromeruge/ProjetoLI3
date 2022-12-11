@@ -7,6 +7,7 @@
 #include "driverdata.h"
 #include "ridesData.h"
 
+#define MAX_QUERY_INPUTS 3
 #define LINE_SIZE 128
 #define TEST_PATH "Resultados/command%d_output.txt"
 int writeResults(int commandN, char *strResult)
@@ -34,7 +35,7 @@ int writeResults(int commandN, char *strResult)
     return 0;
 }
 
-char *NOP(char *city, char *trash1, char *trash2, UserData *userData, DriverData *DriverData, RidesData *ridesData)
+char *NOP(char * inputStr[], UserData *userData, DriverData *DriverData, RidesData *ridesData)
 {
     return NULL;
 }
@@ -44,7 +45,7 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
     query_func *queryList[9] = {query_1, query_2, query_3, query_4, query_5, query_6, NOP, NOP, NOP};
     char *strBuffer = malloc(sizeof(char) * LINE_SIZE); // buffer de cada linha lida
     char *querryResult = NULL;                          // pointer para a string resultante de cada querry
-    char *tempsegstr[4];                                // array para atribuir o segmento correto do input
+    char *tempsegstr[MAX_QUERY_INPUTS+1];               // array com segmentos de input para uma query (atualizado em cada linha)
     char *strHolder, *temp;
     ssize_t read;
     size_t len = LINE_SIZE; // para o getline
@@ -58,7 +59,6 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
 
         temp = strBuffer;
 		
-		
 		// for safety in case strings are unititialized
         // this only impacts debug printf
 		// ... = {NULL} doesnt work???
@@ -67,15 +67,19 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
 		tempsegstr[2] = NULL;
 		tempsegstr[3] = NULL;
 		
-		for (j = 0; j < 4 && (strHolder = strsep(&strBuffer, " ")); j++)
+		for (j = 0; j <= MAX_QUERY_INPUTS && (strHolder = strsep(&strBuffer, " ")); j++)
         { // j<4 por segurança
             tempsegstr[j] = strHolder;
         }
         strBuffer = temp;
 
-        fprintf(stderr, "command (%d), query |%d| input segments: <%.16s> <%.16s> <%.16s>\n",commandN,(*tempsegstr[0]) - 49 + 1,tempsegstr[1],tempsegstr[2],tempsegstr[3]);
+        //print de debug para os inputs de cada query
+        fprintf(stderr, "command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
+        for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++)
+            fprintf(stderr," <%.16s>",tempsegstr[j]);
+        putchar('\n');
 
-        querryResult = queryList[(*tempsegstr[0]) - 49](tempsegstr[1], tempsegstr[2], tempsegstr[3], userData, driverData, ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
+        querryResult = queryList[(*tempsegstr[0]) - 49](tempsegstr+1, userData, driverData, ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
         writeRet = writeResults(commandN, querryResult);
         if (writeRet)
         {

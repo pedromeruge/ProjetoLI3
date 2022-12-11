@@ -127,8 +127,8 @@ double driver_total_earned(int idstr, RidesData *ridesdata, DriverData *driverDa
     return total_spent;
 }
 
-char *query_1(char *idstr, char *trash1, char *trash2, UserData *userData, DriverData *driverData, RidesData *ridesData)
-{
+char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
+    char * idstr = inputStr[0];
     int numero;
     if ((numero = atoi(idstr)) != 0)
     {

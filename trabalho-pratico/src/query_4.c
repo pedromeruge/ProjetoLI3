@@ -2,9 +2,9 @@
 
 #define STR_BUFF_SIZE 16
 
-char *query_4(char *city, char *trash1, char *trash2, UserData *userData, DriverData *driverData, RidesData *ridesData)
-{
+char *query_4(char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
 	guint i;
+	char * city = inputStr[0];
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	CityRides *rides = getRidesByCity(ridesData, city);

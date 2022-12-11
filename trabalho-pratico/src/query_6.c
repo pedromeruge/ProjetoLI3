@@ -2,7 +2,9 @@
 
 #define STR_BUFF_SIZE 16
 
-char *query_6(char *city, char *dateA, char *dateB, UserData *userData, DriverData *driverData, RidesData *ridesData) {
+char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
+	char * city = inputStr[0], * dateA = inputStr[1], * dateB = inputStr[2];
+	
 	unsigned int distance = 0;
 	CityRides *rides = getRidesByCity(ridesData, city);
 

@@ -13,10 +13,10 @@
 //#include "query8.c"
 //#include "query9.c"
 
-char * query_7 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
-char * query_8 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
-char * query_9 (char *, char *, char *, UserData *userData, DriverData *, RidesData *ridesData);
+char * query_7 (char * inputStr[], UserData *userData, DriverData *, RidesData *ridesData);
+char * query_8 (char * inputStr[], UserData *userData, DriverData *, RidesData *ridesData);
+char * query_9 (char * inputStr[], UserData *userData, DriverData *, RidesData *ridesData);
 
-typedef char * query_func (char * inp1, char * inp2, char * inp3, UserData *userData, DriverData *, RidesData *ridesData);
+typedef char * query_func (char * inputStr[], UserData *userData, DriverData *, RidesData *ridesData);
 
 #endif

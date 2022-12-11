@@ -6,6 +6,6 @@
 #include "userdata.h"
 #include "commonParsing.h"
 
-char * query_4(char *, char *, char *, UserData *userData, DriverData *driverData, RidesData *ridesData);
+char * query_4(char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData);
 
 #endif

@@ -5,6 +5,6 @@
 #include "driverdata.h"
 #include "userdata.h"
 
-char * query_3 (char *, char *, char *, UserData *, DriverData *, RidesData *);
+char * query_3 (char * inputStr[], UserData *, DriverData *, RidesData *);
 
 #endif

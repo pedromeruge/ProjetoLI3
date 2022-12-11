@@ -12,6 +12,6 @@
 #define REFERENCE_MONTH 10
 #define REFERENCE_YEAR 2022
 
-char *query_1(char *, char *, char *, UserData *, DriverData *, RidesData *);
+char * query_1(char * inputStr[], UserData *, DriverData *, RidesData *);
 
 #endif

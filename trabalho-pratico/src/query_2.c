@@ -32,8 +32,8 @@ static char * strResults(const ridesByDriver * driverRatingArray, int N, DriverD
     return result;
 }
 
-char * query_2 (char * number, char * trash1, char * trash2, UserData *userData, DriverData * driverData, RidesData *ridesData) {
-	int num = atoi(number);
+char * query_2 (char * inputStr[], UserData *userData, DriverData * driverData, RidesData *ridesData) {
+	int num = atoi(inputStr[0]);
 	if (num == 0) return NULL;
 
     const ridesByDriver * driverRatingArray = getRidesByDriver (ridesData);

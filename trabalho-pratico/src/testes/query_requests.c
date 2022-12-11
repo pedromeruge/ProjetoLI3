@@ -173,7 +173,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 		strBuffer = temp;
 
 		printf("Answering query %d:\n", (int)((*tempsegstr[0]) - 48));
-        querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr[1],tempsegstr[2],tempsegstr[3],userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
+        querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr + 1,userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
 		
 		cpu_end = clock();
 		clock_gettime(CLOCK_REALTIME, &finish);

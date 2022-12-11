@@ -42,7 +42,9 @@ void result_func (CityRides *rides, void *otherData) {
 	}
 }
 
-char * query_5 (char *dateA, char *dateB, char *trash, UserData *userData, DriverData *driverData, RidesData *ridesData) {
+char * query_5 (char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
+	char * dateA = inputStr[0], * dateB = inputStr[1];
+	
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	DataStruct data = {
