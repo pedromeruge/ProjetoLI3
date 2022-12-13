@@ -38,7 +38,7 @@ char * query_2 (char * inputStr[], UserData *userData, DriverData * driverData, 
 
     const ridesByDriver * driverRatingArray = getRidesByDriver (ridesData);
 
-    //qSortArray(driverRatingArray,&sort_byRatings); // dá sort todas as vezes, corrigir !!!
+    driverRatingArray = qSortArray(driverRatingArray, ridesData, &sort_byRatings); // dá sort todas as vezes, corrigir !!!
 
     char * result = strResults(driverRatingArray,num, driverData);
 

@@ -14,7 +14,7 @@
 
 typedef void q_test_func (UserData* userData, DriverData *driverData, RidesData *ridesData);
 
-char * query_not_implemented(char *trash0, char *trash1, char *trash2, UserData *userData, DriverData * DriverData, RidesData *ridesData) {
+char * query_not_implemented(char *inputStr[], UserData *userData, DriverData * DriverData, RidesData *ridesData) {
 	fprintf(stderr, "ERROR: querry not implemented\n");
 	return NULL;
 }
@@ -27,6 +27,7 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 	struct timespec start, finish, delta;
 	int sec = 0, N = 50, total;
 	char str[16], *res, buff[16];
+	char *strInput[3];
 	int NUMBER_OF_DRIVERS = 10000; // mudar isto!!!!
 
 	//aproximação por linear curve fitting
@@ -39,13 +40,14 @@ void test_q_2 (UserData* userData, DriverData *driverData, RidesData *ridesData)
 
 	//warmup cache ?????
 	snprintf(str, 16, "%d", 1);
-	res = query_2(str, NULL, NULL, userData, driverData, ridesData);
+	strInput[0] = str;
+	res = query_2(strInput, userData, driverData, ridesData);
 	free(res);
 
 	for (total = 1; sec < 10 && N < NUMBER_OF_DRIVERS; total++) {
 		clock_gettime(CLOCK_REALTIME, &start);
 		snprintf(str, 16, "%d", N);
-		res = query_2(str, NULL, NULL, userData, driverData, ridesData);
+		res = query_2(strInput, userData, driverData, ridesData);
 		free(res);
 		clock_gettime(CLOCK_REALTIME, &finish);
 		sub_timespec(start, finish, &delta);

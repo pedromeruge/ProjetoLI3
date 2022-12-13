@@ -46,7 +46,8 @@ void dumpCityRidesDate (char * filename, CityRides * rides); // debug
 
 // funções de rides associadas a drivers
 const ridesByDriver *getRidesByDriver(const RidesData *);
-const driverRatingInfo *getDriverInfo(const ridesByDriver *, guint); // devolve a informação de um driver para todas as rids
+//const ridesByDriver *getRidesByDriverInCity(const CityRides * );
+const driverRatingInfo *getDriverInfo(const ridesByDriver *, guint); // devolve a informação de um driver para todas as rides
 short int getridesByDriverArraySize(const ridesByDriver *);
 
 double getDriverAvgRating(const driverRatingInfo *);
@@ -62,7 +63,7 @@ gint sort_byRatings (gconstpointer a, gconstpointer b);
 
 // usa uma função de comparação entre dois elementos recebida como argumento para dar sort a um array, também recebido como argumento
 //  TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)
-void qSortArray(const ridesByDriver *driverRatingArray, gint (*sortFunction)(gconstpointer a, gconstpointer b));
+const ridesByDriver * qSortArray(const ridesByDriver *, RidesData * , gint (*sortFunction)(gconstpointer a, gconstpointer b));
 
 
 // receber a informação de uma ride

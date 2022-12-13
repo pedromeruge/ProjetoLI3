@@ -5,6 +5,7 @@
 char *query_4(char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
 	guint i;
 	char * city = inputStr[0];
+	
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	CityRides *rides = getRidesByCity(ridesData, city);
