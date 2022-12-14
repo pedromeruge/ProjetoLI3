@@ -2,6 +2,8 @@
 
 #define RIDE_STR_BUFF 32
 
+#define N_OF_FIELDS 8
+
 struct RidesStruct
 {
 	char *date;
@@ -48,7 +50,7 @@ struct RidesData {
 void freeArray(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *sortCity(void *);
-RidesStruct *getRides(FILE *, GHashTable *, GPtrArray *);
+RidesStruct *getRides(FILE *, GHashTable *, GPtrArray *, parse_format *format);
 
 GPtrArray * addDriverInfo(GPtrArray *,RidesStruct *);
 driverRatingInfo * newDriverInfo (RidesStruct *);
@@ -78,10 +80,26 @@ RidesData * getRidesData(FILE *ptr)
 	GPtrArray * driverInfoArray = g_ptr_array_new_full(numberOfDrivers, freeRidesRating);
 	g_ptr_array_set_size(driverInfoArray,numberOfDrivers); // o tamanho do array tem de ser definido, apesar de ja ter sido alocado o espaço para o tamanho necessário; o array tem de ser inicializado a NULL para todos os pointers, feito por g_ptr_array_set_size
 
+	parse_format format;
+
+	parse_func_struct format_array[N_OF_FIELDS] = {
+		{ getDate, offsetof(RidesStruct, date), 1, },
+		{ getDriver, offsetof(RidesStruct, driver), 0, },
+		{ getName, offsetof(RidesStruct, user), 1, },
+		{ getCity, offsetof(RidesStruct, city), 1, },
+		{ getDistance, offsetof(RidesStruct, distance), 0, },
+		{ getScoreUser,offsetof(RidesStruct, score_u), 0, },
+		{ getScoreDriver, offsetof(RidesStruct, score_d), 0, },
+		{ getTip, offsetof(RidesStruct, tip), 0, },
+	};
+
+	format.format_array = format_array;
+	format.len = N_OF_FIELDS;
+
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
 	for (i = 0; i < RIDES_ARR_SIZE; i++)
-		ridesData[i] = getRides(ptr, cityTable,driverInfoArray);
+		ridesData[i] = getRides(ptr, cityTable, driverInfoArray, &format);
 
 	driverInfoArray = getPresentableValues(driverInfoArray);
 
@@ -117,7 +135,7 @@ RidesData * getRidesData(FILE *ptr)
 	return data;
 }
 
-RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoArray)
+RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoArray, parse_format *format)
 {
 	int i, count, chr, id_size;
 	char *city;
@@ -132,17 +150,8 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoAr
 		}
 		//FALTA ESCREVER O TAMANHO DO ARRAY COMO NO DRIVERDATA
 
-		if (id_size != 0 &&\
-			getDate(ptr, &ridesStructArray[i].date) &&\
-			getDriver(ptr, &ridesStructArray[i].driver) &&\
-			getName(ptr, &ridesStructArray[i].user) &&\
-			getCity(ptr, &city) &&\
-			getDistance(ptr, &ridesStructArray[i].distance) &&\
-			getScoreUser(ptr, &ridesStructArray[i].score_u) &&\
-			getScoreDriver(ptr, &ridesStructArray[i].score_d) &&\
-			getTip(ptr, &ridesStructArray[i].tip))
-		{
-			ridesStructArray[i].city = city;
+		if (id_size != 0 && parse_with_format(ptr, (void *)&ridesStructArray[i], format)) {
+			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 			// check if city is not already in hash table
 			if ((array = g_hash_table_lookup(cityTable, city)) == NULL)
@@ -157,11 +166,6 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoAr
 				// if yes, append to all the other data
 				g_ptr_array_add(array, temp);
 			}
-		} else {
-			// free(ridesStructArray[i].date);
-			ridesStructArray[i].date = NULL; // para assinalar que é inválida
-			// free(ridesStructArray[i].user);
-			// free(ridesStructArray[i].city);
 		}
 
 		// ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????

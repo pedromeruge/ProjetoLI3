@@ -101,7 +101,6 @@ DriverData * getDriverData(FILE *ptr)
 	format.format_array = format_array;
 	format.len = N_OF_FIELDS;
 
-// offsetof
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
 	secondaryArray = getDrivers(ptr, &format);
