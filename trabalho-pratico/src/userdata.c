@@ -32,14 +32,14 @@ UserData *getUserData(FILE *ptr)
 {
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha
-	int line;
+	int line, res;
 	char *username, tempchr;
 	UserStruct *userstruct;
 	GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, free, freeTableData); /////// NOT FREE
 	for (line = 0; line < LINES; line++)
 	{
 		userstruct = malloc(sizeof(UserStruct));
-		if (getName(ptr, &username) &&\
+		if ((res = getName(ptr, &username)) && //vai retornar -1 se fgetc der -1, para sabermos que estamos no fim do ficheiro
 			getName(ptr, &userstruct->name) &&\
 			getGender(ptr, &userstruct->gender) &&\
 			getDate(ptr, &userstruct->birthdate) &&\
@@ -52,6 +52,11 @@ UserData *getUserData(FILE *ptr)
 			{
 				fprintf(stderr, "Username already existed\n");
 				exit(5);
+			}
+		} else {
+			free(userstruct);
+			if (res == -1) {
+				break;
 			}
 		}
 

@@ -1,5 +1,6 @@
 #include "commonParsing.h"
 
+// se for vazio return NULL
 char *loadString(FILE *ptr)
 {
 	char sBuffer[128], *str = NULL;
@@ -21,15 +22,13 @@ char *loadString(FILE *ptr)
 		str[j] = '\0';
 	}
 
-	// putchar('\n');
-
 	// sBuffer[i] = '\0';
 	// printf("buffer:%s | string:%s\n", sBuffer, str);
 
 	return str;
 }
 
-// esta tem poucas condiçoes, pode dar erro
+// se for vazio buffer começa com \0
 void writeString(FILE *ptr, char *buffer)
 {
 	// buffer is 16 bytes
@@ -40,6 +39,7 @@ void writeString(FILE *ptr, char *buffer)
 		// else
 		buffer[i] = chr;
 	}
+	
 	buffer[i] = '\0';
 }
 
@@ -76,17 +76,6 @@ int getAccountStatus(FILE *ptr, unsigned char *res) {
 	return 1;
 }
 
-// compara se date1 é menor que date2
-/*
-int compDates (char * date1, char * date2) {
-	int day1,month1,year1,day2,month2,year2;
-	sscanf(date1, "%d/%d/%d", &day1,&month1,&year1);
-	sscanf(date2, "%d/%d/%d", &day2,&month2,&year2);
-	int result = ((year1 - year2) * 64) + ((month1-month2) * 16) + ((day1-day2)); // peso do ano arbitrariamente maior e do mês segundo maior
-	return result;
-}
-*/
-
 int compDates(char *dateA, char *dateB)
 {
 	// DD/MM/YYYY
@@ -117,11 +106,13 @@ int getDriver(FILE *ptr, short int *res) {
 
 int getName(FILE *ptr, char **res) {
 	*res = loadString(ptr);
+	if (res == NULL) return 0;
 	return 1;
 }
 
 int getCity(FILE *ptr, char **res) {
 	*res = loadString(ptr);
+	if (res == NULL) return 0;
 	return 1;
 }
 
@@ -167,5 +158,6 @@ int getCarClass(FILE *ptr, unsigned char *res) {
 
 int getLicensePlate(FILE *ptr, char **res) {
 	*res = loadString(ptr);
+	if (res == NULL) return 0;
 	return 1;
 }

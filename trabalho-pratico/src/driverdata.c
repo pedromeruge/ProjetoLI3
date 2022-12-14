@@ -29,7 +29,7 @@ void freeDriverPtrArray(void * data);
 
 SecondaryDriverArray *getDrivers(FILE *ptr)
 {
-	int i, tempchr, count, chr;
+	int i, tempchr, count, chr, id_size;
 	// char *name;
 
 	SecondaryDriverArray *resArray = malloc(sizeof(SecondaryDriverArray));
@@ -37,11 +37,14 @@ SecondaryDriverArray *getDrivers(FILE *ptr)
 
 	for (i = count = 0; i < SIZE; i++, count++)
 	{
-		while ((chr = fgetc(ptr)) != ';' && chr != EOF); // && chr != -1); // skip id
+		for (id_size = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; id_size++); // && chr != -1); // skip id
+		
 		if (chr == EOF) {
 			break; //break feio???????
 		}
-		if (getName(ptr, &driverStructArray[i].name) &&\
+
+		if (id_size == 0 &&\
+			getName(ptr, &driverStructArray[i].name) &&\
 			getDate(ptr, &driverStructArray[i].birthdate) &&\
 			getGender(ptr, &driverStructArray[i].gender) &&\
 			getCarClass(ptr, &driverStructArray[i].carClass) &&\
@@ -51,6 +54,13 @@ SecondaryDriverArray *getDrivers(FILE *ptr)
 			getAccountStatus(ptr, &driverStructArray[i].status))
 		{
 			;//??????
+		} else {
+			free(driverStructArray[i].name);
+			driverStructArray[i].name = NULL; // para assinalar que é inválido
+			free(driverStructArray[i].birthdate);
+			free(driverStructArray[i].licensePlate);
+			free(driverStructArray[i].city);
+			free(driverStructArray[i].accountCreation);
 		}
 
 		// avaçar até proxima linha
