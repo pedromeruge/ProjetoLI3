@@ -5,7 +5,7 @@
 
 struct UserStruct
 {
-	// char *username;
+	char *username;
 	char *name;
 	unsigned char gender;
 	char *birthdate;
@@ -47,7 +47,12 @@ UserData *getUserData(FILE *ptr)
 			getPayMethod(ptr, &userstruct->payMethod) &&\
 			getAccountStatus(ptr, &userstruct->status))
 		{
-			;//?????
+			userstruct->username = username;
+			if (g_hash_table_insert(table, username, userstruct) == FALSE)
+			{
+				fprintf(stderr, "Username already existed\n");
+				exit(5);
+			}
 		}
 
 		// avaçar até proxima linha
@@ -56,13 +61,6 @@ UserData *getUserData(FILE *ptr)
 
 		// printf("\"username:%s name:%s gender:%c birthdate:%s accCreation:%s payMethod:%c(%d) status:%c(%d)\"\n",
 		// username, userstruct->name, userstruct->gender, userstruct->birthdate, userstruct->accountCreation, userstruct->payMethod, userstruct->payMethod, userstruct->status, userstruct->status);
-
-		// if (username == NULL) ???
-		if (g_hash_table_insert(table, username, userstruct) == FALSE)
-		{
-			fprintf(stderr, "Username already existed\n");
-			exit(5);
-		}
 	}
 	UserData *data = malloc(sizeof(UserData));
 	data->table = table;
@@ -78,6 +76,11 @@ UserStruct *getUserPtrByUsername(UserData *data, char *name)
 char *getUserName(UserStruct *data)
 {
 	return strndup(data->name, USER_STR_BUFF);
+}
+
+char *getUserUsername(UserStruct *data)
+{
+	return strndup(data->username, USER_STR_BUFF);
 }
 
 unsigned char getUserGender(UserStruct *data)
