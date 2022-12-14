@@ -120,44 +120,44 @@ RidesData * getRidesData(FILE *ptr)
 RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoArray)
 {
 	int i, count, chr;
-	char tempBuffer[16], *city;
+	char *city;
 	GPtrArray *array;
 	RidesStruct *ridesStructArray = malloc(SIZE * sizeof(RidesStruct)), *temp;
 	for (i = count = 0; i < SIZE; i++, count++)
 	{
-		while ((chr = fgetc(ptr)) != ';')
-			; // && chr != -1); // skip id
-		ridesStructArray[i].date = loadString(ptr);
-		writeString(ptr, tempBuffer);
-		ridesStructArray[i].driver = (short)atoi(tempBuffer);
-		ridesStructArray[i].user = loadString(ptr);
-		city = loadString(ptr);
-		ridesStructArray[i].city = city;
-		writeString(ptr, tempBuffer);
-		ridesStructArray[i].distance = (short)atoi(tempBuffer);
-		writeString(ptr, tempBuffer);
-		ridesStructArray[i].score_u = (short)atoi(tempBuffer);
-		writeString(ptr, tempBuffer);
-		ridesStructArray[i].score_d = (short)atoi(tempBuffer);
-		writeString(ptr, tempBuffer);
-		ridesStructArray[i].tip = atof(tempBuffer);
-		ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????
+		while ((chr = fgetc(ptr)) != ';'); // && chr != -1); // skip id
+		if (getDate(ptr, &ridesStructArray[i].date) &&\
+			getDriver(ptr, &ridesStructArray[i].driver) &&\
+			getName(ptr, &ridesStructArray[i].user) &&\
+			getCity(ptr, &city) &&\
+			getDistance(ptr, &ridesStructArray[i].distance) &&\
+			getScoreUser(ptr, &ridesStructArray[i].score_u) &&\
+			getScoreDriver(ptr, &ridesStructArray[i].score_d) &&\
+			getTip(ptr, &ridesStructArray[i].tip))
+		{
+			ridesStructArray[i].city = city;
+			temp = &(ridesStructArray[i]);
+			// check if city is not already in hash table
+			if ((array = g_hash_table_lookup(cityTable, city)) == NULL)
+			{
+				// if not, insert
+				array = g_ptr_array_sized_new(200000); // +/- 195000 por cidade
+				g_ptr_array_add(array, temp);
+				g_hash_table_insert(cityTable, city, array);
+			}
+			else
+			{
+				// if yes, append to all the other data
+				g_ptr_array_add(array, temp);
+				// printf("Adding to %s a ride in %s\n", city, temp->city);
+			}
+		}
+		
+		// ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????
+		ridesStructArray[i].comment = NULL;
+		while ((chr = fgetc(ptr)) != '\n');
 
-		temp = &(ridesStructArray[i]);
-		// check if city is not already in hash table
-		if ((array = g_hash_table_lookup(cityTable, city)) == NULL)
-		{
-			// if not, insert
-			array = g_ptr_array_sized_new(200000); // +/- 195000 por cidade
-			g_ptr_array_add(array, temp);
-			g_hash_table_insert(cityTable, city, array);
-		}
-		else
-		{
-			// if yes, append to all the other data
-			g_ptr_array_add(array, temp);
-			// printf("Adding to %s a ride in %s\n", city, temp->city);
-		}
+		// aqui?????????????
 		driverInfoArray = addDriverInfo(driverInfoArray, ridesStructArray + i);
 	}
 

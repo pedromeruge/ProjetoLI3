@@ -39,20 +39,19 @@ SecondaryDriverArray *getDrivers(FILE *ptr)
 	{
 		while ((chr = fgetc(ptr)) != ';' && chr != EOF); // && chr != -1); // skip id
 		if (chr == EOF) {
-			break; //break feio
+			break; //break feio???????
 		}
-		// name = loadString(ptr);
-		driverStructArray[i].name = loadString(ptr);
-		// if (name == NULL) break;
-		driverStructArray[i].birthdate = loadString(ptr);
-		driverStructArray[i].gender = fgetc(ptr);
-		fseek(ptr, 1, SEEK_CUR);
-		driverStructArray[i].carClass = (fgetc(ptr) - 97) / 6;
-		while (fgetc(ptr) != ';');
-		driverStructArray[i].licensePlate = loadString(ptr);
-		driverStructArray[i].city = loadString(ptr);
-		driverStructArray[i].accountCreation = loadString(ptr);
-		driverStructArray[i].status = getAccountStatus(ptr);
+		if (getName(ptr, &driverStructArray[i].name) &&\
+			getDate(ptr, &driverStructArray[i].birthdate) &&\
+			getGender(ptr, &driverStructArray[i].gender) &&\
+			getCarClass(ptr, &driverStructArray[i].carClass) &&\
+			getLicensePlate(ptr, &driverStructArray[i].licensePlate) &&\
+			getCity(ptr, &driverStructArray[i].city) &&\
+			getDate(ptr, &driverStructArray[i].accountCreation) &&\
+			getAccountStatus(ptr, &driverStructArray[i].status))
+		{
+			;//??????
+		}
 
 		// avaçar até proxima linha
 		while ((tempchr = fgetc(ptr)) != '\n'); // && (tempchr != -1));

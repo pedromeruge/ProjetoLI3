@@ -39,21 +39,23 @@ UserData *getUserData(FILE *ptr)
 	for (line = 0; line < LINES; line++)
 	{
 		userstruct = malloc(sizeof(UserStruct));
-		username = loadString(ptr);
-		userstruct->name = loadString(ptr);
-		userstruct->gender = fgetc(ptr);
-		fseek(ptr, 1, SEEK_CUR);
-		userstruct->birthdate = loadString(ptr);
-		userstruct->accountCreation = loadString(ptr);
-		userstruct->payMethod = getPayMethod(ptr);
-		userstruct->status = getAccountStatus(ptr);
+		if (getName(ptr, &username) &&\
+			getName(ptr, &userstruct->name) &&\
+			getGender(ptr, &userstruct->gender) &&\
+			getDate(ptr, &userstruct->birthdate) &&\
+			getDate(ptr, &userstruct->accountCreation) &&\
+			getPayMethod(ptr, &userstruct->payMethod) &&\
+			getAccountStatus(ptr, &userstruct->status))
+		{
+			;//?????
+		}
 
 		// avaçar até proxima linha
 		while ((tempchr = fgetc(ptr)) != '\n')
 			; // && (tempchr != -1));
 
-		// printf("\"username:%s name:%s gender:%c birthdate:%s accCreation:%s payMethod:%c status:%c\"\n",
-		// username, userstruct->name, userstruct->gender, userstruct->birthdate, userstruct->accountCreation, userstruct->payMethod, userstruct->status);
+		// printf("\"username:%s name:%s gender:%c birthdate:%s accCreation:%s payMethod:%c(%d) status:%c(%d)\"\n",
+		// username, userstruct->name, userstruct->gender, userstruct->birthdate, userstruct->accountCreation, userstruct->payMethod, userstruct->payMethod, userstruct->status, userstruct->status);
 
 		// if (username == NULL) ???
 		if (g_hash_table_insert(table, username, userstruct) == FALSE)

@@ -43,7 +43,7 @@ void writeString(FILE *ptr, char *buffer)
 	buffer[i] = '\0';
 }
 
-unsigned char getPayMethod(FILE *ptr)
+int getPayMethod(FILE *ptr, unsigned char *res)
 {
 	fseek(ptr, 1, SEEK_CUR); // avançar o 'c' para comparar 'a' vs 'r' (c|ash vs c|redit)
 	char chr = fgetc(ptr);
@@ -56,13 +56,12 @@ unsigned char getPayMethod(FILE *ptr)
 	{
 		result = CREDIT;
 	}
-	while (fgetc(ptr) != ';')
-		;
-	return result;
+	while (fgetc(ptr) != ';');
+	*res = result;
+	return 1;
 }
 
-unsigned char getAccountStatus(FILE *ptr)
-{
+int getAccountStatus(FILE *ptr, unsigned char *res) {
 	char chr = fgetc(ptr);
 	unsigned char result;
 	if (chr == 'a')
@@ -73,7 +72,8 @@ unsigned char getAccountStatus(FILE *ptr)
 	{
 		result = INACTIVE;
 	}
-	return result;
+	*res = result;
+	return 1;
 }
 
 // compara se date1 é menor que date2
@@ -101,4 +101,71 @@ int compDates(char *dateA, char *dateB)
 	} else {
 		return strncmp(dateA, dateB, 2);
 	}
+}
+
+int getDate(FILE *ptr, char **res) {
+	*res = loadString(ptr);
+	return 1;
+}
+
+int getDriver(FILE *ptr, short int *res) {
+	char tempBuffer[16];
+	writeString(ptr, tempBuffer);
+	*res = (short)atoi(tempBuffer);
+	return 1;
+}
+
+int getName(FILE *ptr, char **res) {
+	*res = loadString(ptr);
+	return 1;
+}
+
+int getCity(FILE *ptr, char **res) {
+	*res = loadString(ptr);
+	return 1;
+}
+
+int getDistance(FILE *ptr, short int *res) {
+	char tempBuffer[16];
+	writeString(ptr, tempBuffer);
+	*res = (short)atoi(tempBuffer);
+	return 1;
+}
+
+int getScoreUser(FILE *ptr, short int *res) {
+	char tempBuffer[16];
+	writeString(ptr, tempBuffer);
+	*res = (short)atoi(tempBuffer);
+	return 1;
+}
+
+int getScoreDriver(FILE *ptr, short int *res) {
+	char tempBuffer[16];
+	writeString(ptr, tempBuffer);
+	*res = (short)atoi(tempBuffer);
+	return 1;
+}
+
+int getTip(FILE *ptr, float *res) {
+	char tempBuffer[16];
+	writeString(ptr, tempBuffer);
+	*res = atof(tempBuffer);
+	return 1;
+}
+
+int getGender(FILE *ptr, unsigned char *res) {
+	*res = fgetc(ptr);
+	fseek(ptr, 1, SEEK_CUR);
+	return 1;
+}
+
+int getCarClass(FILE *ptr, unsigned char *res) {
+	*res = (fgetc(ptr) - 97) / 6;
+	while (fgetc(ptr) != ';');
+	return 1;
+}
+
+int getLicensePlate(FILE *ptr, char **res) {
+	*res = loadString(ptr);
+	return 1;
 }

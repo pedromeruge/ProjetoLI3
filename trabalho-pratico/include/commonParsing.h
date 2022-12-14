@@ -30,8 +30,21 @@ typedef enum {
 typedef void* DATA;
 
 char *loadString(FILE *ptr);
-unsigned char getPayMethod(FILE *ptr);
-unsigned char getAccountStatus(FILE *ptr);
 void writeString(FILE *ptr, char *buffer);
 int compDates (char * dateA, char * dateB);
+
+int getPayMethod(FILE *ptr, unsigned char *res);
+int getAccountStatus(FILE *ptr, unsigned char *res);
+int getDate(FILE *ptr, char **res);
+int getDriver(FILE *ptr, short int *res);
+int getName(FILE *ptr, char **res);
+int getCity(FILE *ptr, char **res);
+int getDistance(FILE *ptr, short int *res);
+int getScoreUser(FILE *ptr, short int *res);
+int getScoreDriver(FILE *ptr, short int *res);
+int getTip(FILE *ptr, float *res);
+int getGender(FILE *ptr, unsigned char *res);
+int getCarClass(FILE *ptr, unsigned char *res);
+int getLicensePlate(FILE *ptr, char **res);
+
 #endif
