@@ -2,6 +2,8 @@
 
 #define DRIVER_STR_BUFF 32
 
+#define N_OF_FIELDS 8
+
 struct DriverStruct
 {
 	// id está subentendido pela posição
@@ -25,9 +27,14 @@ struct DriverData {
 	GPtrArray* driverArray;
 };
 
+struct parse_func_struct {
+	parse_func *func;
+	size_t offset;
+};
+
 void freeDriverPtrArray(void * data);
 
-SecondaryDriverArray *getDrivers(FILE *ptr)
+SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format)
 {
 	int i, tempchr, count, chr, id_size;
 	// char *name;
@@ -43,24 +50,8 @@ SecondaryDriverArray *getDrivers(FILE *ptr)
 			break; //break feio???????
 		}
 
-		if (id_size == 0 &&\
-			getName(ptr, &driverStructArray[i].name) &&\
-			getDate(ptr, &driverStructArray[i].birthdate) &&\
-			getGender(ptr, &driverStructArray[i].gender) &&\
-			getCarClass(ptr, &driverStructArray[i].carClass) &&\
-			getLicensePlate(ptr, &driverStructArray[i].licensePlate) &&\
-			getCity(ptr, &driverStructArray[i].city) &&\
-			getDate(ptr, &driverStructArray[i].accountCreation) &&\
-			getAccountStatus(ptr, &driverStructArray[i].status))
-		{
-			;//??????
-		} else {
-			free(driverStructArray[i].name);
-			driverStructArray[i].name = NULL; // para assinalar que é inválido
-			free(driverStructArray[i].birthdate);
-			free(driverStructArray[i].licensePlate);
-			free(driverStructArray[i].city);
-			free(driverStructArray[i].accountCreation);
+		if (id_size != 0) {
+			parse_with_format(ptr, (void *)&driverStructArray[i], format);
 		}
 
 		// avaçar até proxima linha
@@ -93,12 +84,30 @@ DriverData * getDriverData(FILE *ptr)
 	GPtrArray * driverarray = g_ptr_array_new_with_free_func(freeDriverPtrArray);
 	SecondaryDriverArray *secondaryArray;
 
+	parse_format format;
+
+	parse_func_struct format_array[N_OF_FIELDS] = {
+		{ getName, offsetof(DriverStruct, name), 1, },
+		{ getDate, offsetof(DriverStruct, birthdate), 1, },
+		{ getGender, offsetof(DriverStruct, gender), 0, },
+		{ getCarClass, offsetof(DriverStruct, carClass), 0, },
+		{ getLicensePlate, offsetof(DriverStruct, licensePlate), 1, },
+		{ getCity,offsetof(DriverStruct, city), 1, },
+		{ getDate, offsetof(DriverStruct, accountCreation), 1, },
+		{ getAccountStatus, offsetof(DriverStruct, status), 0, },
+	};
+
+	// que confusao nao sei fazer nomes
+	format.format_array = format_array;
+	format.len = N_OF_FIELDS;
+
+// offsetof
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	secondaryArray = getDrivers(ptr);
+	secondaryArray = getDrivers(ptr, &format);
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(driverarray, secondaryArray);
-		secondaryArray = getDrivers(ptr);
+		secondaryArray = getDrivers(ptr, &format);
 	}
 
 	newDriverData->driverArray = driverarray;

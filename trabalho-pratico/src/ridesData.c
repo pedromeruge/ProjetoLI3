@@ -127,10 +127,12 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoAr
 	{
 		for (id_size = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; id_size++); // && chr != -1); // skip id
 		
-		if (chr == EOF) break;
+		if (chr == EOF) {
+			break;
+		}
 		//FALTA ESCREVER O TAMANHO DO ARRAY COMO NO DRIVERDATA
 
-		if (id_size == 0 &&\
+		if (id_size != 0 &&\
 			getDate(ptr, &ridesStructArray[i].date) &&\
 			getDriver(ptr, &ridesStructArray[i].driver) &&\
 			getName(ptr, &ridesStructArray[i].user) &&\
@@ -156,17 +158,17 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoAr
 				g_ptr_array_add(array, temp);
 			}
 		} else {
-			free(ridesStructArray[i].date);
+			// free(ridesStructArray[i].date);
 			ridesStructArray[i].date = NULL; // para assinalar que é inválida
-			free(ridesStructArray[i].user);
-			free(ridesStructArray[i].city);
+			// free(ridesStructArray[i].user);
+			// free(ridesStructArray[i].city);
 		}
 
 		// ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????
 		ridesStructArray[i].comment = NULL;
 		while ((chr = fgetc(ptr)) != '\n');
 
-		// aqui?????????????
+		// aqui????????????????????????????????????
 		driverInfoArray = addDriverInfo(driverInfoArray, ridesStructArray + i);
 	}
 

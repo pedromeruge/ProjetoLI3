@@ -43,7 +43,7 @@ void writeString(FILE *ptr, char *buffer)
 	buffer[i] = '\0';
 }
 
-int getPayMethod(FILE *ptr, unsigned char *res)
+int getPayMethod(FILE *ptr, void *res)
 {
 	fseek(ptr, 1, SEEK_CUR); // avançar o 'c' para comparar 'a' vs 'r' (c|ash vs c|redit)
 	char chr = fgetc(ptr);
@@ -57,11 +57,11 @@ int getPayMethod(FILE *ptr, unsigned char *res)
 		result = CREDIT;
 	}
 	while (fgetc(ptr) != ';');
-	*res = result;
+	*(unsigned char *)res = result;
 	return 1;
 }
 
-int getAccountStatus(FILE *ptr, unsigned char *res) {
+int getAccountStatus(FILE *ptr, void *res) {
 	char chr = fgetc(ptr);
 	unsigned char result;
 	if (chr == 'a')
@@ -72,7 +72,7 @@ int getAccountStatus(FILE *ptr, unsigned char *res) {
 	{
 		result = INACTIVE;
 	}
-	*res = result;
+	*(unsigned char *)res = result;
 	return 1;
 }
 
@@ -92,72 +92,104 @@ int compDates(char *dateA, char *dateB)
 	}
 }
 
-int getDate(FILE *ptr, char **res) {
-	*res = loadString(ptr);
+int getDate(FILE *ptr, void *res) {
+	*(char **)res = loadString(ptr);
 	return 1;
 }
 
-int getDriver(FILE *ptr, short int *res) {
+int getDriver(FILE *ptr, void *res) {
 	char tempBuffer[16];
 	writeString(ptr, tempBuffer);
-	*res = (short)atoi(tempBuffer);
+	*(short int *)res = (short)atoi(tempBuffer);
 	return 1;
 }
 
-int getName(FILE *ptr, char **res) {
-	*res = loadString(ptr);
+int getName(FILE *ptr, void *res) {
+	*(char **)res = loadString(ptr);
 	if (res == NULL) return 0;
 	return 1;
 }
 
-int getCity(FILE *ptr, char **res) {
-	*res = loadString(ptr);
+int getCity(FILE *ptr, void *res) {
+	*(char **)res = loadString(ptr);
 	if (res == NULL) return 0;
 	return 1;
 }
 
-int getDistance(FILE *ptr, short int *res) {
+int getDistance(FILE *ptr, void *res) {
 	char tempBuffer[16];
 	writeString(ptr, tempBuffer);
-	*res = (short)atoi(tempBuffer);
+	*(short int *)res = (short)atoi(tempBuffer);
 	return 1;
 }
 
-int getScoreUser(FILE *ptr, short int *res) {
+int getScoreUser(FILE *ptr, void *res) {
 	char tempBuffer[16];
 	writeString(ptr, tempBuffer);
-	*res = (short)atoi(tempBuffer);
+	*(short int *)res = (short)atoi(tempBuffer);
 	return 1;
 }
 
-int getScoreDriver(FILE *ptr, short int *res) {
+int getScoreDriver(FILE *ptr, void *res) {
 	char tempBuffer[16];
 	writeString(ptr, tempBuffer);
-	*res = (short)atoi(tempBuffer);
+	*(short int *)res = (short)atoi(tempBuffer);
 	return 1;
 }
 
-int getTip(FILE *ptr, float *res) {
+int getTip(FILE *ptr, void *res) {
 	char tempBuffer[16];
 	writeString(ptr, tempBuffer);
-	*res = atof(tempBuffer);
+	*(float *)res = atof(tempBuffer);
 	return 1;
 }
 
-int getGender(FILE *ptr, unsigned char *res) {
-	*res = fgetc(ptr);
+int getGender(FILE *ptr, void *res) {
+	*(unsigned char *)res = fgetc(ptr);
 	fseek(ptr, 1, SEEK_CUR);
 	return 1;
 }
 
-int getCarClass(FILE *ptr, unsigned char *res) {
-	*res = (fgetc(ptr) - 97) / 6;
+int getCarClass(FILE *ptr, void *res) {
+	*(unsigned char *)res = (fgetc(ptr) - 97) / 6;
 	while (fgetc(ptr) != ';');
 	return 1;
 }
 
-int getLicensePlate(FILE *ptr, char **res) {
-	*res = loadString(ptr);
+int getLicensePlate(FILE *ptr, void *res) {
+	*(char **)res = loadString(ptr);
 	if (res == NULL) return 0;
 	return 1;
+}
+
+#include "driverdata.h"
+
+int parse_with_format(FILE *ptr, void *data, parse_format *format) {
+	int i = 0, res;
+	parse_func_struct *array = format->format_array;
+	parse_func_struct current;
+	char *field_ptr = ((char*)data);
+	do {
+		current = array[i];
+		res = current.func(ptr, field_ptr + current.offset);
+		i++;
+	} while (i < (const int) format->len && res);
+
+	if (i == format->len) {
+		return 1;
+	} else {
+		// damos free ao que é preciso e metemos o primeiro campo que pode levar free a NULL
+		int flag = 0;
+		for (i = 0; i < (const int) format->len; i++) {
+			current = array[i];
+			if (current.should_free) {
+				free(field_ptr + current.offset);
+				if (!flag) {
+					flag = 1;
+					*(void **)(field_ptr + current.offset) = NULL;
+				}
+			}
+		}
+		return 0;
+	}
 }
