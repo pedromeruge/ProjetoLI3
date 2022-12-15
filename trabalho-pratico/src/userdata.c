@@ -3,6 +3,8 @@
 #define LINES 100000
 #define USER_STR_BUFF 32
 
+#define N_OF_FIELDS 7
+
 struct UserStruct
 {
 	char *username;
@@ -32,22 +34,34 @@ UserData *getUserData(FILE *ptr)
 {
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha
-	int line, res;
-	char *username, tempchr;
+	char *username, tempchr = EOF + 1;
 	UserStruct *userstruct;
 	GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, free, freeTableData); /////// NOT FREE
-	for (line = 0; line < LINES; line++)
+	
+	parse_format format;
+
+	parse_func_struct format_array[N_OF_FIELDS] = {
+		{ p_getUserName, offsetof(UserStruct, username), 1, },
+		{ p_getName, offsetof(UserStruct, name), 1, },
+		{ p_getGender, offsetof(UserStruct, gender), 0, },
+		{ p_getDate, offsetof(UserStruct, birthdate), 1, },
+		{ p_getDate, offsetof(UserStruct, accountCreation), 1, },
+		{ p_getPayMethod, offsetof(UserStruct, payMethod), 0, },
+		{ p_getAccountStatus, offsetof(UserStruct, status), 0, },
+	};
+
+	// que confusao nao sei fazer nomes
+	format.format_array = format_array;
+	format.len = N_OF_FIELDS;
+
+	int res = 1;
+
+	while (1) //(res != -1) // acaba por ser inutil por causa da condiçao do break
 	{
 		userstruct = malloc(sizeof(UserStruct));
-		if ((res = getName(ptr, &username)) && //vai retornar -1 se fgetc der -1, para sabermos que estamos no fim do ficheiro
-			getName(ptr, &userstruct->name) &&\
-			getGender(ptr, &userstruct->gender) &&\
-			getDate(ptr, &userstruct->birthdate) &&\
-			getDate(ptr, &userstruct->accountCreation) &&\
-			getPayMethod(ptr, &userstruct->payMethod) &&\
-			getAccountStatus(ptr, &userstruct->status))
+		if ((res = parse_with_format(ptr, userstruct, &format)) == 1)
 		{
-			userstruct->username = username;
+			username = userstruct->username;
 			if (g_hash_table_insert(table, username, userstruct) == FALSE)
 			{
 				fprintf(stderr, "Username already existed\n");
@@ -55,14 +69,11 @@ UserData *getUserData(FILE *ptr)
 			}
 		} else {
 			free(userstruct);
-			if (res == -1) {
-				break;
-			}
+			if (res == -1) break;
 		}
 
 		// avaçar até proxima linha
-		while ((tempchr = fgetc(ptr)) != '\n')
-			; // && (tempchr != -1));
+		while ((tempchr = fgetc(ptr)) != '\n');
 
 		// printf("\"username:%s name:%s gender:%c birthdate:%s accCreation:%s payMethod:%c(%d) status:%c(%d)\"\n",
 		// username, userstruct->name, userstruct->gender, userstruct->birthdate, userstruct->accountCreation, userstruct->payMethod, userstruct->payMethod, userstruct->status, userstruct->status);

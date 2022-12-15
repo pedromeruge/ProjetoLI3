@@ -83,14 +83,14 @@ RidesData * getRidesData(FILE *ptr)
 	parse_format format;
 
 	parse_func_struct format_array[N_OF_FIELDS] = {
-		{ getDate, offsetof(RidesStruct, date), 1, },
-		{ getDriver, offsetof(RidesStruct, driver), 0, },
-		{ getName, offsetof(RidesStruct, user), 1, },
-		{ getCity, offsetof(RidesStruct, city), 1, },
-		{ getDistance, offsetof(RidesStruct, distance), 0, },
-		{ getScoreUser,offsetof(RidesStruct, score_u), 0, },
-		{ getScoreDriver, offsetof(RidesStruct, score_d), 0, },
-		{ getTip, offsetof(RidesStruct, tip), 0, },
+		{ p_getDate, offsetof(RidesStruct, date), 1, },
+		{ p_getDriver, offsetof(RidesStruct, driver), 0, },
+		{ p_getName, offsetof(RidesStruct, user), 1, },
+		{ p_getCity, offsetof(RidesStruct, city), 1, },
+		{ p_getDistance, offsetof(RidesStruct, distance), 0, },
+		{ p_getScoreUser,offsetof(RidesStruct, score_u), 0, },
+		{ p_getScoreDriver, offsetof(RidesStruct, score_d), 0, },
+		{ p_getTip, offsetof(RidesStruct, tip), 0, },
 	};
 
 	format.format_array = format_array;
@@ -150,7 +150,7 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoAr
 		}
 		//FALTA ESCREVER O TAMANHO DO ARRAY COMO NO DRIVERDATA
 
-		if (id_size != 0 && parse_with_format(ptr, (void *)&ridesStructArray[i], format)) {
+		if (id_size != 0 && parse_with_format(ptr, (void *)&ridesStructArray[i], format) == 1) {
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 			// check if city is not already in hash table

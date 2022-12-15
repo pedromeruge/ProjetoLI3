@@ -87,14 +87,14 @@ DriverData * getDriverData(FILE *ptr)
 	parse_format format;
 
 	parse_func_struct format_array[N_OF_FIELDS] = {
-		{ getName, offsetof(DriverStruct, name), 1, },
-		{ getDate, offsetof(DriverStruct, birthdate), 1, },
-		{ getGender, offsetof(DriverStruct, gender), 0, },
-		{ getCarClass, offsetof(DriverStruct, carClass), 0, },
-		{ getLicensePlate, offsetof(DriverStruct, licensePlate), 1, },
-		{ getCity,offsetof(DriverStruct, city), 1, },
-		{ getDate, offsetof(DriverStruct, accountCreation), 1, },
-		{ getAccountStatus, offsetof(DriverStruct, status), 0, },
+		{ p_getName, offsetof(DriverStruct, name), 1, },
+		{ p_getDate, offsetof(DriverStruct, birthdate), 1, },
+		{ p_getGender, offsetof(DriverStruct, gender), 0, },
+		{ p_getCarClass, offsetof(DriverStruct, carClass), 0, },
+		{ p_getLicensePlate, offsetof(DriverStruct, licensePlate), 1, },
+		{ p_getCity,offsetof(DriverStruct, city), 1, },
+		{ p_getDate, offsetof(DriverStruct, accountCreation), 1, },
+		{ p_getAccountStatus, offsetof(DriverStruct, status), 0, },
 	};
 
 	// que confusao nao sei fazer nomes

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <glib.h>
+#include "driverdata.h"
 
 typedef enum {
 	F = 70,
@@ -19,7 +20,7 @@ typedef enum {
 typedef enum {
 	CASH = 0,
 	CREDIT = 1
-} payMethod;
+} payMethodEnum;
 
 typedef enum {
 	BASIC = 0,
@@ -43,23 +44,24 @@ typedef struct {
 	parse_func_struct *format_array;
 } parse_format;
 
-char *loadString(FILE *ptr);
+// char *loadString(FILE *ptr);
 void writeString(FILE *ptr, char *buffer);
 int compDates (char * dateA, char * dateB);
 
-int getPayMethod(FILE *ptr, void *res);
-int getAccountStatus(FILE *ptr, void *res);
-int getDate(FILE *ptr, void *res);
-int getDriver(FILE *ptr, void *res);
-int getName(FILE *ptr, void *res);
-int getCity(FILE *ptr, void *res);
-int getDistance(FILE *ptr, void *res);
-int getScoreUser(FILE *ptr, void *res);
-int getScoreDriver(FILE *ptr, void *res);
-int getTip(FILE *ptr, void *res);
-int getGender(FILE *ptr, void *res);
-int getCarClass(FILE *ptr, void *res);
-int getLicensePlate(FILE *ptr, void *res);
+int p_getPayMethod(FILE *ptr, void *res);
+int p_getAccountStatus(FILE *ptr, void *res);
+int p_getUserName(FILE *ptr, void *res);
+int p_getDate(FILE *ptr, void *res);
+int p_getDriver(FILE *ptr, void *res);
+int p_getName(FILE *ptr, void *res);
+int p_getCity(FILE *ptr, void *res);
+int p_getDistance(FILE *ptr, void *res);
+int p_getScoreUser(FILE *ptr, void *res);
+int p_getScoreDriver(FILE *ptr, void *res);
+int p_getTip(FILE *ptr, void *res);
+int p_getGender(FILE *ptr, void *res);
+int p_getCarClass(FILE *ptr, void *res);
+int p_getLicensePlate(FILE *ptr, void *res);
 
 int parse_with_format(FILE *ptr, void *data, parse_format *format);
 
