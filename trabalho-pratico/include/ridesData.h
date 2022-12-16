@@ -30,7 +30,7 @@ RidesData *getRidesData(FILE *); // retorna a estrutura de dados de rides
 void freeRidesData(RidesData *); // limpa a estrutura de dados das rides
 
 // funções de rides associadas a cidades
-CityRides *getRidesByCity(RidesData *, char *);       // devolve todas as rides associadas a uma cidade
+const CityRides *getRidesByCity(RidesData *, char *);       // devolve todas as rides associadas a uma cidade
 guint getNumberOfCityRides(CityRides *);              // devolve o número de rides para uma cidade
 RidesStruct *getCityRidesByIndex(CityRides *, guint); // devolve uma ride de uma cidade
 /* aplica iterator_func a todas as CityRides (ou seja, a todas as cidades)
@@ -46,7 +46,8 @@ void dumpCityRidesDate (char * filename, CityRides * rides); // debug
 
 // funções de rides associadas a drivers
 const ridesByDriver *getRidesByDriver(const RidesData *);
-//const ridesByDriver *getRidesByDriverInCity(const CityRides * );
+const ridesByDriver *getRidesByDriverSorted(const RidesData *);
+const ridesByDriver *getRidesByDriverInCity(const CityRides * );
 const driverRatingInfo *getDriverInfo(const ridesByDriver *, guint); // devolve a informação de um driver para todas as rides
 short int getridesByDriverArraySize(const ridesByDriver *);
 
@@ -58,13 +59,17 @@ short int getDriverNumber(const driverRatingInfo *);
 short int getDriverDistTraveled(const driverRatingInfo *);
 
 // funções para dar sort ao array
-// função que compara dois elementos de um array com base em avaliação média, data de viagem mais recente e nº do condutor, por esta ordem de importância
-gint sort_byRatings (gconstpointer a, gconstpointer b); 
+gint sort_byRatings_2 (gconstpointer a, gconstpointer b); // função que compara dois elementos de um array com base em avaliação média, data de viagem mais recente e nº do condutor ( em ordem crescente), por esta ordem de importância
+gint sort_byRatings_7 (gconstpointer a, gconstpointer b); // função que compara dois elementos de um array com base em avaliação média, nº do condutor (em ordem decrescente)
 
 // usa uma função de comparação entre dois elementos recebida como argumento para dar sort a um array, também recebido como argumento
 //  TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)
 const ridesByDriver * qSortArray(const ridesByDriver *, RidesData * , gint (*sortFunction)(gconstpointer a, gconstpointer b));
 
+//devolve os top N elementos de um array ordenado, dadas funções do resultado a escrever para uma string
+// TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)
+
+//static char * topN(const ridesByDriver * driverRatingArray, int N, DriverData *driverData);
 
 // receber a informação de uma ride
 RidesStruct *getRidePtrByID(RidesData *, guint);

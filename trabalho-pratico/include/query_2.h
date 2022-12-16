@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "commonParsing.h"
+#include "query_common_funcs.h"
 #include "ridesData.h"
 #include "driverdata.h"
 #include "userdata.h"
 
 char * query_2 (char * inputStr[], UserData *, DriverData *, RidesData *);
-
 #endif

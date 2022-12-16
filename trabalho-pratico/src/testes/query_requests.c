@@ -149,7 +149,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 	double cpu_time_used;
 	struct timespec start, finish, delta;
 
-	query_func * queryList[9] = {query_1, query_2, query_not_implemented, query_4, query_5, query_6, query_not_implemented, query_not_implemented, query_not_implemented};
+	query_func * queryList[9] = {query_1, query_2, query_not_implemented, query_4, query_5, query_6, query_7, query_not_implemented, query_not_implemented};
     char * strBuffer = malloc(sizeof(char)*LINE_SIZE); // buffer de cada linha lida
     char * querryResult = NULL; // pointer para a string resultante de cada querry
     char * tempsegstr[4]; // array para atribuir o segmento correto do input
