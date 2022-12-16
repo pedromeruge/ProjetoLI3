@@ -47,7 +47,7 @@ struct RidesData {
 	querySavedData * savedData;
 };
 
-void freeArray(void *data);
+void freeCityRidesArray(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *sortCity(void *);
 RidesStruct *getRides(FILE *, GHashTable *, GPtrArray *, parse_format *format);
@@ -63,8 +63,8 @@ void freeRidesRating(void *);
 
 void *sortCity(void *data)
 {
-	GPtrArray *array = (GPtrArray *)data;
-	g_ptr_array_sort(array, compareRidesByDate);
+	CityRides *city = (CityRides *)data;
+	g_ptr_array_sort(city->array, compareRidesByDate);
 	// g_thread_exit(NULL);
 	return NULL;
 }
@@ -75,7 +75,7 @@ RidesData * getRidesData(FILE *ptr)
 	//inicializar as estruturas de dados relacionadas com as rides
 	RidesStruct **ridesData = malloc(RIDES_ARR_SIZE * sizeof(RidesStruct *));
 
-	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeArray); // keys levam malloc do array normal, nao vou dar free aqui;
+	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeCityRidesArray); // keys levam malloc do array normal, nao vou dar free aqui;
 	
 	GPtrArray * driverInfoArray = g_ptr_array_new_full(numberOfDrivers, freeRidesRating);
 	g_ptr_array_set_size(driverInfoArray,numberOfDrivers); // o tamanho do array tem de ser definido, apesar de ja ter sido alocado o espaço para o tamanho necessário; o array tem de ser inicializado a NULL para todos os pointers, feito por g_ptr_array_set_size
@@ -139,8 +139,8 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoAr
 {
 	int i, count, chr, id_size;
 	char *city;
-	GPtrArray *array;
 	RidesStruct *ridesStructArray = malloc(SIZE * sizeof(RidesStruct)), *temp;
+	CityRides * cityRides;
 	for (i = count = 0; i < SIZE; i++, count++)
 	{
 		for (id_size = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; id_size++); // && chr != -1); // skip id
@@ -154,17 +154,18 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, GPtrArray * driverInfoAr
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 			// check if city is not already in hash table
-			if ((array = g_hash_table_lookup(cityTable, city)) == NULL)
+			if ((cityRides = g_hash_table_lookup(cityTable, city)) == NULL)
 			{
 				// if not, insert
-				array = g_ptr_array_sized_new(200000);
-				g_ptr_array_add(array, temp);
-				g_hash_table_insert(cityTable, city, array);
+				cityRides = malloc(sizeof(CityRides));
+				cityRides->array = g_ptr_array_sized_new(200000);
+				g_ptr_array_add(cityRides->array, temp);
+				g_hash_table_insert(cityTable, city, cityRides);
 			}
 			else
 			{
 				// if yes, append to all the other data
-				g_ptr_array_add(array, temp);
+				g_ptr_array_add(cityRides->array, temp);
 			}
 		}
 
@@ -361,10 +362,11 @@ void freeRidesRating(void *drivesRating)
 	free(currentArrayStruct);
 }
 
-void freeArray(void *data)
+void freeCityRidesArray(void *data)
 {
-	GPtrArray *array = (GPtrArray *)data;
-	g_ptr_array_free(array, TRUE);
+	CityRides *cityRides = (CityRides *)data;
+	g_ptr_array_free(cityRides->array, TRUE);
+	free(cityRides);
 }
 
 //funções relativas a rides ordenadas por driver
@@ -466,9 +468,7 @@ short int getDriverNumber(const driverRatingInfo *currentArrayStruct)
 // funções relativas a rides ordenadas por cidade
 CityRides *getRidesByCity(RidesData *data, char *city) // responsabilidade da caller function dar free
 {
-	CityRides *resultRides = malloc(sizeof(CityRides));
-	resultRides->array = g_hash_table_lookup(data->cityTable, city);
-	return resultRides;
+	return g_hash_table_lookup(data->cityTable, city);
 }
 
 guint getNumberOfCityRides(CityRides *rides)
@@ -486,12 +486,10 @@ void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(CityR
 	GHashTableIter iter;
 	g_hash_table_iter_init(&iter, rides->cityTable);
 	gpointer value;
-	CityRides cityRides;
 	while (g_hash_table_iter_next(&iter, NULL, &value))
 	{
 		// value é gptrarray mas temos de passar como cityTable
-		cityRides.array = (GPtrArray *)value;
-		iterator_func(&cityRides, data);
+		iterator_func(value, data);
 	}
 }
 

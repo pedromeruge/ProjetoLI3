@@ -9,7 +9,6 @@ char *query_4(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	CityRides *rides = getRidesByCity(ridesData, city);
-
 	RidesStruct *currentRide;
 	DriverStruct *currentDriver;
 	unsigned char carClass;
@@ -35,6 +34,5 @@ char *query_4(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 
 	char *resultTruncated = malloc(STR_BUFF_SIZE * sizeof(char));
 	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", cost);
-	free(rides);
 	return resultTruncated;
 }
