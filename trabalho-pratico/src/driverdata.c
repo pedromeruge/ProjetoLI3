@@ -104,12 +104,21 @@ DriverData * getDriverData(FILE *ptr)
 	while (fgetc(ptr) != '\n')
 		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
 	secondaryArray = getDrivers(ptr, &format);
+
+
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(driverarray, secondaryArray);
 		secondaryArray = getDrivers(ptr, &format);
 	}
 
 	newDriverData->driverArray = driverarray;
+
+
+	int num = (driverarray->len - 1) * SIZE;
+	secondaryArray = g_ptr_array_index(driverarray, driverarray->len - 1);
+	num += secondaryArray->len;
+	printf("Total number of drivers: %d\n", num);
+
 	return newDriverData;
 }
 

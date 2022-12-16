@@ -98,8 +98,8 @@ RidesData * getRidesData(FILE *ptr) {
 	format.format_array = format_array;
 	format.len = N_OF_FIELDS;
 
-	while (fgetc(ptr) != '\n')
-		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
+	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
+	
 	for (i = 0; i < RIDES_ARR_SIZE; i++)
 		ridesData[i] = getRides(ptr, cityTable, driverInfoArray, &format);
 
