@@ -66,8 +66,8 @@ void freeRidesRating(void *);
 void *sortCity(void *data) {
 	CityRides * cityData = (CityRides *)data;
 	GPtrArray * cityRidesArray = cityData->cityRidesArray;
-	cityData->driverSumArray = buildRidesByDriverInCity(cityRidesArray); // isto depois do sort é o pior caso para esta função, mudar o sort para nunca pegar na data mais nova, porque vai ser mais antiga
 	g_ptr_array_sort(cityRidesArray, compareRidesByDate);
+	cityData->driverSumArray = buildRidesByDriverInCity(cityRidesArray); // isto depois do sort é o pior caso para esta função, mudar o sort para nunca pegar na data mais nova, porque vai ser mais antiga
 	// g_thread_exit(NULL);
 	return NULL;
 }
@@ -229,11 +229,12 @@ driverRatingInfo *appendDriverInfo(driverRatingInfo *currentArrayStruct, RidesSt
 	short int *ridesTracker = (short int *)currentArrayStruct->ridesNumber;
 	ridesTracker[1] += currentRide->distance;
 
-	if (compDates(rideDate, currentArrayStruct->mostRecRideDate) >= 0)
-	{
-		free(currentArrayStruct->mostRecRideDate);
-		currentArrayStruct->mostRecRideDate = strdup(rideDate);
-	}
+	//como assumo que o array de rides recebido já está sorted, não é preciso considerar novas datas mais recentes
+	// if (compDates(rideDate, currentArrayStruct->mostRecRideDate) >= 0)
+	// {
+	// 	free(currentArrayStruct->mostRecRideDate);
+	// 	currentArrayStruct->mostRecRideDate = strdup(rideDate);
+	// }
     return (currentArrayStruct);
 }
 
@@ -448,71 +449,6 @@ GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity) {
 	g_ptr_array_sort(driverInfoArray,sort_byRatings_7);
 	return driverInfoArray;
 }
-
-//TEMPORÀRIO - VAI SAIR DAQUI
-// const ridesByDriver * getRidesByDriverInCity(const CityRides * CityRides) {
-// 	GPtrArray * ridesInCity = CityRides->cityRidesArray;
-// 	gint i, numberOfRides = ridesInCity->len; // já é dinâmico
-// 	gint numberOfDrivers = DRIVER_ARR_SIZE * SIZE; // TODO: tem de ser dinâmico
-// 	RidesStruct * currentArrayStruct;
-// 	GPtrArray * driverInfoArray = g_ptr_array_new_full(numberOfDrivers, freeRidesRating);
-// 	g_ptr_array_set_size(driverInfoArray,numberOfDrivers); // o tamanho do array tem de ser definido, apesar de ja ter sido alocado o espaço para o tamanho necessário; o array tem de ser inicializado a NULL para todos os pointers, feito por g_ptr_array_set_size
-
-// 	for (i=0;i<numberOfRides;i++) {
-// 		currentArrayStruct = g_ptr_array_index(ridesInCity, i);
-// 		driverInfoArray = addDriverInfo(driverInfoArray, currentArrayStruct);
-// 	}
-// 	driverInfoArray = getPresentableValues(driverInfoArray);
-
-
-// 	ridesByDriver * driverInfoArrayWrapper = malloc(sizeof(ridesByDriver));
-// 	driverInfoArrayWrapper->ridesArray = driverInfoArray;
-// 	return driverInfoArrayWrapper;
-// }
-
-const ridesByDriver * qSortArray(const ridesByDriver * oldRidesByDriver, RidesData * ridesData, gint (*sort_byRatings)(gconstpointer a, gconstpointer b)) {
-	GPtrArray * driverInfoArray = oldRidesByDriver->ridesArray; // array de input
-	GPtrArray * driverRatingArray = ridesData->savedData->driverRatingArray; // array atualmente guardado em ridesData (pode ainda não existir -> NULL)
-	if (driverRatingArray == NULL) {
-		//driverRatingArray = g_ptr_array_new(); // é preciso para o resultado do copy??
-		driverRatingArray = g_ptr_array_copy (driverInfoArray,NULL,NULL); // pointer array oco, só os pointers, não copia o conteúdo todo
-		g_ptr_array_set_free_func(driverRatingArray,NULL); // o novo array copia a função de free do anterior, mas como é um pointer array oco, não dá free dos elementos para que aponta
-		g_ptr_array_sort(driverRatingArray, *sort_byRatings);
-		ridesData->savedData->driverRatingArray = driverRatingArray;
-	}
-	// criar novo wrapper para o array
-	ridesByDriver * newRidesByDriver  = malloc(sizeof(ridesByDriver));
-	newRidesByDriver->ridesArray = driverRatingArray;
-
-	free((ridesByDriver *) oldRidesByDriver); // free do wrapper anterior, preserva-se o array, pois é usado noutras funções
-	return newRidesByDriver;
-}
-
-// static char * topN(const ridesByDriver * driverRatingArray, int N, DriverData *driverData) {
-//     short int i, j,driverNumber;
-//     unsigned char driverStatus;
-// 	char * result = malloc( N * STR_BUFF_SIZE * sizeof(char)); // recebe free em query_requests
-//     result[0] = '\0';
-//     char temp[STR_BUFF_SIZE], * driverName = NULL;
-//     DriverStruct * currentDriver = NULL;
-//     const driverRatingInfo * currentArrayStruct = NULL;
-//     short int arrayLen = driverRatingArray->ridesArray->len;
-//     for (i=arrayLen, j = N; j>0 && i>0 ;i--) {
-//         currentArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverRatingArray->ridesArray, i - 1);
-//         driverNumber = currentArrayStruct->driverNumber;
-//         currentDriver = getDriverPtrByID(driverData,driverNumber);
-//         driverName = getDriverName(currentDriver);
-//         driverStatus = getDriverStatus(currentDriver);
-//         if (driverStatus == 1) {
-//         snprintf(temp,STR_BUFF_SIZE,"%0*d;%s;%.3f\n", 12, driverNumber, driverName, getDriverAvgRating(currentArrayStruct));
-//         strncat(result,temp,STR_BUFF_SIZE);
-//         j--;
-//         }
-//         free(driverName);
-//     }
-// 	// printf("result %s\n", result);
-//     return result;
-// }
 
 double getDriverAvgRating(const driverRatingInfo *currentArrayStruct)
 {

@@ -9,10 +9,7 @@ char * query_7(char * inputStr[], UserData *userData, DriverData *driverData, Ri
     //podia ser mais eficiente, a função getRidesByDriverinCity chama addDriverInfo que calcula inclusive a ride mais recente, o que n é perciso para esta querry, meter uma opção 0 ou 1 na função para distinguir?
     const CityRides * cityRides = getRidesByCity(ridesData,city);
     const ridesByDriver * driverRatingArray = getRidesByDriverInCity (cityRides);
-    //array = driverRatingArray->ridesArray;
-    // for (i=0;i<100000;i++) {
-    //     printf("%d",)
-    // }
+
     char * result = topN(driverRatingArray, num, driverData);
 
     free((ridesByDriver *) driverRatingArray);
