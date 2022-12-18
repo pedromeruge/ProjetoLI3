@@ -14,7 +14,7 @@ struct RidesStruct
 		score_u,
 		score_d;
 	float tip;
-	char *comment;
+	//char *comment;
 };
 
 //cada key da GHashTable cityTable aponta para uma struct deste tipo
@@ -41,8 +41,15 @@ typedef struct querySavedData {
 	GPtrArray * driverRatingArray; // array de dados médios sobre cada driver, para o global das rides (query 2)
 } querySavedData;
 
+//mudar para g_array no futuro?? glib faz alloc dinamico?
+typedef struct {
+	int len;
+	RidesStruct ridesArray[SIZE]; // já sabemos que vai levar malloc de SIZE e já, e assim usamos g_ptr_array
+} SecondaryRidesArray;
+
 struct RidesData {
-	RidesStruct **ridesArray;
+	GPtrArray * ridesArray;
+	//RidesStruct **ridesArray;
 	GHashTable *cityTable;
 	GPtrArray * driverInfoArray;
 	querySavedData * savedData;
@@ -51,7 +58,7 @@ struct RidesData {
 void freeCityRides(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
-RidesStruct *getRides(FILE *, GHashTable *, parse_format *format);
+SecondaryRidesArray *getRides(FILE *, GHashTable *, parse_format *format);
 
 GPtrArray * sortRidesbyDriver (GPtrArray *);
 GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity);
@@ -64,6 +71,8 @@ driverRatingInfo * appendDriverGlobalInfo(driverRatingInfo *, driverRatingInfo *
 GPtrArray * getPresentableValues (GPtrArray *);
 driverRatingInfo * sumValues (driverRatingInfo *);
 driverRatingInfo * newOpaqueDriverInfo (int);
+
+void freeRidesPtrArray (void * data);
 void freeRidesRating(void *);
 
 void *buildStatisticsInCity(void *data) {
@@ -78,7 +87,9 @@ void *buildStatisticsInCity(void *data) {
 RidesData * getRidesData(FILE *ptr) {
 	int numberOfDrivers = DRIVER_ARR_SIZE * SIZE, i;
 	//inicializar as estruturas de dados relacionadas com as rides
-	RidesStruct **ridesData = malloc(RIDES_ARR_SIZE * sizeof(RidesStruct *));
+	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
+	SecondaryRidesArray * secondaryArray;
+	//RidesStruct **ridesData = malloc(RIDES_ARR_SIZE * sizeof(RidesStruct *));
 
 	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeCityRides); // keys levam malloc do array normal, nao vou dar free aqui;
 	
@@ -99,16 +110,22 @@ RidesData * getRidesData(FILE *ptr) {
 	format.len = N_OF_FIELDS;
 
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	
-	for (i = 0; i < RIDES_ARR_SIZE; i++)
-		ridesData[i] = getRides(ptr, cityTable, &format);
+	secondaryArray = getRides(ptr, cityTable, &format);
+
+	while (secondaryArray != NULL) {
+		g_ptr_array_add(ridesArray, secondaryArray);
+		secondaryArray = getRides(ptr, cityTable, &format);
+	}
+
+	// for (i = 0; i < RIDES_ARR_SIZE; i++)
+	// 	ridesData[i] = getRides(ptr, cityTable, &format);
 
 	//## MT para cálulco de estatística de dados para cada cidade
 	
 	// tentei usar GThreadPool, desisti
 	guint num_keys = g_hash_table_size(cityTable);
 	GThread *threads[num_keys];
-	printf(">>thread number:%d\n",(int)num_keys);
+
 	num_keys --; // a city final é feita pela main thread
 
 	GHashTableIter iter;
@@ -129,7 +146,7 @@ RidesData * getRidesData(FILE *ptr) {
 	GPtrArray * driverInfoArray = buildRidesByDriverGlobal(cityTable,numberOfDrivers);
 
 	RidesData *data = malloc(sizeof(RidesData));
-	data->ridesArray = ridesData; // array com input do ficheiro
+	data->ridesArray = ridesArray; // array com input do ficheiro
 	data->cityTable = cityTable; // hash table que guarda structs com: array com rides ordenandas para uma cidade key, e array com info resumida de drivers nessa cidade;
 	data->driverInfoArray = driverInfoArray; // array com informação de drivers resumida
 	data->savedData = malloc(sizeof(querySavedData)); // estrutura em que se guarda novos array criados nas queries
@@ -138,20 +155,21 @@ RidesData * getRidesData(FILE *ptr) {
 	return data;
 }
 
-RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format)
-{
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format) {
+	
 	int i, count, chr, id_size;
 	char *city;
-	RidesStruct *ridesStructArray = malloc(SIZE * sizeof(RidesStruct)), *temp;
+
+	SecondaryRidesArray *secondaryArrayStruct = malloc(sizeof(SecondaryRidesArray));
+	RidesStruct * ridesStructArray = secondaryArrayStruct->ridesArray, *temp;
 	CityRides * cityRides;
-	for (i = count = 0; i < SIZE; i++, count++)
-	{
+
+	for (i = count = 0; i < SIZE; i++, count++) {
 		for (id_size = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; id_size++); // && chr != -1); // skip id
 		
 		if (chr == EOF) {
 			break;
 		}
-		//FALTA ESCREVER O TAMANHO DO ARRAY COMO NO DRIVERDATA
 
 		if (id_size != 0 && parse_with_format(ptr, (void *)&ridesStructArray[i], format) == 1) {
 			city = ridesStructArray[i].city;
@@ -174,11 +192,18 @@ RidesStruct *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format)
 		}
 
 		// ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????
-		ridesStructArray[i].comment = NULL;
+		//ridesStructArray[i].comment = NULL;
 		while ((chr = fgetc(ptr)) != '\n');
 	}
 
-	return ridesStructArray;
+	secondaryArrayStruct->len = i;
+
+	//caso o numero de rides seja um multiplo de 1000, tem de se eliminar o último array criado, com 0 elementos
+	if (chr == EOF && i == 0) {
+		free(secondaryArrayStruct);
+		secondaryArrayStruct= NULL; //fim do ficheiro e não recebemos info nenhuma
+	}
+	return secondaryArrayStruct;
 }
 
 GPtrArray *addDriverInfo(GPtrArray *driverInfoArray, RidesStruct *currentRide) {
@@ -313,7 +338,8 @@ gint compareRidesByDate(gconstpointer a, gconstpointer b)
 void freeRidesData(RidesData *data)
 {
 	RidesData *dataStruct = data;
-	RidesStruct **ridesData = dataStruct->ridesArray;
+	// RidesStruct **ridesData = dataStruct->ridesArray;
+
 	// free de rides por cidade
 	GHashTable *table = dataStruct->cityTable;
 	g_hash_table_destroy(table);
@@ -322,30 +348,34 @@ void freeRidesData(RidesData *data)
 	g_ptr_array_free(driverInfoArray, TRUE);
 	// free de novos arrays criados nas queries
 	querySavedData * savedData = dataStruct->savedData;
-	g_ptr_array_free(savedData->driverRatingArray,TRUE); // certo??
+	g_ptr_array_free(savedData->driverRatingArray,TRUE); 
 	free(data->savedData);
+	//free das rides
+	GPtrArray * ridesArray = dataStruct->ridesArray;
+	g_ptr_array_free(ridesArray, TRUE);
 
-	int i, j;
-	RidesStruct *segment, block;
-	for (i = 0; i < RIDES_ARR_SIZE; i++)
-	{
-		segment = ridesData[i];
-		for (j = 0; j < SIZE; j++)
-		{
-			block = segment[j];
-			free(block.date);
-			free(block.user);
-			free(block.city);
-			// free(block.comment);
-		}
-		free(segment);
-	}
-	free(ridesData);
 	free(dataStruct);
 }
 
-void freeRidesRating(void *drivesRating)
-{
+void freeRidesPtrArray (void * data) {
+
+	SecondaryRidesArray * secondaryArrayStruct = (SecondaryRidesArray *) data;
+	RidesStruct * ridesArray = (RidesStruct *) secondaryArrayStruct->ridesArray;
+	
+	int i, secondaryArraySize = secondaryArrayStruct->len;
+	RidesStruct currentRideStruct;
+
+	for (i=0; i<secondaryArraySize; i++) {
+		currentRideStruct = ridesArray[i];
+		free(currentRideStruct.date);
+		free(currentRideStruct.user);
+		free(currentRideStruct.city);
+	//free(currentRideStruct->comment);
+	}
+	free(secondaryArrayStruct);
+}
+
+void freeRidesRating(void *drivesRating) {
 	driverRatingInfo *currentArrayStruct = (driverRatingInfo *)drivesRating;
 	free(currentArrayStruct->ratingChart);
 	free(currentArrayStruct->mostRecRideDate);
@@ -695,14 +725,14 @@ void dumpCityRidesDate (char * filename, CityRides * rides) {
 
 
 // devolve a struct(dados) associada à ride número i
-RidesStruct *getRidePtrByID(RidesData *data, guint ID)
+RidesStruct * getRidePtrByID(RidesData *data, guint ID)
 {
-	ID -= 1; // para o primeiro passar a ser 0
-	int i = ID / RIDES_ARR_SIZE;
+	// no bounds checking
+	ID -= 1; // para a primeira ride passar a ser 0
+	int i = ID / SIZE;
 
-	RidesStruct **primaryArray = data->ridesArray,
-				*secondaryArray = primaryArray[i],
-				*result = &(secondaryArray[ID - SIZE * i]);
+	SecondaryRidesArray * secondaryArray = g_ptr_array_index(data->ridesArray, i);
+	RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
 	return result;
 }
 
@@ -746,7 +776,7 @@ float getRideTip(RidesStruct *ride)
 	return (ride->tip);
 }
 
-char *getRideComment(RidesStruct *ride)
-{
-	return strndup(ride->comment, RIDE_STR_BUFF);
-}
+// char *getRideComment(RidesStruct *ride)
+// {
+// 	return strndup(ride->comment, RIDE_STR_BUFF);
+// }

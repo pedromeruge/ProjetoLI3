@@ -32,7 +32,7 @@ struct parse_func_struct {
 	size_t offset;
 };
 
-void freeDriverPtrArray(void * data);
+void freeDriversPtrArray(void * data);
 
 SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format)
 {
@@ -81,7 +81,7 @@ SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format)
 DriverData * getDriverData(FILE *ptr)
 {
 	DriverData * newDriverData = malloc(sizeof(DriverData));
-	GPtrArray * driverarray = g_ptr_array_new_with_free_func(freeDriverPtrArray);
+	GPtrArray * driverarray = g_ptr_array_new_with_free_func(freeDriversPtrArray);
 	SecondaryDriverArray *secondaryArray;
 
 	parse_format format;
@@ -101,8 +101,7 @@ DriverData * getDriverData(FILE *ptr)
 	format.format_array = format_array;
 	format.len = N_OF_FIELDS;
 
-	while (fgetc(ptr) != '\n')
-		; // avançar a primeira linha (tbm podia ser um seek hardcoded)
+	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
 	secondaryArray = getDrivers(ptr, &format);
 
 
@@ -128,7 +127,7 @@ void freeDriverData(DriverData * data)
 	free(data);
 }
 
-void freeDriverPtrArray(void * data) {
+void freeDriversPtrArray(void * data) {
 	SecondaryDriverArray *secondaryArray = (SecondaryDriverArray *)data;
 	DriverStruct * array = secondaryArray->array;
 	

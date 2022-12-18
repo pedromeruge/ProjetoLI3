@@ -34,8 +34,7 @@ void freeTableData(void *userData)
 
 UserData *getUserData(FILE *ptr)
 {
-	while (fgetc(ptr) != '\n')
-		; // avançar a primeira linha
+	while (fgetc(ptr) != '\n'); // avançar a primeira linha
 	char *username, tempchr = EOF + 1;
 	UserStruct *userstruct;
 	GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, free, freeTableData); /////// NOT FREE
