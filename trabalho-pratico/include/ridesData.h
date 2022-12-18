@@ -62,13 +62,8 @@ short int getDriverDistTraveled(const driverRatingInfo *);
 gint sort_byRatings_2 (gconstpointer a, gconstpointer b); // função que compara dois elementos de um array com base em avaliação média, data de viagem mais recente e nº do condutor ( em ordem crescente), por esta ordem de importância
 gint sort_byRatings_7 (gconstpointer a, gconstpointer b); // função que compara dois elementos de um array com base em avaliação média, nº do condutor (em ordem decrescente)
 
-// usa uma função de comparação entre dois elementos recebida como argumento para dar sort a um array, também recebido como argumento
-//  TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)
-const ridesByDriver * qSortArray(const ridesByDriver *, RidesData * , gint (*sortFunction)(gconstpointer a, gconstpointer b));
-
 //devolve os top N elementos de um array ordenado, dadas funções do resultado a escrever para uma string
 // TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)
-
 //static char * topN(const ridesByDriver * driverRatingArray, int N, DriverData *driverData);
 
 // receber a informação de uma ride
