@@ -5,7 +5,7 @@
 
 #define N_OF_FIELDS 7
 
-#define strdup_debug(str) if(str == NULL) exit(2); else return strndup(str, USER_STR_BUFF)
+#define dupe_str(str) return strndup(str, USER_STR_BUFF)
 
 struct UserStruct
 {
@@ -97,13 +97,13 @@ UserStruct *getUserPtrByUsername(UserData *data, char *name)
 
 char *getUserName(UserStruct *data)
 {
-	strdup_debug(data->name);
+	dupe_str(data->name);
 	// return strndup(data->name, USER_STR_BUFF);
 }
 
 char *getUserUsername(UserStruct *data)
 {
-	strdup_debug(data->username);
+	dupe_str(data->username);
 	// return strndup(data->username, USER_STR_BUFF);
 }
 
@@ -114,13 +114,13 @@ unsigned char getUserGender(UserStruct *data)
 
 char *getUserBirthdate(UserStruct *data)
 {
-	strdup_debug(data->birthdate);
+	dupe_str(data->birthdate);
 	// return strndup(data->birthdate, USER_STR_BUFF);
 }
 
 char *getUserAccCreation(UserStruct *data)
 {
-	strdup_debug(data->accountCreation);
+	dupe_str(data->accountCreation);
 	// return strndup(data->accountCreation, USER_STR_BUFF);
 }
 

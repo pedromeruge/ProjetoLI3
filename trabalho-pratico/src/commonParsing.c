@@ -11,7 +11,6 @@ char *loadString(FILE *ptr)
 	{
 		sBuffer[i] = (char)chr;
 	}
-	if (chr == EOF) return NULL;
 	if (i > 0)
 	{
 		str = malloc(sizeof(char) * (i + 1));
@@ -90,7 +89,7 @@ int p_getUserName(FILE *ptr, void *res) {
 	int eof = 0;
 	*(char **)res = safer_loadString(ptr, &eof);
 	if (eof == 1) return -1;
-	if (res == NULL) return 0;
+	if (*(char **)res == NULL) return 0;
 	return 1;
 }
 
@@ -139,13 +138,13 @@ int p_getDriver(FILE *ptr, void *res) {
 
 int p_getName(FILE *ptr, void *res) {
 	*(char **)res = loadString(ptr);
-	if (res == NULL) return 0;
+	if (*(char **)res == NULL) return 0;
 	return 1;
 }
 
 int p_getCity(FILE *ptr, void *res) {
 	*(char **)res = loadString(ptr);
-	if (res == NULL) return 0;
+	if (*(char **)res == NULL) return 0;
 	return 1;
 }
 
@@ -191,7 +190,7 @@ int p_getCarClass(FILE *ptr, void *res) {
 
 int p_getLicensePlate(FILE *ptr, void *res) {
 	*(char **)res = loadString(ptr);
-	if (res == NULL) return 0;
+	if (*(char **)res == NULL) return 0;
 	return 1;
 }
 
@@ -211,24 +210,24 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 		i++;
 	} while (i < (const int) format->len && res == 1);
 
-	if (res == -1) {
+	if (res == -1) { // EOF
 		return -1;
-	} else if (i == format->len) {
+	} else if (i == format->len) { // caso normal
 		return 1;
-	} else {
+	} else { // caso de erro
 		// damos free ao que é preciso e metemos o primeiro campo que pode levar free a NULL
-		// int flag = 0;
-		// int j = i;
-		// for (i = 0; i < j; i++) {
-		// 	current = array[i];
-		// 	if (current.should_free) {
-		// 		free(field_ptr + current.offset);
-		// 		if (!flag) {
-		// 			flag = 1;
-		// 			*(void **)(field_ptr + current.offset) = NULL;
-		// 		}
-		// 	}
-		// }
+		int flag = 0;
+		int j = i;
+		for (j = 0; j < i; i++) {
+			current = array[j];
+			if (current.should_free) {
+				free(field_ptr + current.offset);
+				if (!flag) {
+					flag = 1;
+					*(void **)(field_ptr + current.offset) = NULL;
+				}
+			}
+		}
 		return 0;
 	}
 }
