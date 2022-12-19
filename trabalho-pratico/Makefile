@@ -17,7 +17,7 @@ TEST_DEBUG_BUILD_DIR := $(BASE_BUILD_DIR)/testes_debug
 CC := gcc
 
 GLIBFLAGS := $(shell pkg-config --cflags --libs gobject-2.0)
-STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell nproc) #-lm -pthread
+STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell ./Scripts/get_threads.sh) #-lm -pthread
 CFLAGS := -O2 $(STD_FLAGS)
 DEBUG_FLAGS := -O0 -g3 $(STD_FLAGS) #-ggdb3
 
