@@ -34,7 +34,7 @@
 programa-*
 exemplos_de_queries/
 Dataset_Fase*/
-teste.txt
+teste*
 Resultados
 .DS_Store
 ../.DS_Store

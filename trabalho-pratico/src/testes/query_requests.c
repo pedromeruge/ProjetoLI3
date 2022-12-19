@@ -11,6 +11,8 @@
 #define LINE_SIZE 128
 #define PATH_SIZE 64
 #define TEST_PATH "exemplos_de_queries/tests_1/command%d_output.txt"
+#define N_OF_REPETITIONS 10
+#define MAX_QUERY_INPUTS 3
 
 typedef void q_test_func (UserData* userData, DriverData *driverData, RidesData *ridesData);
 
@@ -144,7 +146,7 @@ int writeResults (int commandN, char * strResult) {
 	return compareResult(strResult, resultPath);
 }
 
-int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData) {
+int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE *test_output) {
 	clock_t cpu_start, cpu_end;
 	double cpu_time_used;
 	struct timespec start, finish, delta;
@@ -152,36 +154,63 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 	query_func * queryList[9] = {query_1, query_2, query_not_implemented, query_4, query_5, query_6, query_7, query_not_implemented, query_not_implemented};
     char * strBuffer = malloc(sizeof(char)*LINE_SIZE); // buffer de cada linha lida
     char * querryResult = NULL; // pointer para a string resultante de cada querry
-    char * tempsegstr[4]; // array para atribuir o segmento correto do input
+    char * tempsegstr[MAX_QUERY_INPUTS + 1]; // array para atribuir o segmento correto do input
     char * strHolder, *temp;
     ssize_t read; size_t len = LINE_SIZE; // para o getline
     int i,j, commandN = 1, writeRet;
-	char full_command[LINE_SIZE];
+	int test;
+	char outBuffer[128];
+
+	double cpu_time_acc;
+	long double wall_clock_time_acc, tempAcc;
 	// q_test_func *test_funcs[9] = {q_test_undefined, test_q_2, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined};
-    
+
     // lê linhas individualmente até chegar ao fim do ficheiro
 	for (i=0; (read = getline(&strBuffer, &len, fp) != -1); i++, commandN++) {
-		cpu_start = clock();
-		clock_gettime(CLOCK_REALTIME, &start);
+		// a primeira vez corre fora do loop para dar output para o ficheiro, as outras já não fazem output
 
-        strBuffer[strcspn(strBuffer, "\n")] = 0; // para remover o newline
 
-		strncpy(full_command, strBuffer, LINE_SIZE - 1);
+		strBuffer[strcspn(strBuffer, "\n")] = 0; // para remover o newline
+		fputs(strBuffer, test_output);
+		fputc('\n', test_output);
 
 		temp = strBuffer;
-        for (j = 0; j < 4 && (strHolder = strsep(&strBuffer," ")); j++) { // j<4 por segurança
-            tempsegstr[j] = strHolder;
-        }
+
+		tempsegstr[0] = NULL;
+		tempsegstr[1] = NULL;
+		tempsegstr[2] = NULL;
+		tempsegstr[3] = NULL;
+
+		temp = strBuffer;
+		for (j = 0; j < 4 && (strHolder = strsep(&strBuffer," ")); j++) { // j<4 por segurança
+			tempsegstr[j] = strHolder;
+		}
 		strBuffer = temp;
 
-		printf("Answering query %d:\n", (int)((*tempsegstr[0]) - 48));
-        querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr + 1,userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
+		for (j = 0; j <= MAX_QUERY_INPUTS && (strHolder = strsep(&strBuffer, " ")); j++)
+        {
+            tempsegstr[j] = strHolder;
+        }
+        strBuffer = temp;
+
+        //print de debug para os inputs de cada query
+        fprintf(stderr, "command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
+
+        for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++) {
+            fprintf(stderr," <%.16s>",tempsegstr[j]);
+		}
+		fputc('\n', stderr);
+
+		cpu_start = clock();
+		clock_gettime(CLOCK_REALTIME, &start);
+		
+		querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr + 1,userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
 		
 		cpu_end = clock();
 		clock_gettime(CLOCK_REALTIME, &finish);
 		sub_timespec(start, finish, &delta);
 		cpu_time_used = ((double) (cpu_end - cpu_start)) / CLOCKS_PER_SEC;
-		
+
 		// test output
 		writeRet = writeResults(commandN, querryResult);
 		if (writeRet == 1) {
@@ -191,21 +220,51 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 		
 		//return 2 : deu NULL e devia dar valores; return 3: deu valores diferentes
 		if (writeRet == 2 || writeRet == 3) {
-			fprintf(stderr, "-->ERROR: Results differ\nCommand:%s\nExpected:%s\nGot:'%s'\nError file:exemplos_de_queries/tests_1/command%d_output.txt\n", full_command, "see file :)", querryResult, commandN);
+			fprintf(stderr, "-->ERROR: Results differ\nExpected:%s\nGot:'%s'\nError file:exemplos_de_queries/tests_1/command%d_output.txt\n\n", "see file :)", querryResult, commandN);
+			fputs("Error\n", test_output);
+			free(querryResult); // free do buffer de output
+
 		} else {
-			printf("Correct answer\n");
-			// isto afinal é meio inútil, por agora fica comentado e linha 158 tbm
+			printf("Correct answer, continuing tests\n");
+
+			cpu_time_acc = cpu_time_used;
+			snprintf(outBuffer, 128, "%d.%.9ld", (int)delta.tv_sec, delta.tv_nsec);
+			sscanf(outBuffer, "%Lf", &wall_clock_time_acc);
+			// printf("buffer value: %Lf", wall_clock_time_acc);
+			snprintf(outBuffer, 128, "CPU time:%g Wall clock time:%d.%.9ld\n", cpu_time_used, (int)delta.tv_sec, delta.tv_nsec);
+			fputs(outBuffer, test_output);
+			free(querryResult); // free do buffer de output
+			// isto afinal é meio inútil, por agora fica comentado
 			// printf("Testing upper bounds, might take a while\n");
 			// test_funcs[(*tempsegstr[0]) - 49](userData, driverData, ridesData);
+			for (test = 1; test < N_OF_REPETITIONS; test++) {
+				cpu_start = clock();
+				clock_gettime(CLOCK_REALTIME, &start);
+				
+				querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr + 1,userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
+				
+				cpu_end = clock();
+				clock_gettime(CLOCK_REALTIME, &finish);
+				sub_timespec(start, finish, &delta);
+				cpu_time_used = ((double) (cpu_end - cpu_start)) / CLOCKS_PER_SEC;
+
+				cpu_time_acc += cpu_time_used;
+				snprintf(outBuffer, 128, "%d.%.9ld", (int)delta.tv_sec, delta.tv_nsec);
+				sscanf(outBuffer, "%Lf", &tempAcc);
+				wall_clock_time_acc += tempAcc;
+				
+				// snprintf(outBuffer, 128, "buffer value: %Lf", wall_clock_time_acc);
+				// fputs(outBuffer, test_output);
+
+				free(querryResult); // free do buffer de output
+				snprintf(outBuffer, 128, "CPU time:%g Wall clock time:%d.%.9ld\n", cpu_time_used, (int)delta.tv_sec, delta.tv_nsec);
+				fputs(outBuffer, test_output);
+			}
+			snprintf(outBuffer, 128, "Average: CPU:%g Wall clock:%Lf\n", cpu_time_acc / test, wall_clock_time_acc / test);
+			fputs(outBuffer, test_output);
 		}
 		
-		printf("Time taken to answer input:\n");
-		printf("CPU time:%g\n", cpu_time_used);
-		printf("Wall clock time:%d.%.9ld\n\n", (int)delta.tv_sec, delta.tv_nsec);
-
-		free (querryResult); // free do buffer de output
 		len = LINE_SIZE; // após um getline, len é alterado para o tamanho da linha; tem de ser reset, a próxima linha pode ter len maior
-
     }
     free (strBuffer); // free do buffer de input
     return 0;
