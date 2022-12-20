@@ -815,11 +815,12 @@ void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToF
 // devolve a struct(dados) associada à ride número i
 RidesStruct * getRidePtrByID(RidesData *data, guint ID)
 {
-	// no bounds checking
 	ID -= 1; // para a primeira ride passar a ser 0
-	int i = ID / SIZE;
+	guint i = ID / SIZE;
+	GPtrArray *array = data->ridesArray;
+	if (i > array->len) return NULL;
+	SecondaryRidesArray *secondaryArray = g_ptr_array_index(array, i);
 
-	SecondaryRidesArray * secondaryArray = g_ptr_array_index(data->ridesArray, i);
 	RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
 	return result;
 }
