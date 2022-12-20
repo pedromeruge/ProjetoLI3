@@ -68,7 +68,7 @@ void *buildStatisticsInCity(void *);
 SecondaryRidesArray *getRides(FILE *, GHashTable *, parse_format *format);
 
 GPtrArray * buildRidesbyDriverSorted (GPtrArray *);
-GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity);
+GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int);
 GPtrArray * buildRidesByDriverGlobal(GHashTable *, int);
 GPtrArray * addDriverInfo(GPtrArray *,RidesStruct *);
 driverRatingInfo * newDriverInfo (RidesStruct *);
@@ -79,13 +79,11 @@ GPtrArray * getPresentableValues (GPtrArray *);
 driverRatingInfo * sumValues (driverRatingInfo *);
 driverRatingInfo * newOpaqueDriverInfo (int);
 
-void freeRidesPtrArray (void * data);
+void freeRidesPtrArray (void *);
 void freeRidesRating(void *);
 
 void *buildStatisticsInCity(void *data) {
 	ThreadStruct *thread = (ThreadStruct *)data;
-	// numero de drivers ta em thread->n_of_drivers
-	// é um int e nao um pointer pq ocupa menos
 	int i;
 	CityRides * cityData;
 	GPtrArray * cityRidesArray;
@@ -93,14 +91,14 @@ void *buildStatisticsInCity(void *data) {
 		cityData = thread->cityRidesPtrArray[i];
 		cityRidesArray = cityData->cityRidesArray;
 		g_ptr_array_sort(cityRidesArray, compareRidesByDate); // a função buildRidesByDriverInCity precisa de datas ordendadas, aproveita-se e faz-se esse calculo antes
-		cityData->driverSumArray = buildRidesByDriverInCity(cityRidesArray);
+		cityData->driverSumArray = buildRidesByDriverInCity(cityRidesArray, thread->n_of_drivers);
 	}
 	// g_thread_exit(NULL);
 	return NULL;
 }
 
-RidesData * getRidesData(FILE *ptr) {
-	int numberOfDrivers = DRIVER_ARR_SIZE * SIZE, i;
+RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
+	int i;
 	//inicializar as estruturas de dados relacionadas com as rides
 	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
 	SecondaryRidesArray * secondaryArray;
@@ -156,7 +154,7 @@ RidesData * getRidesData(FILE *ptr) {
 
 	for (i = 0; i < num_threads; i++) {
 		thread_info[i].len = 0;
-		//thread_info[i].n_of_drivers = .........
+		thread_info[i].n_of_drivers = numberOfDrivers;
 	}
 
 	// preencher array de CityRides * que as threads vão usar
@@ -503,9 +501,8 @@ GPtrArray * buildRidesbyDriverSorted (GPtrArray * driverInfoArray) {
 }
 
 //constroi o resumo da info de um driver para um dado conjunto de rides (utilizado em rides de cada cidade, daí o nome de momento)
-GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity) {
+GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int numberOfDrivers) {
 	gint i, numberOfRides = ridesInCity->len; // já é dinâmico
-	gint numberOfDrivers = DRIVER_ARR_SIZE * SIZE; // TODO: tem de ser dinâmico
 	RidesStruct * currentArrayStruct;
 	GPtrArray * driverInfoArray = g_ptr_array_new_full(numberOfDrivers, freeRidesRating);
 	g_ptr_array_set_size(driverInfoArray,numberOfDrivers); // o tamanho do array tem de ser definido, apesar de ja ter sido alocado o espaço para o tamanho necessário; o array tem de ser inicializado a NULL para todos os pointers, feito por g_ptr_array_set_size
@@ -837,7 +834,7 @@ char *getRideUser(RidesStruct *ride)
 	return strndup(ride->user, RIDE_STR_BUFF);
 }
 
-char *getRideCity(RidesStruct *ride)
+char *getRideCity(const RidesStruct *ride)
 {
 	return strndup(ride->city, RIDE_STR_BUFF);
 }
@@ -857,7 +854,7 @@ short int getRideScore_d(RidesStruct *ride)
 	return (ride->score_d);
 }
 
-float getRideTip(RidesStruct *ride)
+float getRideTip(const RidesStruct *ride)
 {
 	return (ride->tip);
 }

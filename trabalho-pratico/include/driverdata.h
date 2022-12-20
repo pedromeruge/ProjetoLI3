@@ -20,6 +20,9 @@ void freeDriverData(DriverData * data); // limpa a estrutura de drivers
 // receber a informação de um driver
 DriverStruct * getDriverPtrByID(DriverData *, guint);
 
+//número de drivers no ficheiro de input
+int getNumberOfDrivers (DriverData *);
+
 // funções para aceder a informações individuais de cada driver
 char * getDriverName(DriverStruct *); // retorna o nome de um driver
 char * getDriverBirthdate(DriverStruct *); // retorna a data de nascimento de um driver

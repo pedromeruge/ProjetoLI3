@@ -155,6 +155,15 @@ DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
 	return result;
 }
 
+// devolve o número de drivers no ficheiro de input; função necessária para criar arrays sobre drivers, no ridesData.c
+int getNumberOfDrivers (DriverData * driverData) { 
+	GPtrArray * driverArray = driverData->driverArray;
+	int num = (driverArray->len - 1) * SIZE;
+	SecondaryDriverArray * secondaryArray = g_ptr_array_index(driverArray, driverArray->len - 1);
+	num += secondaryArray->len;
+	return num;
+}
+
 char *getDriverName(DriverStruct *driver)
 {
 	return strndup(driver->name, DRIVER_STR_BUFF);

@@ -22,7 +22,7 @@ typedef struct driverRatingInfo driverRatingInfo;
 typedef struct RidesData RidesData;
 
 // funções de criar e destruir estrutura de dados de rides
-RidesData *getRidesData(FILE *); // retorna a estrutura de dados de rides
+RidesData *getRidesData(FILE *, int); // retorna a estrutura de dados de rides
 void freeRidesData(RidesData *); // limpa a estrutura de dados das rides
 
 // funções de rides associadas a cidades
@@ -76,11 +76,11 @@ RidesStruct *getRidePtrByID(RidesData *, guint);
 char *getRideDate(const RidesStruct *);         // retorna a data de uma ride
 short int getRideDriver(RidesStruct *);   // retorna o ID do driver de uma ride
 char *getRideUser(RidesStruct *);         // retorna o nome do user de uma ride
-char *getRideCity(RidesStruct *);         // retorna a cidade de uma ride
+char *getRideCity(const RidesStruct *);         // retorna a cidade de uma ride
 short int getRideDistance(const RidesStruct *); // retorna a distância de uma ride
 short int getRideScore_u(RidesStruct *);  // retorna a avaliação do user de uma ride
 short int getRideScore_d(RidesStruct *);  // retorna a avaliação do driver de uma ride
-float getRideTip(RidesStruct *);          // retorna a tip de uma ride
+float getRideTip(const RidesStruct *);          // retorna a tip de uma ride
 char *getRideComment(RidesStruct *);      // retorna o comentário de uma ride
 
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
