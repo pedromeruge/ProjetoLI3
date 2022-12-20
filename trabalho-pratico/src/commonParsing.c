@@ -233,7 +233,7 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 	} else { // caso de erro
 		// damos free ao que é preciso e metemos o primeiro campo que pode levar free a NULL
 		int flag = 0;
-		int j = i;
+		int j;
 		for (j = 0; j < i; i++) {
 			current = array[j];
 			if (current.should_free) {

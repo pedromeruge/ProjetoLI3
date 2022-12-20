@@ -226,11 +226,13 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 			}
 		} else {
 			if (res == -1) {// se chegarmos a EOF
-				if (i == 0) free(secondaryArrayStruct);
-				secondaryArrayStruct = NULL;
+				if (i == 0) {
+					free(secondaryArrayStruct);
+					secondaryArrayStruct = NULL;
+				} else i--; // este ultimo ciclo nao acrescenta nada, array fica com i-1 elementos
 				break;
 			}
-			i--; // este ultimo ciclo nao acrescenta nada
+			i--;
 		
 		}
 		while ((chr = fgetc(ptr)) != '\n');
