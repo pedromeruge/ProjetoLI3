@@ -73,6 +73,7 @@ RidesStruct *getRidePtrByID(RidesData *, guint);
 
 // funções de rides associadas a ID no ficheiro
 //  funções para aceder a informações individuais de cada ride
+int getRideID(const RidesStruct *);
 char *getRideDate(const RidesStruct *);         // retorna a data de uma ride
 short int getRideDriver(RidesStruct *);   // retorna o ID do driver de uma ride
 char *getRideUser(RidesStruct *);         // retorna o nome do user de uma ride

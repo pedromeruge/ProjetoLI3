@@ -819,43 +819,39 @@ RidesStruct * getRidePtrByID(RidesData *data, guint ID)
 	return result;
 }
 
-char *getRideDate(const RidesStruct *ride)
-{
+int getRideID(const RidesStruct * ride) {
+	return ride->ID;
+}
+
+char *getRideDate(const RidesStruct *ride){
 	return strndup(ride->date, RIDE_STR_BUFF);
 }
 
-short int getRideDriver(RidesStruct *ride)
-{
+short int getRideDriver(RidesStruct *ride) {
 	return (ride->driver);
 }
 
-char *getRideUser(RidesStruct *ride)
-{
+char *getRideUser(RidesStruct *ride) {
 	return strndup(ride->user, RIDE_STR_BUFF);
 }
 
-char *getRideCity(const RidesStruct *ride)
-{
+char *getRideCity(const RidesStruct *ride) {
 	return strndup(ride->city, RIDE_STR_BUFF);
 }
 
-short int getRideDistance(const RidesStruct *ride)
-{
+short int getRideDistance(const RidesStruct *ride) {
 	return (ride->distance);
 }
 
-short int getRideScore_u(RidesStruct *ride)
-{
+short int getRideScore_u(RidesStruct *ride) {
 	return (ride->score_u);
 }
 
-short int getRideScore_d(RidesStruct *ride)
-{
+short int getRideScore_d(RidesStruct *ride) {
 	return (ride->score_d);
 }
 
-float getRideTip(const RidesStruct *ride)
-{
+float getRideTip(const RidesStruct *ride) {
 	return (ride->tip);
 }
 
