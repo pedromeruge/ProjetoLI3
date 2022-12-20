@@ -2,6 +2,8 @@
 
 #define IF_EOF(ptr) if(loadString(ptr) == NULL) return -1;
 
+#define BUFF_SIZE 16
+
 // se for vazio return NULL
 char *loadString(FILE *ptr)
 {
@@ -55,7 +57,6 @@ char *safer_loadString(FILE *ptr, int *eof) {
 // se for vazio buffer começa com \0
 void writeString(FILE *ptr, char *buffer)
 {
-	// buffer is 16 bytes
 	int i, chr;
 	for (i = 0; (chr = fgetc(ptr)) != ';'; i++)
 	{
@@ -130,9 +131,9 @@ int p_getDate(FILE *ptr, void *res) {
 }
 
 int p_getDriver(FILE *ptr, void *res) {
-	char tempBuffer[16];
+	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
-	*(short int *)res = (short)atoi(tempBuffer);
+	*(int *)res = atoi(tempBuffer);
 	return 1;
 }
 
@@ -149,28 +150,28 @@ int p_getCity(FILE *ptr, void *res) {
 }
 
 int p_getDistance(FILE *ptr, void *res) {
-	char tempBuffer[16];
+	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
 	*(short int *)res = (short)atoi(tempBuffer);
 	return 1;
 }
 
 int p_getScoreUser(FILE *ptr, void *res) {
-	char tempBuffer[16];
+	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
 	*(short int *)res = (short)atoi(tempBuffer);
 	return 1;
 }
 
 int p_getScoreDriver(FILE *ptr, void *res) {
-	char tempBuffer[16];
+	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
 	*(short int *)res = (short)atoi(tempBuffer);
 	return 1;
 }
 
 int p_getTip(FILE *ptr, void *res) {
-	char tempBuffer[16];
+	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
 	*(float *)res = atof(tempBuffer);
 	return 1;

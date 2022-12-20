@@ -148,9 +148,11 @@ void freeDriversPtrArray(void * data) {
 DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
 {
 	// no bounds checking
+	GPtrArray *array = data->driverArray;
 	ID -= 1;
-	int i = ID / SIZE;
-	SecondaryDriverArray *secondaryArray = g_ptr_array_index(data->driverArray, i);
+	guint i = ID / SIZE;
+	if (i > array->len) return NULL;
+	SecondaryDriverArray *secondaryArray = g_ptr_array_index(array, i);
 	DriverStruct * result = &(secondaryArray->array[ID - SIZE * i]);
 	return result;
 }

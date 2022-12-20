@@ -9,13 +9,15 @@ char *query_4(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	CityRides *rides = getRidesByCity(ridesData, city);
+	if (rides == NULL) return NULL; // se a cidade não eistir
+
 	RidesStruct *currentRide;
 	DriverStruct *currentDriver;
 	unsigned char carClass;
 
 	guint len = getNumberOfCityRides(rides);
 	if (len == 0) { free(rides); return NULL; }
-	short ID;
+	int ID;
 	for (i = 0; i < len; i++)
 	{
 		currentRide = getCityRidesByIndex(rides, i);

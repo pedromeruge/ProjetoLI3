@@ -19,7 +19,7 @@ void result_func (CityRides *rides, void *otherData) {
 
 	DriverStruct * currentDriver;
 	RidesStruct * currentRide;
-	short ID;
+	int ID;
 	unsigned char carClass;
 
 	int start, end, i;

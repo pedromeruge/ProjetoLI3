@@ -20,7 +20,7 @@ typedef struct {
 // não pode ser igual a topN porque essa função escreve padrão diferente na string, e lê do fim para o início
 //função que constroi a string final, a partir do array já ordenado com base nos parâmetros fornecidos
 char * printArrayToStr(const GPtrArray * ridesArray) {
-    int i, rideID, arrayLen = ridesArray->len;
+    int i, arrayLen = ridesArray->len;
     char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * arrayLen); // malloc muito grande, talvez particionar em array de strings com BUFFER_SIZE (1000 talvez?)
     if (resultStr == NULL) return NULL; // if malloc fails
     resultStr[0] = '\0';

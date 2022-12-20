@@ -7,6 +7,7 @@ char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 	
 	unsigned int distance = 0;
 	CityRides *rides = getRidesByCity(ridesData, city);
+	if (rides == NULL) return NULL;
 
 	RidesStruct *currentRide;
 

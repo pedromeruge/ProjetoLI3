@@ -128,11 +128,12 @@ double driver_total_earned(int idstr, RidesData *ridesdata, DriverData *driverDa
 }
 
 char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
-    char * idstr = inputStr[0];
+	char * idstr = inputStr[0];
     int numero;
     if ((numero = atoi(idstr)) != 0)
     {
         DriverStruct *driverInf = getDriverPtrByID(driverData, numero);
+		if (driverInf == NULL) return NULL;
         const ridesByDriver *ridesInf = getRidesByDriver(ridesData);
         const driverRatingInfo *driver_r_Inf = getDriverInfo(ridesInf, numero);
         if (getDriverStatus(driverInf) == INACTIVE)
@@ -153,7 +154,8 @@ char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, Rid
     else
     {
         UserStruct *userInf = getUserPtrByUsername(userData, idstr);
-        if (getUserStatus(userInf) == INACTIVE)
+        if (userInf == NULL) return NULL;
+		if (getUserStatus(userInf) == INACTIVE)
         {
             return NULL;
         }

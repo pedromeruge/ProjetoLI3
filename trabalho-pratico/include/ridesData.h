@@ -55,7 +55,7 @@ double getDriverAvgRating(const driverRatingInfo *);
 double getDriverTipsTotal(const driverRatingInfo *);
 char *getDriverMostRecRideDate(const driverRatingInfo *);
 short int getDriverRidesNumber(const driverRatingInfo *);
-short int getDriverNumber(const driverRatingInfo *);
+int getDriverNumber(const driverRatingInfo *);
 short int getDriverDistTraveled(const driverRatingInfo *);
 
 // funções para dar sort ao array
@@ -75,7 +75,7 @@ RidesStruct *getRidePtrByID(RidesData *, guint);
 //  funções para aceder a informações individuais de cada ride
 int getRideID(const RidesStruct *);
 char *getRideDate(const RidesStruct *);         // retorna a data de uma ride
-short int getRideDriver(RidesStruct *);   // retorna o ID do driver de uma ride
+int getRideDriver(RidesStruct *);   // retorna o ID do driver de uma ride
 char *getRideUser(RidesStruct *);         // retorna o nome do user de uma ride
 char *getRideCity(const RidesStruct *);         // retorna a cidade de uma ride
 short int getRideDistance(const RidesStruct *); // retorna a distância de uma ride

@@ -3,7 +3,8 @@
 #define STR_BUFF_SIZE 64
 
 char * topN(const ridesByDriver * driverRatingArray, int N, DriverData *driverData) {
-    short int i, j,driverNumber;
+    int i, j;
+	int driverNumber;
     unsigned char driverStatus;
 	char * result = malloc( N * STR_BUFF_SIZE * sizeof(char)); // recebe free em query_requests
     result[0] = '\0';
