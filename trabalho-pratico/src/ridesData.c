@@ -1,7 +1,6 @@
 #include "ridesData.h"
 
 #define RIDE_STR_BUFF 32
-
 #define N_OF_FIELDS 8
 
 struct RidesStruct
@@ -66,7 +65,7 @@ gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
 SecondaryRidesArray *getRides(FILE *, GHashTable *, parse_format *format);
 
-GPtrArray * sortRidesbyDriver (GPtrArray *);
+GPtrArray * buildRidesbyDriverSorted (GPtrArray *);
 GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity);
 GPtrArray * buildRidesByDriverGlobal(GHashTable *, int);
 GPtrArray * addDriverInfo(GPtrArray *,RidesStruct *);
@@ -185,7 +184,7 @@ RidesData * getRidesData(FILE *ptr) {
 	data->cityTable = cityTable; // hash table que guarda structs com: array com rides ordenandas para uma cidade key, e array com info resumida de drivers nessa cidade;
 	data->driverInfoArray = driverInfoArray; // array com informação de drivers resumida
 	data->savedData = malloc(sizeof(querySavedData)); // estrutura em que se guarda novos array criados nas queries
-	data->savedData->driverRatingArray = sortRidesbyDriver(driverInfoArray);
+	data->savedData->driverRatingArray = buildRidesbyDriverSorted(driverInfoArray);
 
 	return data;
 }
@@ -492,7 +491,7 @@ gint sort_byRatings_7 (gconstpointer a, gconstpointer b) {
     return result;
 }
 
-GPtrArray * sortRidesbyDriver (GPtrArray * driverInfoArray) {
+GPtrArray * buildRidesbyDriverSorted (GPtrArray * driverInfoArray) {
 	GPtrArray * driverRatingArray = g_ptr_array_copy (driverInfoArray,NULL,NULL);
 	g_ptr_array_set_free_func(driverRatingArray,NULL); // o novo array copia a função de free do anterior, mas como é um pointer array oco, não dá free dos elementos para que aponta
 	g_ptr_array_sort(driverRatingArray, sort_byRatings_2);
@@ -615,7 +614,7 @@ short int getDriverNumber(const driverRatingInfo *currentArrayStruct)
 }
 
 // funções relativas a rides ordenadas por cidade
-const CityRides *getRidesByCity(RidesData *data, char *city) // responsabilidade da caller function dar free
+CityRides *getRidesByCity(RidesData *data, char *city) // responsabilidade da caller function dar free
 {
 	return g_hash_table_lookup(data->cityTable, city);
 }
@@ -746,17 +745,65 @@ void searchCityRidesByDate(CityRides * cityRides, char *dateA, char *dateB, int 
 	// printf("these correspond to %s %s\n", ((RidesStruct *)g_ptr_array_index(array, *res_start))->date, ((RidesStruct *)g_ptr_array_index(array, *res_end))->date);
 }
 
-void dumpCityRidesDate (char * filename, CityRides * rides) {
-	FILE *fp = fopen(filename, "w");
-	int i;
-	GPtrArray *array = rides->cityRidesArray;
+//função de debug, pode receber a hash table inteira, a struct inteira (com as rides e info resumida), ou só o array das rides
+// escolher um formato de input e meter os restantes a NULL
+void dumpCityRides (char * filename, GHashTable * cityTable, CityRides * rides, GPtrArray * ridesArray) {
+	FILE * fp;
+	int i,j;
+	GPtrArray *array;
 	RidesStruct *ride;
-	for (i = 0; i < (const int)array->len; i++) {
-		ride = g_ptr_array_index(array, i);
-		fprintf(fp, "%s iter%d | date:%s, driver: %d\n", ride->city,i, ride->date,ride->driver);
+	if (cityTable != NULL) {
+		guint num_keys = g_hash_table_size(cityTable);
+		GHashTableIter iter;
+		gpointer value;
+		CityRides * cityData;
+		char * path = malloc(sizeof(char) *50);
+		g_hash_table_iter_init (&iter, cityTable);
+		for (i = 0; g_hash_table_iter_next (&iter, NULL, &value) && i <= (int)num_keys; i++) {
+			cityData = (CityRides *)value;
+			sprintf(path,"%s-city%d",filename,i);
+			fp = fopen(path, "w");
+			array = cityData->cityRidesArray;
+			for (j = 0; j < (const int)array->len; j++) {
+				ride = g_ptr_array_index(array, j);
+				//fprintf(fp,"%s",ride->date);
+				fprintf(fp, "%s iter%d | date:%s, driver: %d, distance: %d\n", ride->city,j, ride->date,ride->driver,ride->distance);
+			}
+			fclose(fp);
+		}
+		free(path);
+	} else {
+		fp = fopen(filename, "w");
+		array = ridesArray;
+		if (rides != NULL) array = rides->cityRidesArray;
+		for (i = 0; i < (const int)array->len; i++) {
+			ride = g_ptr_array_index(array, i);
+			//fprintf(fp,"%s",ride->date);
+			fprintf(fp, "%s iter%d | date:%s, driver: %d, distance: %d\n",ride->city,i,ride->date,ride->driver,ride->distance);
+		}
+	fclose(fp);
+	}
+}
+
+//dump driverInfoArray before getPresentablevalues!!
+void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToFilename) {
+	if(addToFilename != NULL) filename = strcat(filename,addToFilename);
+	FILE *fp = fopen(filename, "w");
+	int i, numberOfDrivers = driverInfo->len;
+	driverRatingInfo * currentDriver;
+	for (i = 0; i < numberOfDrivers; i++) {
+		currentDriver = g_ptr_array_index(driverInfo, i);
+		if (currentDriver == NULL) fprintf(fp,"driverNumber:%d | NO INFO!\n",i+1);
+		else {
+			unsigned int * ratings = (unsigned int *)currentDriver->ratingChart;
+			//NumberOfRides não foi calculado ainda, só depois de getPresentableValues, por isso não é incluído no print
+			fprintf(fp, "driverNumber:%d, mostRecdate: %s, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n", currentDriver->driverNumber,currentDriver->mostRecRideDate,ratings[0],ratings[1],ratings[2],ratings[3],ratings[4],currentDriver->ridesNumber[1]);
+		}
 	}
 	fclose(fp);
 }
+
+
 
 
 // devolve a struct(dados) associada à ride número i
@@ -771,7 +818,7 @@ RidesStruct * getRidePtrByID(RidesData *data, guint ID)
 	return result;
 }
 
-char *getRideDate(RidesStruct *ride)
+char *getRideDate(const RidesStruct *ride)
 {
 	return strndup(ride->date, RIDE_STR_BUFF);
 }
@@ -791,7 +838,7 @@ char *getRideCity(RidesStruct *ride)
 	return strndup(ride->city, RIDE_STR_BUFF);
 }
 
-short int getRideDistance(RidesStruct *ride)
+short int getRideDistance(const RidesStruct *ride)
 {
 	return (ride->distance);
 }

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "query_requests.h"
-#include "query_func.h"
+#include "query_dispatch_table.h"
 #include <string.h>
 #include "userdata.h"
 #include "driverdata.h"
@@ -151,7 +151,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 	double cpu_time_used;
 	struct timespec start, finish, delta;
 
-	query_func * queryList[9] = {query_1, query_2, query_not_implemented, query_4, query_5, query_6, query_7, query_not_implemented, query_not_implemented};
+	query_func * queryList[9] = {query_1, query_2, query_not_implemented, query_4, query_5, query_6, query_7, query_not_implemented, query_9};
     char * strBuffer = malloc(sizeof(char)*LINE_SIZE); // buffer de cada linha lida
     char * querryResult = NULL; // pointer para a string resultante de cada querry
     char * tempsegstr[MAX_QUERY_INPUTS + 1]; // array para atribuir o segmento correto do input
