@@ -57,7 +57,7 @@ char * query_5 (char * inputStr[], UserData *userData, DriverData *driverData, R
 
 	double cost = ((double)(numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94)) / (double)(total);
 	char *resultTruncated = malloc(STR_BUFF_SIZE * sizeof(char));
-	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3Lf\n", cost);
+	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", cost);
 
 	return resultTruncated;
 }

@@ -50,6 +50,7 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
     // lê linhas individualmente até chegar ao fim do ficheiro
     for (i = 0; (read = getline(&strBuffer, &len, fp) != -1); i++, commandN++)
     {
+		if (i != 0) printf("\x1b[1F\x1b[2K\x1b[1F\x1b[2K\r");
 
         strBuffer[strcspn(strBuffer, "\n")] = 0; // para remover o newline
 
@@ -82,14 +83,12 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
             fprintf(stderr, "error writing output file %d\n", commandN);
             return 1;
         }
+
         free(querryResult); // free do buffer de output
         len = LINE_SIZE;    // após um getline, len é alterado para o tamanho da linha; tem de ser reset, a próxima linha pode ter len maior
 		
-		printf("\x1b[1F"); // Move to beginning of previous line
-		printf("\x1b[1F");
-		printf("\x1b[2K"); // Clear entire line
-		printf("\x1b[2K\r");
-		fflush(stdout);
+		// printf("\x1b[2K"); // Clear entire line
+		// printf("\x1b[1F"); // Move to beginning of previous line
 	}
     free(strBuffer); // free do buffer de input
     return 0;
