@@ -194,6 +194,22 @@ int p_getLicensePlate(FILE *ptr, void *res) {
 	return 1;
 }
 
+int p_getID(FILE *ptr, void *res) {
+	int eof = 0;
+	char *str = safer_loadString(ptr, &eof);
+	if (eof == 1) {
+		free(str);
+		return -1;
+	}
+	if (str == NULL) {
+		free(str);
+		return 0;
+	}
+	*(int *)res = atoi(str);
+	free(str);
+	return 1;
+}
+
 
 int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 	int i = 0, res;

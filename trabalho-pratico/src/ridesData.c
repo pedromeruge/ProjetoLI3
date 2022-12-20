@@ -1,10 +1,11 @@
 #include "ridesData.h"
 
 #define RIDE_STR_BUFF 32
-#define N_OF_FIELDS 8
+#define N_OF_FIELDS 9
 
 struct RidesStruct
 {
+	int ID;
 	char *date;
 	short int driver;
 	char *user;
@@ -19,7 +20,8 @@ struct RidesStruct
 typedef struct {
 	GThread * thread;
 	CityRides **cityRidesPtrArray;
-	int len;
+	int len,
+	n_of_drivers;
 } ThreadStruct;
 
 //cada key da GHashTable cityTable aponta para uma struct deste tipo
@@ -82,6 +84,8 @@ void freeRidesRating(void *);
 
 void *buildStatisticsInCity(void *data) {
 	ThreadStruct *thread = (ThreadStruct *)data;
+	// numero de drivers ta em thread->n_of_drivers
+	// é um int e nao um pointer pq ocupa menos
 	int i;
 	CityRides * cityData;
 	GPtrArray * cityRidesArray;
@@ -107,6 +111,7 @@ RidesData * getRidesData(FILE *ptr) {
 	parse_format format;
 
 	parse_func_struct format_array[N_OF_FIELDS] = {
+		{ p_getID, offsetof(RidesStruct, ID), 0, },
 		{ p_getDate, offsetof(RidesStruct, date), 1, },
 		{ p_getDriver, offsetof(RidesStruct, driver), 0, },
 		{ p_getName, offsetof(RidesStruct, user), 1, },
@@ -121,7 +126,7 @@ RidesData * getRidesData(FILE *ptr) {
 	format.len = N_OF_FIELDS;
 
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	secondaryArray = getRides(ptr, cityTable, &format);
+	secondaryArray = getRides(ptr, cityTable, &format); // porque é que este loop ta feito assim????
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(ridesArray, secondaryArray);
@@ -149,7 +154,10 @@ RidesData * getRidesData(FILE *ptr) {
 	g_hash_table_iter_init (&iter, cityTable);
 	gpointer temp;
 
-	for (i = 0; i < num_threads; i++) thread_info[i].len = 0;
+	for (i = 0; i < num_threads; i++) {
+		thread_info[i].len = 0;
+		//thread_info[i].n_of_drivers = .........
+	}
 
 	// preencher array de CityRides * que as threads vão usar
 	// i < ... é preciso???
@@ -191,7 +199,7 @@ RidesData * getRidesData(FILE *ptr) {
 
 SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format) {
 	
-	int i, count, chr, id_size;
+	int i, count, chr, res;
 	char *city;
 
 	SecondaryRidesArray *secondaryArrayStruct = malloc(sizeof(SecondaryRidesArray));
@@ -199,13 +207,8 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 	CityRides * cityRides;
 
 	for (i = count = 0; i < SIZE; i++, count++) {
-		for (id_size = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; id_size++); // && chr != -1); // skip id
-		
-		if (chr == EOF) {
-			break;
-		}
 
-		if (id_size != 0 && parse_with_format(ptr, (void *)&ridesStructArray[i], format) == 1) {
+		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format)) == 1) {
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 			// check if city is not already in hash table
@@ -223,20 +226,21 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 				// if yes, append to all the other data
 				g_ptr_array_add(cityRides->cityRidesArray, temp);
 			}
+		} else {
+			if (res == -1) {// se chegarmos a EOF
+				if (i == 0) free(secondaryArrayStruct);
+				secondaryArrayStruct = NULL;
+				break;
+			}
+			i--; // este ultimo ciclo nao acrescenta nada
+		
 		}
-
-		// ridesStructArray[i].comment = loadString(ptr); // e se for null?????????????????
-		//ridesStructArray[i].comment = NULL;
 		while ((chr = fgetc(ptr)) != '\n');
 	}
 
-	secondaryArrayStruct->len = i;
+	if (secondaryArrayStruct) secondaryArrayStruct->len = i;
 
 	//caso o numero de rides seja um multiplo de 1000, tem de se eliminar o último array criado, com 0 elementos
-	if (chr == EOF && i == 0) {
-		free(secondaryArrayStruct);
-		secondaryArrayStruct= NULL; //fim do ficheiro e não recebemos info nenhuma
-	}
 	return secondaryArrayStruct;
 }
 

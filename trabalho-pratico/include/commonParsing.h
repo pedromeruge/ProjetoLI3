@@ -62,6 +62,7 @@ int p_getTip(FILE *ptr, void *res);
 int p_getGender(FILE *ptr, void *res);
 int p_getCarClass(FILE *ptr, void *res);
 int p_getLicensePlate(FILE *ptr, void *res);
+int p_getID(FILE *ptr, void *res);
 
 int parse_with_format(FILE *ptr, void *data, parse_format *format);
 
