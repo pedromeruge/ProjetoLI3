@@ -131,6 +131,11 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 		secondaryArray = getRides(ptr, cityTable, &format);
 	}
 
+	int num = (ridesArray->len - 1) * SIZE;
+	secondaryArray = g_ptr_array_index(ridesArray, ridesArray->len - 1);
+	num += secondaryArray->len;
+	printf("Total number of rides: %d\n", num);
+
 	// for (i = 0; i < RIDES_ARR_SIZE; i++)
 	// 	ridesData[i] = getRides(ptr, cityTable, &format);
 

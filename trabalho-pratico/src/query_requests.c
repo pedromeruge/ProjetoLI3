@@ -12,7 +12,7 @@ int writeResults(int commandN, char *strResult)
     char resultPath[64];
     snprintf(resultPath, 64, TEST_PATH, commandN);
 
-    fprintf(stderr, "command (%d), file output NULL?: [%d]\n",commandN,strResult == NULL);
+    printf("command (%d), file output NULL?: [%d]\n",commandN,strResult == NULL);
 
     FILE *fpout = fopen(resultPath, "w");
     if (!fpout)
@@ -70,9 +70,9 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
         strBuffer = temp;
 
         //print de debug para os inputs de cada query
-        fprintf(stderr, "command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
+        printf("command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
         for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++)
-            fprintf(stderr," <%.16s>",tempsegstr[j]);
+            printf(" <%.16s>",tempsegstr[j]);
         putchar('\n');
 
         querryResult = queryList[(*tempsegstr[0]) - 49](tempsegstr+1, userData, driverData, ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
@@ -84,7 +84,13 @@ int queryRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
         }
         free(querryResult); // free do buffer de output
         len = LINE_SIZE;    // após um getline, len é alterado para o tamanho da linha; tem de ser reset, a próxima linha pode ter len maior
-    }
+		
+		printf("\x1b[1F"); // Move to beginning of previous line
+		printf("\x1b[1F");
+		printf("\x1b[2K"); // Clear entire line
+		printf("\x1b[2K\r");
+		fflush(stdout);
+	}
     free(strBuffer); // free do buffer de input
     return 0;
 }

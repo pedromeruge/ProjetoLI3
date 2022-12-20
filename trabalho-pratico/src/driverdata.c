@@ -112,7 +112,6 @@ DriverData * getDriverData(FILE *ptr)
 
 	newDriverData->driverArray = driverarray;
 
-
 	int num = (driverarray->len - 1) * SIZE;
 	secondaryArray = g_ptr_array_index(driverarray, driverarray->len - 1);
 	num += secondaryArray->len;

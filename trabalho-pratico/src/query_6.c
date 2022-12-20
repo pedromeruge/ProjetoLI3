@@ -22,7 +22,7 @@ char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 		total ++;
 	}
 
-	if (total == 0) { free(rides); return NULL; }
+	if (total == 0) return NULL;
 
 	double avgDistance = (double)distance / (double)total;
 
