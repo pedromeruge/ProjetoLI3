@@ -16,11 +16,11 @@ int main (int argc, char **argv) {
 
 	// se não for dado o ficheiro e as querries no terminal - fase 2
     if (argc < 2) {
-        fprintf(stderr, "Modo interativo por implementar!\n");
-		exit(1);
+        fprintf(stderr, "Modo interativo não suporta testes!\nA sair do modo interativo...\n");
+		return 1;
 	}
 	//caso seja facultado o ficheiro e as querries no terminal - fase 1
-    FILE ** files = open_cmdfiles(argv); // array com pointers para os ficheiros {users,drivers,rides,querries}
+    FILE ** files = open_cmdfiles(argc,argv); // array com pointers para os ficheiros {users,drivers,rides,querries}
 	FILE *test_output = fopen(TEST_OUT_PATH, "w");
 
 	cpu_start = clock();
@@ -30,7 +30,7 @@ int main (int argc, char **argv) {
 	
 	DATA drivers = getDriverData(files[1]);
 
-	DATA rides = getRidesData(files[2],getNumberOfDrivers(drivers));
+	DATA rides = getRidesData(files[2], getNumberOfDrivers(drivers));
 
 	cpu_end = clock();
 	clock_gettime(CLOCK_REALTIME, &finish);
@@ -42,7 +42,7 @@ int main (int argc, char **argv) {
 	snprintf(buffer, 128, "Loading Data\nCPU time:%g\nWall clock time:%d.%.9ld\n------------------------\n", cpu_time_used, (int)delta.tv_sec, delta.tv_nsec);
 	fputs(buffer, test_output);
 	
-	int ret = queryRequests(files[3], users, drivers, rides, test_output);
+	int ret = fileRequests(files[3], users, drivers, rides, test_output);
     if (ret) {
     	fprintf(stderr, "Error reading query requests");
         return 2;

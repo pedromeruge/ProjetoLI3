@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "query_requests.h"
+#include "files.h"
 #include "query_dispatch_table.h"
 #include <string.h>
 #include "userdata.h"
@@ -10,7 +11,7 @@
 
 #define LINE_SIZE 128
 #define PATH_SIZE 64
-#define TEST_PATH "exemplos_de_queries/tests_1/command%d_output.txt"
+#define QUERY_RESULT_PATH "exemplos_de_queries/tests_1/command%d_output.txt"
 #define N_OF_REPETITIONS 10
 #define MAX_QUERY_INPUTS 3
 
@@ -139,14 +140,14 @@ int compareResult(char *resultStr, char *resultPath) {
 	return ret;
 }
 
-int writeResults (int commandN, char * strResult) {
+int writeResultsTests (int commandN, char * strResult) {
 	char resultPath[PATH_SIZE];
-	snprintf(resultPath, PATH_SIZE, TEST_PATH, commandN);
+	snprintf(resultPath, PATH_SIZE, QUERY_RESULT_PATH, commandN);
 	
 	return compareResult(strResult, resultPath);
 }
 
-int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE *test_output) {
+int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE *test_output) {
 	clock_t cpu_start, cpu_end;
 	double cpu_time_used;
 	struct timespec start, finish, delta;
@@ -212,7 +213,7 @@ int queryRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesD
 		cpu_time_used = ((double) (cpu_end - cpu_start)) / CLOCKS_PER_SEC;
 
 		// test output
-		writeRet = writeResults(commandN, querryResult);
+		writeRet = writeResultsTests(commandN, querryResult);
 		if (writeRet == 1) {
 			printf("Correct answer (querry yielded no result) || OR || Error reading file:exemplos_de_queries/tests_1/command%d_output.txt\n",commandN);
 			return 3;

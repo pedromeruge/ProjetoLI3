@@ -8,14 +8,8 @@
 #include "files.h"
 
 int main (int argc, char **argv) {
-    // se não for dado o ficheiro e as querries no terminal - fase 2
-    if (argc < 2) {
-        fprintf(stderr, "Modo interativo por implementar!\n");
-		exit(1);
-	}
-
 	//caso seja facultado o ficheiro e as querries no terminal - fase 1
-    FILE ** files = open_cmdfiles(argv); // array com pointers para os ficheiros {users,drivers,rides,querries}
+    FILE ** files = open_cmdfiles(argc, argv); // array com pointers para os ficheiros {users,drivers,rides,queries} // o último valor do array é NULL no modo interativo
 
 	UserData * users = getUserData(files[0]);
 	
@@ -23,7 +17,9 @@ int main (int argc, char **argv) {
 
 	RidesData * rides = getRidesData(files[2],getNumberOfDrivers(drivers));
 	
-	int ret = queryRequests(files[3], users, drivers, rides);
+	int ret;
+	if (files[3] == NULL) ret = terminalRequests(users,drivers,rides);
+	else ret = fileRequests(files[3], users, drivers, rides);
 
     if (ret) {
     	fprintf(stderr, "Error reading query requests, return value: %d\n",ret);

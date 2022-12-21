@@ -91,7 +91,7 @@ void build_func (CityRides *rides, void *otherData) {
 char * query_9 (char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
     char * dateA = inputStr[0], * dateB = inputStr[1];
 
-	GPtrArray * m_ridesInTimeFrame = g_ptr_array_new_with_free_func(NULL);
+	GPtrArray * m_ridesInTimeFrame = g_ptr_array_new_with_free_func(NULL); // mudar para new full
     DataStruct data = {.dateStart = dateA, .dateEnd = dateB, .ridesInTimeFrame = m_ridesInTimeFrame};
 
     iterateOverCities(ridesData,(void *) &data, build_func);
