@@ -3,7 +3,7 @@
 
 #define IF_EOF(ptr) if(loadString(ptr) == NULL) return -1;
 
-#define BUFF_SIZE 16
+#define BUFF_SIZE 64
 
 // se for vazio return NULL
 char *loadString(FILE *ptr)
@@ -274,7 +274,6 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 	} else if (i == format->len) { // caso normal
 		return 1;
 	} else { // caso de erro
-	printf("%d\n", i);
 		// damos free ao que é preciso e metemos o primeiro campo que pode levar free a NULL
 		int flag = 0;
 		int j;
