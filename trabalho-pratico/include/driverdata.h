@@ -32,5 +32,6 @@ char * getDriverPlate(DriverStruct *); // retorna a matrícula de um driver
 char * getDriverCity(DriverStruct *); // retorna a cidade de um driver
 char * getDriverAccCreation(DriverStruct *); // retorna a data de criação da conta de um driver
 unsigned char getDriverStatus(DriverStruct *); // retorna o estado de um driver
+int driverIsValid(DriverStruct *driver); // 1 se for valido, 0 se nao for
 
 #endif

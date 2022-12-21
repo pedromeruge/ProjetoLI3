@@ -34,7 +34,6 @@ char * queryAssign(char * queryInput, UserData * userData, DriverData * driverDa
     for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++)
         printf(" <%.16s>",tempsegstr[j]);
     putchar('\n');
-    fflush(stdout);
     //### 
 
     return (queryList[(*tempsegstr[0]) - 49](tempsegstr+1, userData, driverData, ridesData)); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
@@ -52,7 +51,7 @@ int terminalRequests(UserData *userData, DriverData *driverData, RidesData *ride
     while(fgets(strBuffer,LINE_SIZE,stdin)) {
 
         queryResult = queryAssign(strBuffer,userData,driverData,ridesData,commandN);
-
+		
         if (queryResult == NULL) 
             fprintf(stdout,"\nA query não devolveu nenhum resultado :(\n\n");
         else 
@@ -77,9 +76,9 @@ int fileRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesData
     // lê linhas individualmente até chegar ao fim do ficheiro
     for (i = 0; (read = getline(&strBuffer, &len, fp) != -1); i++, commandN++) {
 
-        printf("\x1b[1F\x1b[1F\x1b[2K ");
-
         queryResult = queryAssign(strBuffer,userData, driverData, ridesData,commandN);
+		fflush(stdout);
+
         writeRet = writeResults(commandN, queryResult);
         if (writeRet) { // returns positivos indicam erros na função
             fprintf(stderr, "error writing output file %d\n", commandN);

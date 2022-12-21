@@ -26,5 +26,6 @@ char * getUserBirthdate(UserStruct* data); // retorna a data de nascimento de um
 char * getUserAccCreation (UserStruct * data); // retorna a data de criação de conta de um user
 unsigned char getUserPayMethod(UserStruct * data); // retorna o método de pagamento de um user
 unsigned char getUserStatus (UserStruct * data); // retorna o estado de um user
+int userIsValid(UserStruct *user); // 1 se for valido, 0 se nao for
 
 #endif

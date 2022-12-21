@@ -3,6 +3,8 @@
 #define RIDE_STR_BUFF 32
 #define N_OF_FIELDS 9
 
+#define RIDE_IS_VALID(ride) (ride->date != NULL)
+
 struct RidesStruct
 {
 	int ID;
@@ -24,7 +26,8 @@ typedef struct {
 	n_of_drivers;
 } ThreadStruct;
 
-//cada key da GHashTable cityTable aponta para uma struct deste tipo
+// cada key da GHashTable cityTable aponta para uma struct deste tipo
+// apenas entram nas cityRides entradas válidas, já que não se faz get por ID
 struct CityRides {
 	GPtrArray * cityRidesArray;
 	GPtrArray * driverSumArray;
@@ -203,7 +206,7 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 
 SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid) {
 	
-	int i, count, chr, res;
+	int i, count, res;
 	char *city;
 
 	SecondaryRidesArray *secondaryArrayStruct = malloc(sizeof(SecondaryRidesArray));
@@ -240,8 +243,6 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 			i--;
 			(*invalid)++;
 		}
-
-		while ((chr = fgetc(ptr)) != '\n');
 	}
 
 	if (secondaryArrayStruct) secondaryArrayStruct->len = i;
@@ -365,6 +366,7 @@ gint compareRidesByDate(gconstpointer a, gconstpointer b)
 	gint res;
 	char *dateA = (*(RidesStruct **)a)->date, *dateB = (*(RidesStruct **)b)->date;
 	// DD/MM/YYYY
+
 	if ((res = strncmp(dateA + 6, dateB + 6, 4)) != 0)
 	{
 		return res;
@@ -407,13 +409,15 @@ void freeRidesPtrArray (void * data) {
 	RidesStruct * ridesArray = (RidesStruct *) secondaryArrayStruct->ridesArray;
 	
 	int i, secondaryArraySize = secondaryArrayStruct->len;
-	RidesStruct currentRideStruct;
+	RidesStruct *currentRideStruct;
 
 	for (i=0; i<secondaryArraySize; i++) {
-		currentRideStruct = ridesArray[i];
-		free(currentRideStruct.date);
-		free(currentRideStruct.user);
-		free(currentRideStruct.city);
+		currentRideStruct = &ridesArray[i];
+		if (RIDE_IS_VALID(currentRideStruct)) {
+			free(currentRideStruct->date);
+			free(currentRideStruct->user);
+			free(currentRideStruct->city);
+		}
 	//free(currentRideStruct->comment);
 	}
 	free(secondaryArrayStruct);
@@ -819,9 +823,12 @@ RidesStruct * getRidePtrByID(RidesData *data, guint ID)
 	guint i = ID / SIZE;
 	GPtrArray *array = data->ridesArray;
 	if (i > array->len) return NULL;
+
 	SecondaryRidesArray *secondaryArray = g_ptr_array_index(array, i);
 
 	RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
+	if (result == NULL || !RIDE_IS_VALID(result)) return NULL;
+ 
 	return result;
 }
 
@@ -865,3 +872,7 @@ float getRideTip(const RidesStruct *ride) {
 // {
 // 	return strndup(ride->comment, RIDE_STR_BUFF);
 // }
+
+int rideIsValid(RidesStruct *ride) {
+	return (ride != NULL && RIDE_IS_VALID(ride));
+}

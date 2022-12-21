@@ -1,4 +1,5 @@
 #include "commonParsing.h"
+#include <ctype.h>
 
 #define IF_EOF(ptr) if(loadString(ptr) == NULL) return -1;
 
@@ -25,6 +26,7 @@ char *loadString(FILE *ptr)
 
 	// sBuffer[i] = '\0';
 	// printf("buffer:%s | string:%s\n", sBuffer, str);
+	// printf("%s '%c'\n", sBuffer, (char)chr);
 
 	return str;
 }
@@ -58,7 +60,7 @@ char *safer_loadString(FILE *ptr, int *eof) {
 void writeString(FILE *ptr, char *buffer)
 {
 	int i, chr;
-	for (i = 0; (chr = fgetc(ptr)) != ';'; i++)
+	for (i = 0; (chr = fgetc(ptr)) != ';' && chr != '\n'; i++)
 	{
 		// if (chr == '0') i--;
 		// else
@@ -94,16 +96,28 @@ int p_getUserName(FILE *ptr, void *res) {
 	return 1;
 }
 
+// esta função só é usada como a última função dos drivers e users
+// logo o loadstring que é usado vai terminar num \n
 int p_getAccountStatus(FILE *ptr, void *res) {
-	char chr = fgetc(ptr);
+	char str[BUFF_SIZE];
+	writeString(ptr, str);
+	if (str == NULL) return 0;
+
+	int i;
+	for (i = 0; str[i]; i++) {
+		str[i] = tolower(str[i]);
+	}
+
 	unsigned char result;
-	if (chr == 'a')
+	if (strncmp("active", str, 6) == 0)
 	{
 		result = ACTIVE;
 	}
-	else
+	else if (strncmp("inactive", str, 8) == 0)
 	{
 		result = INACTIVE;
+	} else {
+		return 0;
 	}
 	*(unsigned char *)res = result;
 	return 1;
@@ -127,6 +141,16 @@ int compDates(char *dateA, char *dateB)
 
 int p_getDate(FILE *ptr, void *res) {
 	*(char **)res = loadString(ptr);
+	char *date = *(char **)res; 
+	if (date == NULL) return 0;
+	int chars_parsed, day, month, year;
+	if (sscanf(date, "%2d/%2d/%4d%n", &day, &month, &year, &chars_parsed) != 3 ||
+		date[chars_parsed] != '\0' ||
+		(day < 1 || day > 31) ||
+		(month < 1 || month > 12)
+	) {
+		return 0;
+	}
 	return 1;
 }
 
@@ -170,6 +194,7 @@ int p_getScoreDriver(FILE *ptr, void *res) {
 	return 1;
 }
 
+// esta função é responsavel por acabar no \n nas rides
 int p_getTip(FILE *ptr, void *res) {
 	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
@@ -179,14 +204,31 @@ int p_getTip(FILE *ptr, void *res) {
 
 int p_getGender(FILE *ptr, void *res) {
 	*(unsigned char *)res = fgetc(ptr);
+	if (*(unsigned char *)res == ';') return 0;
 	fseek(ptr, 1, SEEK_CUR);
 	return 1;
 }
 
 int p_getCarClass(FILE *ptr, void *res) {
-	*(unsigned char *)res = (fgetc(ptr) - 97) / 6;
-	while (fgetc(ptr) != ';');
-	return 1;
+	// *(unsigned char *)res = (fgetc(ptr) - 97) / 6;
+	// while (fgetc(ptr) != ';');
+	char str[BUFF_SIZE];
+	writeString(ptr, str);
+	if (str == NULL) return 0;
+	int i;
+	for(i = 0; str[i]; i++){
+		str[i] = tolower(str[i]);
+	}
+	//car class é 0, 1 ou 2 (basic/green/premium)
+	*(unsigned char *)res = (str[0] - 97) / 6;
+	if (strncmp("basic", str, 5) == 0 ||
+		strncmp("green", str, 5) == 0 ||
+		strncmp("premium", str, 7) == 0)
+	{
+			return 1;
+	}
+	// else
+	return 0;
 }
 
 int p_getLicensePlate(FILE *ptr, void *res) {
@@ -211,7 +253,7 @@ int p_getID(FILE *ptr, void *res) {
 	return 1;
 }
 
-
+// esta função automaticamente dá skip da linha que acabou de levar parse, em caso de erro ou nao
 int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 	int i = 0, res;
 	parse_func_struct *array = format->format_array;
@@ -226,22 +268,34 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 		res = current.func(ptr, field_ptr + current.offset);
 		i++;
 	} while (i < (const int) format->len && res == 1);
-
+	
 	if (res == -1) { // EOF
 		return -1;
 	} else if (i == format->len) { // caso normal
 		return 1;
 	} else { // caso de erro
+	printf("%d\n", i);
 		// damos free ao que é preciso e metemos o primeiro campo que pode levar free a NULL
 		int flag = 0;
 		int j;
-		for (j = 0; j < i; i++) {
+		void ** info; // 😭😭😭😭😭😭😭
+
+		// skip da linha
+		// se for a ultima funçao assumimos que ela ja deu skip ate ao fim da linha e nao fazemos nada
+		if (i != format->len) {
+			while (fgetc(ptr) != '\n');
+		}
+
+		for (j = 0; j < i; j++) {
 			current = array[j];
 			if (current.should_free) {
-				free(field_ptr + current.offset);
-				if (!flag) {
-					flag = 1;
-					*(void **)(field_ptr + current.offset) = NULL;
+				info = (void **)(field_ptr + current.offset);
+				if (*info != NULL) {
+					free(*info);
+					if (!flag) {
+						flag = 1;
+						*info = NULL;
+					}
 				}
 			}
 		}

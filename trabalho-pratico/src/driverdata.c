@@ -4,6 +4,8 @@
 
 #define N_OF_FIELDS 8
 
+#define DRIVER_IS_VALID(driver) (driver->name != NULL)
+
 struct DriverStruct
 {
 	// id está subentendido pela posição
@@ -36,7 +38,7 @@ void freeDriversPtrArray(void * data);
 
 SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format, int *invalid)
 {
-	int i, tempchr, count, chr, id_size;
+	int i, count, chr, id_size;
 	// char *name;
 
 	SecondaryDriverArray *resArray = malloc(sizeof(SecondaryDriverArray));
@@ -50,14 +52,9 @@ SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format, int *invalid)
 			break; //break feio???????
 		}
 
-		if (id_size != 0) {
-			parse_with_format(ptr, (void *)&driverStructArray[i], format);
-		} else if (id_size == 0) {
+		if (id_size == 0 || parse_with_format(ptr, (void *)&driverStructArray[i], format) != 1) {
 			(*invalid)++;
 		}
-
-		// avaçar até proxima linha
-		while ((tempchr = fgetc(ptr)) != '\n'); // && (tempchr != -1));
 	}
 
 	resArray->len = i;// - 1 ????
@@ -134,14 +131,16 @@ void freeDriversPtrArray(void * data) {
 	DriverStruct * array = secondaryArray->array;
 	
 	int i;
-	DriverStruct block;
+	DriverStruct *block;
 	for (i = 0; i < (const int)secondaryArray->len; i++) {
-		block = array[i];
-		free(block.name);
-		free(block.birthdate);
-		free(block.licensePlate);
-		free(block.city);
-		free(block.accountCreation);
+		block = &array[i];
+		if (DRIVER_IS_VALID(block)) {
+			free(block->name);
+			free(block->birthdate);
+			free(block->licensePlate);
+			free(block->city);
+			free(block->accountCreation);
+		}
 	}
 	free(secondaryArray);
 }
@@ -156,6 +155,7 @@ DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
 	if (i > array->len) return NULL;
 	SecondaryDriverArray *secondaryArray = g_ptr_array_index(array, i);
 	DriverStruct * result = &(secondaryArray->array[ID - SIZE * i]);
+	if (! DRIVER_IS_VALID(result)) return NULL;
 	return result;
 }
 
@@ -205,4 +205,8 @@ char *getDriverAccCreation(DriverStruct *driver)
 unsigned char getDriverStatus(DriverStruct *driver)
 {
 	return (driver->status);
+}
+
+int driverIsValid(DriverStruct *driver) {
+	return (driver != NULL && DRIVER_IS_VALID(driver));
 }

@@ -7,6 +7,8 @@
 
 #define dupe_str(str) return strndup(str, USER_STR_BUFF)
 
+#define USER_IS_VALID(user) (user->username != NULL)
+
 struct UserStruct
 {
 	char *username;
@@ -35,7 +37,7 @@ void freeTableData(void *userData)
 UserData *getUserData(FILE *ptr)
 {
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha
-	char *username, tempchr = EOF + 1;
+	char *username;
 	UserStruct *userstruct;
 	GHashTable *table = g_hash_table_new_full(g_str_hash, g_str_equal, free, freeTableData); /////// NOT FREE
 	
@@ -76,9 +78,6 @@ UserData *getUserData(FILE *ptr)
 			//else if == 0
 			invalid++;
 		}
-
-		// avaçar até proxima linha
-		while ((tempchr = fgetc(ptr)) != '\n');
 
 		// printf("\"username:%s name:%s gender:%c birthdate:%s accCreation:%s payMethod:%c(%d) status:%c(%d)\"\n",
 		// username, userstruct->name, userstruct->gender, userstruct->birthdate, userstruct->accountCreation, userstruct->payMethod, userstruct->payMethod, userstruct->status, userstruct->status);
@@ -142,4 +141,8 @@ void freeUserData(UserData *userData)
 {
 	g_hash_table_destroy(userData->table);
 	free(userData);
+}
+
+int userIsValid(UserStruct *user) {
+	return (user != NULL && USER_IS_VALID(user));
 }
