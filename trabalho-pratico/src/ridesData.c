@@ -65,7 +65,7 @@ struct RidesData {
 void freeCityRides(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
-SecondaryRidesArray *getRides(FILE *, GHashTable *, parse_format *format);
+SecondaryRidesArray *getRides(FILE *, GHashTable *, parse_format *, int *);
 
 GPtrArray * buildRidesbyDriverSorted (GPtrArray *);
 GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int);
@@ -123,18 +123,19 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	format.format_array = format_array;
 	format.len = N_OF_FIELDS;
 
+	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	secondaryArray = getRides(ptr, cityTable, &format); // porque é que este loop ta feito assim????
+	secondaryArray = getRides(ptr, cityTable, &format, &invalid); // porque é que este loop ta feito assim????
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(ridesArray, secondaryArray);
-		secondaryArray = getRides(ptr, cityTable, &format);
+		secondaryArray = getRides(ptr, cityTable, &format, &invalid);
 	}
 
 	int num = (ridesArray->len - 1) * SIZE;
 	secondaryArray = g_ptr_array_index(ridesArray, ridesArray->len - 1);
 	num += secondaryArray->len;
-	printf("Total number of rides: %d\n", num);
+	printf("Total number of rides: %d\nNumber of invalid rides: %d\n", num, invalid);
 
 	// for (i = 0; i < RIDES_ARR_SIZE; i++)
 	// 	ridesData[i] = getRides(ptr, cityTable, &format);
@@ -200,7 +201,7 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	return data;
 }
 
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format) {
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid) {
 	
 	int i, count, chr, res;
 	char *city;
@@ -229,17 +230,16 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 				// if yes, append to all the other data
 				g_ptr_array_add(cityRides->cityRidesArray, temp);
 			}
-		} else {
-			if (res == -1) {// se chegarmos a EOF
+		} else if (res == -1) {// se chegarmos a EOF
 				if (i == 0) {
 					free(secondaryArrayStruct);
 					secondaryArrayStruct = NULL;
 				} else i--; // este ultimo ciclo nao acrescenta nada, array fica com i-1 elementos
 				break;
-			}
+		} else {
 			i--;
+			(*invalid)++;
 		}
-
 
 		while ((chr = fgetc(ptr)) != '\n');
 	}

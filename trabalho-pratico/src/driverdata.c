@@ -34,7 +34,7 @@ struct parse_func_struct {
 
 void freeDriversPtrArray(void * data);
 
-SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format)
+SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format, int *invalid)
 {
 	int i, tempchr, count, chr, id_size;
 	// char *name;
@@ -52,6 +52,8 @@ SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format)
 
 		if (id_size != 0) {
 			parse_with_format(ptr, (void *)&driverStructArray[i], format);
+		} else if (id_size == 0) {
+			(*invalid)++;
 		}
 
 		// avaçar até proxima linha
@@ -101,13 +103,14 @@ DriverData * getDriverData(FILE *ptr)
 	format.format_array = format_array;
 	format.len = N_OF_FIELDS;
 
+	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	secondaryArray = getDrivers(ptr, &format);
+	secondaryArray = getDrivers(ptr, &format, &invalid);
 
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(driverarray, secondaryArray);
-		secondaryArray = getDrivers(ptr, &format);
+		secondaryArray = getDrivers(ptr, &format, &invalid);
 	}
 
 	newDriverData->driverArray = driverarray;
@@ -115,7 +118,7 @@ DriverData * getDriverData(FILE *ptr)
 	int num = (driverarray->len - 1) * SIZE;
 	secondaryArray = g_ptr_array_index(driverarray, driverarray->len - 1);
 	num += secondaryArray->len;
-	printf("Total number of drivers: %d\n", num);
+	printf("Total number of drivers: %d\nNumber of invalid drivers: %d\n", num, invalid);
 
 	return newDriverData;
 }

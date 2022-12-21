@@ -57,6 +57,8 @@ UserData *getUserData(FILE *ptr)
 
 	int res = 1;
 	int num = 0;
+	int invalid = 0;
+
 	while (1) //(res != -1) // acaba por ser inutil por causa da condiçao do break
 	{
 		userstruct = malloc(sizeof(UserStruct));
@@ -71,6 +73,8 @@ UserData *getUserData(FILE *ptr)
 		} else {
 			free(userstruct);
 			if (res == -1) break;
+			//else if == 0
+			invalid++;
 		}
 
 		// avaçar até proxima linha
@@ -84,7 +88,7 @@ UserData *getUserData(FILE *ptr)
 	UserData *data = malloc(sizeof(UserData));
 	data->table = table;
 
-	printf("Total number of users: %d\n", num);
+	printf("Total number of users: %d\nNumber of invalid users: %d\n", num, invalid);
 
 	return data;
 }
