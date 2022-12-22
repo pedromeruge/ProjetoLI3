@@ -2,7 +2,7 @@
 
 #define DRIVER_STR_BUFF 32
 
-#define N_OF_FIELDS 8
+#define N_OF_FIELDS 9
 
 #define DRIVER_IS_VALID(driver) (driver->name != NULL)
 
@@ -38,29 +38,25 @@ void freeDriversPtrArray(void * data);
 
 SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format, int *invalid)
 {
-	int i, chr, id_size;
+	int i, res;
 
 	SecondaryDriverArray *resArray = malloc(sizeof(SecondaryDriverArray));
 	DriverStruct * driverStructArray = resArray->array;
 
 	for (i = 0; i < SIZE; i++)
 	{
-		for (id_size = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; id_size++); // && chr != -1); // skip id
-		if (chr == EOF) {
+		if ((res = parse_with_format(ptr, (void *)&driverStructArray[i], format)) == 0)
+		{
+			(*invalid)++;
+		} else if (res == -1) { //EOF
 			if (i == 0) {
 				free(resArray);
 				resArray = NULL;
-			} else i--;
+			}
 			break;
 		}
-
-		if (id_size == 0 || 
-			parse_with_format(ptr, (void *)&driverStructArray[i], format) == 0)
-		{
-			(*invalid)++;
-		}
 	}
-	
+
 	if (resArray != NULL) resArray->len = i;
 
 	return resArray;
@@ -75,6 +71,7 @@ DriverData * getDriverData(FILE *ptr)
 	parse_format format;
 
 	parse_func_struct format_array[N_OF_FIELDS] = {
+		{ p_getDriverID, 0, 0 }, // os dados disto nunca sao escritos, é só para ver se é NULL
 		{ p_getName, offsetof(DriverStruct, name), 1, },
 		{ p_getDate, offsetof(DriverStruct, birthdate), 1, },
 		{ p_getGender, offsetof(DriverStruct, gender), 0, },
@@ -92,7 +89,6 @@ DriverData * getDriverData(FILE *ptr)
 	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
 	secondaryArray = getDrivers(ptr, &format, &invalid);
-
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(driverarray, secondaryArray);

@@ -56,6 +56,23 @@ char *safer_loadString(FILE *ptr, int *eof) {
 	return str;
 }
 
+// este nao faz check de newline!!!
+int safer_writeString(FILE *ptr, char *buffer)
+{
+	int i, chr;
+	for (i = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; i++)
+	{
+		// if (chr == '0') i--;
+		// else
+		buffer[i] = chr;
+	}
+	
+	buffer[i] = '\0';
+	if (chr == EOF) return -1;
+	if (i == 0) return 0;
+	return 1;
+}
+
 // se for vazio buffer começa com \0
 void writeString(FILE *ptr, char *buffer)
 {
@@ -148,6 +165,7 @@ int p_getDate(FILE *ptr, void *res) {
 int p_getDriver(FILE *ptr, void *res) {
 	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
+	if (tempBuffer[0] == '\0') return 0;
 	*(int *)res = atoi(tempBuffer);
 	return 1;
 }
@@ -167,21 +185,46 @@ int p_getCity(FILE *ptr, void *res) {
 int p_getDistance(FILE *ptr, void *res) {
 	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
-	*(short int *)res = (short)atoi(tempBuffer);
+	char *str = tempBuffer;
+	long int val = strtol(tempBuffer, &str, 10);
+	if (str == tempBuffer || // string vazia / output invalido
+		*str == '.' || // é float e não int
+		val <= 0)
+	{	
+		// printf("distance invalid. string:%s value:%d\n", tempBuffer, (int)val);
+		return 0;
+	}
+	*(short int *)res = (short int)val;
 	return 1;
 }
 
 int p_getScoreUser(FILE *ptr, void *res) {
 	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
-	*(short int *)res = (short)atoi(tempBuffer);
+	char *str = tempBuffer;
+	long int val = strtol(tempBuffer, &str, 10);
+	if (str == tempBuffer ||
+		*str == '.' ||
+		val <= 0)
+	{
+		return 0;
+	}
+	*(short int *)res = (short int)val;
 	return 1;
 }
 
 int p_getScoreDriver(FILE *ptr, void *res) {
 	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
-	*(short int *)res = (short)atoi(tempBuffer);
+	char *str = tempBuffer;
+	long int val = strtol(tempBuffer, &str, 10);
+	if (str == tempBuffer ||
+		*str == '.' ||
+		val <= 0)
+	{
+		return 0;
+	}
+	*(short int *)res = (short int)val;
 	return 1;
 }
 
@@ -189,7 +232,15 @@ int p_getScoreDriver(FILE *ptr, void *res) {
 int p_getTip(FILE *ptr, void *res) {
 	char tempBuffer[BUFF_SIZE];
 	writeString(ptr, tempBuffer);
-	*(float *)res = atof(tempBuffer);
+	char *str = tempBuffer;
+	float val = strtof(tempBuffer, &str);
+	if (str == tempBuffer ||
+		val < 0 ||
+		val != val) // check for nan
+	{
+		return 0;
+	}
+	*(float *)res = val;
 	return 1;
 }
 
@@ -236,11 +287,20 @@ int p_getID(FILE *ptr, void *res) {
 		return -1;
 	}
 	if (str == NULL) {
-		free(str);
 		return 0;
 	}
 	*(int *)res = atoi(str);
 	free(str);
+	return 1;
+}
+
+int p_getDriverID(FILE *ptr, void *res) {
+	char buff[BUFF_SIZE];
+	return safer_writeString(ptr, buff);
+}
+
+int p_getComment(FILE *ptr, void *res) {
+	while (fgetc(ptr) != '\n');
 	return 1;
 }
 
@@ -291,5 +351,20 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 			}
 		}
 		return 0;
+	}
+}
+
+void dumpWithFormat(void *data, parse_format *format) {
+	int i;
+	parse_func_struct *array = format->format_array;
+	parse_func_struct current;
+	char *field_ptr = ((char*)data);
+
+	// assumo que se puder levar free então é string
+	for (i = 0; i < (const int)format->len; i++) {
+		current = array[i];
+		if (current.should_free) {
+			printf("%s\n", *(char **)(field_ptr + current.offset));
+		}
 	}
 }

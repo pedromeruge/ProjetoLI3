@@ -1,7 +1,7 @@
 #include "ridesData.h"
 
 #define RIDE_STR_BUFF 32
-#define N_OF_FIELDS 9
+#define N_OF_FIELDS 10
 
 #define RIDE_IS_VALID(ride) (ride->date != NULL)
 
@@ -102,6 +102,7 @@ void *buildStatisticsInCity(void *data) {
 
 RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	int i;
+
 	//inicializar as estruturas de dados relacionadas com as rides
 	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
 	SecondaryRidesArray * secondaryArray;
@@ -121,6 +122,7 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 		{ p_getScoreUser,offsetof(RidesStruct, score_u), 0, },
 		{ p_getScoreDriver, offsetof(RidesStruct, score_d), 0, },
 		{ p_getTip, offsetof(RidesStruct, tip), 0, },
+		{ p_getComment, 0, 0 }, // comment nao é guardado mas temos de lhe dar skip
 	};
 
 	format.format_array = format_array;
@@ -128,6 +130,7 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 
 	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
+
 	secondaryArray = getRides(ptr, cityTable, &format, &invalid); // porque é que este loop ta feito assim????
 
 	while (secondaryArray != NULL) {
@@ -215,6 +218,7 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format)) == 1) {
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
+
 			// check if city is not already in hash table
 			if ((cityRides = g_hash_table_lookup(cityTable, city)) == NULL)
 			{
@@ -234,10 +238,9 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 				if (i == 0) {
 					free(secondaryArrayStruct);
 					secondaryArrayStruct = NULL;
-				} else i--; // este ultimo ciclo nao acrescenta nada, array fica com i-1 elementos
+				}
 				break;
 		} else {
-			i--;
 			(*invalid)++;
 		}
 	}
