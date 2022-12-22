@@ -351,17 +351,17 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 			}
 		}
 		// pode acontecer o parse nao ter avançado o suficiente para sequer chegar ao campo que tem de ficar a NULL
-		if (j != (const int)format->len) {
-			for (; j < (const int)format->len; j++) {
+		if (!flag) {
+			for (; i < (const int)format->len; i++) {
+				current = array[i];
 				info = (void **)(field_ptr + current.offset);
-				current = array[j];
 				if (current.should_free) {
 					*info = NULL;
-					flag = 1;
 					break;
 				}
 			}
 		}
+		
 		return 0;
 	}
 }
