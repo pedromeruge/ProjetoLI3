@@ -406,7 +406,7 @@ void freeRidesPtrArray (void * data) {
 
 	SecondaryRidesArray * secondaryArrayStruct = (SecondaryRidesArray *) data;
 	RidesStruct * ridesArray = (RidesStruct *) secondaryArrayStruct->ridesArray;
-	
+
 	int i, secondaryArraySize = secondaryArrayStruct->len;
 	RidesStruct *currentRideStruct;
 	for (i=0; i<secondaryArraySize; i++) {

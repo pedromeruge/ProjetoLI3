@@ -32,13 +32,16 @@ void result_func (CityRides *rides, void *otherData) {
 	// dumpCityRidesDate(ola, rides);
 
 	for (i = start; i <= end; i++) {
+		// nunca pode ser NULL
 		currentRide = getCityRidesByIndex(rides, i);
 		ID = getRideDriver(currentRide);
 		currentDriver = getDriverPtrByID(driverData, ID);
-		carClass = getDriverCar(currentDriver);
-		// A < B retorna -1
-		distance[carClass] += getRideDistance(currentRide);
-		numRides[carClass] += 1;
+		if (currentDriver != NULL) {
+			carClass = getDriverCar(currentDriver);
+			// A < B retorna -1
+			distance[carClass] += getRideDistance(currentRide);
+			numRides[carClass] += 1;
+		}
 	}
 }
 

@@ -20,12 +20,15 @@ char *query_4(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 	int ID;
 	for (i = 0; i < len; i++)
 	{
+		// nunca pode ser NULL
 		currentRide = getCityRidesByIndex(rides, i);
 		ID = getRideDriver(currentRide);
 		currentDriver = getDriverPtrByID(driverData, ID);
-		carClass = getDriverCar(currentDriver);
-		distance[carClass] += getRideDistance(currentRide);
-		numRides[carClass] += 1;
+		if (currentDriver != NULL) {
+			carClass = getDriverCar(currentDriver);
+			distance[carClass] += getRideDistance(currentRide);
+			numRides[carClass] += 1;
+		}
 		// printf("%d %d %d\n", distance[0], distance[1], distance[2]);
 	}
 	// 	Basic: Tarifa mínima = 3.25€ + 0.62€/km

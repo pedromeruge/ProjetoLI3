@@ -16,6 +16,7 @@ char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 	if ((start | end) < 0) return NULL;
 
 	for (i = start; i <= end; i++) {
+		// nunca pode ser NULL
 		currentRide = getCityRidesByIndex(rides, i);
 		// A < B retorna -1
 		distance += getRideDistance(currentRide);
