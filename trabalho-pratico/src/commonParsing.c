@@ -75,7 +75,7 @@ int p_getPayMethod(FILE *ptr, void *res)
 	//estava a bugar com isto, aparentemente nao é preciso de qualquer das formas
 	char buff[BUFF_SIZE];
 	writeString(ptr, buff);
-	if (buff == NULL) return 0;
+	if (buff[0] == '\0') return 0;
 	return 1;
 }
 
@@ -92,7 +92,7 @@ int p_getUserName(FILE *ptr, void *res) {
 int p_getAccountStatus(FILE *ptr, void *res) {
 	char str[BUFF_SIZE];
 	writeString(ptr, str);
-	if (str == NULL) return 0;
+	if (str[0] == '\0') return 0;
 
 	int i;
 	for (i = 0; str[i]; i++) {
@@ -205,7 +205,7 @@ int p_getCarClass(FILE *ptr, void *res) {
 	// while (fgetc(ptr) != ';');
 	char str[BUFF_SIZE];
 	writeString(ptr, str);
-	if (str == NULL) return 0;
+	if (str[0] == '\0') return 0;
 	int i;
 	for(i = 0; str[i]; i++){
 		str[i] = tolower(str[i]);
@@ -262,9 +262,10 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 	
 	if (res == -1) { // EOF
 		return -1;
-	} else if (i == format->len) { // caso normal
+	} else if (i == format->len && res == 1) { // caso normal
 		return 1;
 	} else { // caso de erro
+		// printf("failed at %d\n", i-1);
 		// damos free ao que é preciso e metemos o primeiro campo que pode levar free a NULL
 		int flag = 0;
 		int j;

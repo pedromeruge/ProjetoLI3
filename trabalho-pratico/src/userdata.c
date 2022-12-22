@@ -49,7 +49,7 @@ UserData *getUserData(FILE *ptr)
 		{ p_getGender, offsetof(UserStruct, gender), 0, },
 		{ p_getDate, offsetof(UserStruct, birthdate), 1, },
 		{ p_getDate, offsetof(UserStruct, accountCreation), 1, },
-		{ p_getPayMethod, offsetof(UserStruct, accountCreation), 0, }, // este offset é igual porque nao é escrito
+		{ p_getPayMethod, 0, 0, }, // este offset nao interessa
 		// o parametro é inútil mas temos de fazer check para ver se está vazio, a função nunca escreve nada na struct do user
 		{ p_getAccountStatus, offsetof(UserStruct, status), 0, },
 	};
