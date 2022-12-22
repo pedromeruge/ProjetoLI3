@@ -15,7 +15,7 @@ int main (int argc, char **argv) {
 	
 	DriverData * drivers = getDriverData(files[1]);
 
-	RidesData * rides = getRidesData(files[2],getNumberOfDrivers(drivers));
+	RidesData * rides = getRidesData(files[2], getNumberOfDrivers(drivers));
 	
 	int ret;
 	if (files[3] == NULL) ret = terminalRequests(users,drivers,rides);

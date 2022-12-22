@@ -38,41 +38,30 @@ void freeDriversPtrArray(void * data);
 
 SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format, int *invalid)
 {
-	int i, count, chr, id_size;
-	// char *name;
+	int i, chr, id_size;
 
 	SecondaryDriverArray *resArray = malloc(sizeof(SecondaryDriverArray));
 	DriverStruct * driverStructArray = resArray->array;
 
-	for (i = count = 0; i < SIZE; i++, count++)
+	for (i = 0; i < SIZE; i++)
 	{
 		for (id_size = 0; (chr = fgetc(ptr)) != ';' && chr != EOF; id_size++); // && chr != -1); // skip id
-		
 		if (chr == EOF) {
-			break; //break feio???????
+			if (i == 0) {
+				free(resArray);
+				resArray = NULL;
+			} else i--;
+			break;
 		}
 
-		if (id_size == 0 || parse_with_format(ptr, (void *)&driverStructArray[i], format) != 1) {
+		if (id_size == 0 || 
+			parse_with_format(ptr, (void *)&driverStructArray[i], format) == 0)
+		{
 			(*invalid)++;
 		}
 	}
-
-	resArray->len = i;// - 1 ????
-	if (chr == EOF && i == 0) {
-			free(resArray);
-			resArray = NULL; //fim do ficheiro e não recebemos info nenhuma
-	}
 	
-	// for (i = 0; i < count; i++) {
-	// 	printf("%s %s %d %c %s %s %s %d\n", driverStructArray[i].name,
-	// 	driverStructArray[i].birthdate,
-	// 	driverStructArray[i].gender,
-	// 	driverStructArray[i].carClass,
-	// 	driverStructArray[i].licensePlate,
-	// 	driverStructArray[i].city,
-	// 	driverStructArray[i].accountCreation,
-	// 	driverStructArray[i].status);
-	// }
+	if (resArray != NULL) resArray->len = i;
 
 	return resArray;
 }

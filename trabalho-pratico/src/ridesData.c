@@ -140,9 +140,6 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	num += secondaryArray->len;
 	printf("Total number of rides: %d\nNumber of invalid rides: %d\n", num, invalid);
 
-	// for (i = 0; i < RIDES_ARR_SIZE; i++)
-	// 	ridesData[i] = getRides(ptr, cityTable, &format);
-
 	//## MT para cálulco de estatística de dados para cada cidade
 	// assumimos que o nº de cidades esta bem distribuido (na fase 1 pelo menos estava)
 	
@@ -206,14 +203,14 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 
 SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid) {
 	
-	int i, count, res;
+	int i, res;
 	char *city;
 
 	SecondaryRidesArray *secondaryArrayStruct = malloc(sizeof(SecondaryRidesArray));
 	RidesStruct * ridesStructArray = secondaryArrayStruct->ridesArray, *temp;
 	CityRides * cityRides;
 
-	for (i = count = 0; i < SIZE; i++, count++) {
+	for (i = 0; i < SIZE; i++) {
 
 		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format)) == 1) {
 			city = ridesStructArray[i].city;
@@ -245,9 +242,8 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 		}
 	}
 
-	if (secondaryArrayStruct) secondaryArrayStruct->len = i;
+	if (secondaryArrayStruct != NULL) secondaryArrayStruct->len = i;
 
-	//caso o numero de rides seja um multiplo de 1000, tem de se eliminar o último array criado, com 0 elementos
 	return secondaryArrayStruct;
 }
 
@@ -410,7 +406,6 @@ void freeRidesPtrArray (void * data) {
 	
 	int i, secondaryArraySize = secondaryArrayStruct->len;
 	RidesStruct *currentRideStruct;
-
 	for (i=0; i<secondaryArraySize; i++) {
 		currentRideStruct = &ridesArray[i];
 		if (RIDE_IS_VALID(currentRideStruct)) {

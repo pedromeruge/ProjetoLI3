@@ -72,19 +72,10 @@ void writeString(FILE *ptr, char *buffer)
 
 int p_getPayMethod(FILE *ptr, void *res)
 {
-	fseek(ptr, 1, SEEK_CUR); // avançar o 'c' para comparar 'a' vs 'r' (c|ash vs c|redit)
-	char chr = fgetc(ptr);
-	unsigned char result;
-	if (chr == 'a')
-	{
-		result = CASH;
-	}
-	else
-	{
-		result = CREDIT;
-	}
-	while (fgetc(ptr) != ';');
-	*(unsigned char *)res = result;
+	//estava a bugar com isto, aparentemente nao é preciso de qualquer das formas
+	char buff[BUFF_SIZE];
+	writeString(ptr, buff);
+	if (buff == NULL) return 0;
 	return 1;
 }
 

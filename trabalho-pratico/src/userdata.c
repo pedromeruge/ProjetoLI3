@@ -16,7 +16,7 @@ struct UserStruct
 	unsigned char gender;
 	char *birthdate;
 	char *accountCreation;
-	unsigned char payMethod;
+	// unsigned char payMethod;
 	unsigned char status;
 };
 
@@ -49,7 +49,8 @@ UserData *getUserData(FILE *ptr)
 		{ p_getGender, offsetof(UserStruct, gender), 0, },
 		{ p_getDate, offsetof(UserStruct, birthdate), 1, },
 		{ p_getDate, offsetof(UserStruct, accountCreation), 1, },
-		{ p_getPayMethod, offsetof(UserStruct, payMethod), 0, },
+		{ p_getPayMethod, offsetof(UserStruct, accountCreation), 0, }, // este offset é igual porque nao é escrito
+		// o parametro é inútil mas temos de fazer check para ver se está vazio, a função nunca escreve nada na struct do user
 		{ p_getAccountStatus, offsetof(UserStruct, status), 0, },
 	};
 
@@ -127,10 +128,10 @@ char *getUserAccCreation(UserStruct *data)
 	// return strndup(data->accountCreation, USER_STR_BUFF);
 }
 
-unsigned char getUserPayMethod(UserStruct *data)
-{
-	return (data->payMethod);
-}
+// unsigned char getUserPayMethod(UserStruct *data)
+// {
+// 	return (data->payMethod);
+// }
 
 unsigned char getUserStatus(UserStruct *data)
 {
