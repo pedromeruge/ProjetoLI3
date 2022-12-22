@@ -337,16 +337,28 @@ int parse_with_format(FILE *ptr, void *data, parse_format *format) {
 			while (fgetc(ptr) != '\n');
 		}
 
+		// free a todos os campos que nao sejam null e que levaram parse até agora
+		// coloca o 1º campo que possa levar free a NULL (é assim que vemos que é inválido)
 		for (j = 0; j < i; j++) {
 			current = array[j];
 			if (current.should_free) {
 				info = (void **)(field_ptr + current.offset);
-				if (*info != NULL) {
-					free(*info);
-					if (!flag) {
-						flag = 1;
-						*info = NULL;
-					}
+				if (*info) free(*info);
+				if (!flag) {
+					*info = NULL;
+					flag = 1;
+				}
+			}
+		}
+		// pode acontecer o parse nao ter avançado o suficiente para sequer chegar ao campo que tem de ficar a NULL
+		if (j != (const int)format->len) {
+			for (; j < (const int)format->len; j++) {
+				info = (void **)(field_ptr + current.offset);
+				current = array[j];
+				if (current.should_free) {
+					*info = NULL;
+					flag = 1;
+					break;
 				}
 			}
 		}
