@@ -3,7 +3,7 @@
 
 #include "commonParsing.h"
 #include "driverdata.h"
-#define RIDES_ARR_SIZE 1000
+
 #define SIZE 1000
 
 // informações de uma ride

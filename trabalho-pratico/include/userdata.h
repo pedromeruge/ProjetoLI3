@@ -3,8 +3,6 @@
 
 #include "commonParsing.h"
 
-#define USER_ARR_SIZE 100
-
 //informações de um user
 typedef struct UserStruct UserStruct;
 

@@ -10,8 +10,8 @@
 #include <unistd.h>
 
 #define LINE_SIZE 128
-#define PATH_SIZE 64
-#define QUERY_RESULT_PATH "exemplos_de_queries/tests_1/command%d_output.txt"
+#define PATH_SIZE 128
+#define QUERY_RESULT_PATH "exemplos_de_queries/fase2/regular-errors-outputs/command%d_output.txt"
 #define N_OF_REPETITIONS 10
 #define MAX_QUERY_INPUTS 3
 
@@ -221,7 +221,7 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 		
 		//return 2 : deu NULL e devia dar valores; return 3: deu valores diferentes
 		if (writeRet == 2 || writeRet == 3) {
-			fprintf(stderr, "-->ERROR: Results differ\nExpected:%s\nGot:'%s'\nError file:exemplos_de_queries/tests_1/command%d_output.txt\n\n", "see file :)", querryResult, commandN);
+			fprintf(stderr, "-->ERROR: Results differ\nExpected:%s\nGot:'%s'\nError file:..../command%d_output.txt\n\n", "see file :)", querryResult, commandN);
 			fputs("Error\n", test_output);
 			free(querryResult); // free do buffer de output
 
