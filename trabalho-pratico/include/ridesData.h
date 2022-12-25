@@ -84,6 +84,7 @@ short int getRideScore_d(RidesStruct *);  // retorna a avaliação do driver de 
 float getRideTip(const RidesStruct *);          // retorna a tip de uma ride
 char *getRideComment(RidesStruct *);      // retorna o comentário de uma ride
 int rideIsValid(RidesStruct *ride); // 1 se for valido, 0 se nao for
+int getNumberOfRides(RidesData * data);
 
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
 

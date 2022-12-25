@@ -874,3 +874,11 @@ float getRideTip(const RidesStruct *ride) {
 int rideIsValid(RidesStruct *ride) {
 	return (ride != NULL && RIDE_IS_VALID(ride));
 }
+
+int getNumberOfRides(RidesData * data) {
+	GPtrArray * array = data->ridesArray;
+	int num = (array->len - 1) * SIZE;
+	SecondaryRidesArray * secondaryArray = g_ptr_array_index(array, array->len - 1);
+	num += secondaryArray->len;
+	return num;
+}

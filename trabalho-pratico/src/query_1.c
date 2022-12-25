@@ -54,9 +54,9 @@ char driver_age(char *idstr, DriverData *driverData)
 
 int user_sum_trips(char *idstr, UserData *userData, RidesData *ridesdata)
 {
-    int i, sum = 0;
+    int i, sum = 0, max = getNumberOfRides(ridesdata);;
 	RidesStruct *currentRide;
-    for (i = 1; (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
+    for (i = 1; i <= max && (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
     {
         char *ride_user = getRideUser(currentRide);
         if (strcmp(ride_user, idstr) == 0)
@@ -70,10 +70,10 @@ int user_sum_trips(char *idstr, UserData *userData, RidesData *ridesdata)
 
 double user_avg_ev(char *idstr, UserData *UserData, RidesData *ridesdata)
 {
-    int i;
+    int i, max = getNumberOfRides(ridesdata);;
     double sum = 0;
 	RidesStruct *currentRide;
-    for (i = 1; (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
+    for (i = 1; i <= max && (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
     {
         char *ride_user = getRideUser(currentRide);
         if (strcmp(ride_user, idstr) == 0)
@@ -87,13 +87,13 @@ double user_avg_ev(char *idstr, UserData *UserData, RidesData *ridesdata)
 
 double user_total_spent(char *idstr, UserData *UserData, RidesData *ridesdata, DriverData *driverData)
 {
-    int i;
+    int i, max = getNumberOfRides(ridesdata);
     double total_spent = 0;
     unsigned int distance[3] = {0, 0, 0}, numRides[3] = {0, 0, 0};
     double tip = 0;
 	RidesStruct *currentRide;
 	DriverStruct *currentDriver;
-    for (i = 1; (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
+    for (i = 1; i <= max && (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
     {
         int driver_ID = getRideDriver(currentRide);
         currentDriver = getDriverPtrByID(driverData, driver_ID);
