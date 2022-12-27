@@ -16,6 +16,8 @@ int main (int argc, char **argv) {
 	DriverData * drivers = getDriverData(files[1]);
 
 	RidesData * rides = getRidesData(files[2], getNumberOfDrivers(drivers));
+
+	printf("Finished loading\n");
 	
 	int ret;
 	if (files[3] == NULL) ret = terminalRequests(users,drivers,rides);
@@ -26,6 +28,8 @@ int main (int argc, char **argv) {
         return 2;
     }
 
+	printf("\nFinished queries\n");
+
 	fclose(files[0]);
 	fclose(files[1]);
 	fclose(files[2]);
@@ -35,6 +39,8 @@ int main (int argc, char **argv) {
 	freeDriverData(drivers);
 	freeRidesData(rides);
 	free(files);
+
+	printf("Finished freeing\n");
 
 	return 0;
 }

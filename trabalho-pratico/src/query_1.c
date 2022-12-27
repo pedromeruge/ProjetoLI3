@@ -56,14 +56,16 @@ int user_sum_trips(char *idstr, UserData *userData, RidesData *ridesdata)
 {
     int i, sum = 0, max = getNumberOfRides(ridesdata);;
 	RidesStruct *currentRide;
-    for (i = 1; i <= max && (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
+    for (i = 1; i <= max; i++)
     {
-        char *ride_user = getRideUser(currentRide);
-        if (strcmp(ride_user, idstr) == 0)
-        {
-            sum += 1;
-        }
-        free(ride_user);
+		if ((currentRide = getRidePtrByID(ridesdata, i))) {
+			char *ride_user = getRideUser(currentRide);
+			if (strcmp(ride_user, idstr) == 0)
+			{
+				sum += 1;
+			}
+			free(ride_user);
+		}
     }
     return sum;
 }
@@ -73,40 +75,44 @@ double user_avg_ev(char *idstr, UserData *UserData, RidesData *ridesdata)
     int i, max = getNumberOfRides(ridesdata);;
     double sum = 0;
 	RidesStruct *currentRide;
-    for (i = 1; i <= max && (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
+    for (i = 1; i <= max; i++)
     {
-        char *ride_user = getRideUser(currentRide);
-        if (strcmp(ride_user, idstr) == 0)
-        {
-            sum += getRideScore_u(currentRide);
-        }
-        free(ride_user);
+		if ((currentRide = getRidePtrByID(ridesdata, i))) {
+			char *ride_user = getRideUser(currentRide);
+			if (strcmp(ride_user, idstr) == 0)
+			{
+				sum += getRideScore_u(currentRide);
+			}
+			free(ride_user);
+		}
     }
     return sum / user_sum_trips(idstr, UserData, ridesdata);
 }
 
 double user_total_spent(char *idstr, UserData *UserData, RidesData *ridesdata, DriverData *driverData)
 {
-    int i, max = getNumberOfRides(ridesdata);
+    int i, max = getNumberOfRides(ridesdata), driver_ID;
     double total_spent = 0;
     unsigned int distance[3] = {0, 0, 0}, numRides[3] = {0, 0, 0};
     double tip = 0;
 	RidesStruct *currentRide;
 	DriverStruct *currentDriver;
-    for (i = 1; i <= max && (currentRide = getRidePtrByID(ridesdata, i)) != NULL; i++)
+    for (i = 1; i <= max; i++)
     {
-        int driver_ID = getRideDriver(currentRide);
-        currentDriver = getDriverPtrByID(driverData, driver_ID);
-		if (currentDriver != NULL) {
-			char *ride_user = getRideUser(currentRide);
-			unsigned char carClass = getDriverCar(currentDriver);
-			if (strcmp(ride_user, idstr) == 0)
-			{
-				distance[carClass] += getRideDistance(currentRide);
-				numRides[carClass] += 1;
-				tip += (double)getRideTip(currentRide);
+		if ((currentRide = getRidePtrByID(ridesdata, i))) {
+			driver_ID = getRideDriver(currentRide);
+			currentDriver = getDriverPtrByID(driverData, driver_ID);
+			if (currentDriver != NULL) {
+				char *ride_user = getRideUser(currentRide);
+				unsigned char carClass = getDriverCar(currentDriver);
+				if (strcmp(ride_user, idstr) == 0)
+				{
+					distance[carClass] += getRideDistance(currentRide);
+					numRides[carClass] += 1;
+					tip += (double)getRideTip(currentRide);
+				}
+				free(ride_user);
 			}
-			free(ride_user);
 		}
     }
     total_spent = ((double)(numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94) + tip);

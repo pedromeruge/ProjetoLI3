@@ -12,7 +12,7 @@ char *NOP(char * inputStr[], UserData *userData, DriverData *DriverData, RidesDa
 
 // É da responsabilidade da caller function dar free da string
 char * queryAssign(char * queryInput, UserData * userData, DriverData * driverData, RidesData * ridesData, int commandN) { // remover commandN, no futuro, só é usado para o debug
-    int i,j;
+    int i;
     query_func *queryList[9] = {query_1, query_2, query_3, query_4, query_5, query_6, query_7, NOP, query_9};
     char *strHolder, *tempsegstr[MAX_QUERY_INPUTS+1]; // array com segmentos de input para uma query (atualizado em cada linha)
     //char *  *temp;
@@ -30,10 +30,13 @@ char * queryAssign(char * queryInput, UserData * userData, DriverData * driverDa
     //strBuffer = temp;
 
     //### print de debug para os input de uma query
-    printf("command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
-    for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++)
-        printf(" <%.16s>",tempsegstr[j]);
-    putchar('\n');
+    // printf("command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
+	printf("%d:%d ", commandN,(*tempsegstr[0]) - 49 + 1);
+
+	// int j;
+    // for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++)
+    //     printf(" <%.16s>",tempsegstr[j]);
+    // putchar('\n');
     //### 
 
     return (queryList[(*tempsegstr[0]) - 49](tempsegstr+1, userData, driverData, ridesData)); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0

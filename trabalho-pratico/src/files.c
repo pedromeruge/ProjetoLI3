@@ -48,7 +48,7 @@ int writeResults(int commandN, char *strResult) {
     char resultPath[64];
     snprintf(resultPath, 64, RESULT_PATH, commandN);
 
-    printf("command (%d), file output NULL?: [%d]\n",commandN,strResult == NULL);
+    // printf("command (%d), file output NULL?: [%d]\n",commandN,strResult == NULL);
 
     FILE *fpout = fopen(resultPath, "w");
     if (!fpout)
