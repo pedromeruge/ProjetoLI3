@@ -17,9 +17,11 @@ TEST_DEBUG_BUILD_DIR := $(BASE_BUILD_DIR)/testes_debug
 CC := gcc
 
 GLIBFLAGS := $(shell pkg-config --cflags --libs gobject-2.0)
-STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell ./Scripts/get_threads.sh) #-lm -pthread -Wconversion
+STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell ./Scripts/get_threads.sh) $(PROFILING_OPTS)#-lm -pthread -Wconversion
 CFLAGS := -O2 $(STD_FLAGS)
 DEBUG_FLAGS := -O0 -g3 $(STD_FLAGS) #-ggdb3
+LDFLAGS := $(PROFILING_OPTS)
+
 
 # get .c files, remove original path and turn into .o
 SRCS_ALL := $(shell ls $(SRC_DIR) | grep '.c')
@@ -106,7 +108,7 @@ $(TEST_DEBUG_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.c
 	$(CC) -I$(TEST_INC_DIR) $(CPPFLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 .PHONY: clean
-RM_DIRS := $(BASE_BUILD_DIR) $(TARGET_EXEC) $(DEBUG_EXEC) $(TEST_EXEC) $(TEST_DEBUG_EXEC) $(RES_DIR) testes_output.txt
+RM_DIRS := $(BASE_BUILD_DIR) $(TARGET_EXEC) $(DEBUG_EXEC) $(TEST_EXEC) $(TEST_DEBUG_EXEC) $(RES_DIR) testes_output.txt gmon* perf*
 RED := \033[0;31m
 NC := \033[0m
 clean:

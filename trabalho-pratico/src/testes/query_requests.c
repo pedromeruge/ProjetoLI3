@@ -11,7 +11,7 @@
 
 #define LINE_SIZE 128
 #define PATH_SIZE 128
-#define QUERY_RESULT_PATH "exemplos_de_queries/fase2/regular-errors-outputs/command%d_output.txt"
+#define QUERY_RESULT_PATH "exemplos_de_queries/fase1/tests_1/command%d_output.txt"
 #define N_OF_REPETITIONS 10
 #define MAX_QUERY_INPUTS 3
 
@@ -148,6 +148,7 @@ int writeResultsTests (int commandN, char * strResult) {
 }
 
 int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE *test_output) {
+	printf("---->Current test output path: %s\n", QUERY_RESULT_PATH);
 	clock_t cpu_start, cpu_end;
 	double cpu_time_used;
 	struct timespec start, finish, delta;
