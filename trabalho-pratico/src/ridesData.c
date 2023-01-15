@@ -59,7 +59,6 @@ typedef struct {
 
 struct RidesData {
 	GPtrArray * ridesArray;
-	//RidesStruct **ridesArray;
 	GHashTable *cityTable;
 	GPtrArray * driverInfoArray;
 	querySavedData * savedData;
@@ -106,7 +105,6 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	//inicializar as estruturas de dados relacionadas com as rides
 	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
 	SecondaryRidesArray * secondaryArray;
-	//RidesStruct **ridesData = malloc(RIDES_ARR_SIZE * sizeof(RidesStruct *));
 
 	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeCityRides); // keys levam malloc do array normal, nao vou dar free aqui;
 	
@@ -197,10 +195,10 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	RidesData *data = malloc(sizeof(RidesData));
 	data->ridesArray = ridesArray; // array com input do ficheiro
 	data->cityTable = cityTable; // hash table que guarda structs com: array com rides ordenandas para uma cidade key, e array com info resumida de drivers nessa cidade;
-	data->driverInfoArray = driverInfoArray; // array com informação de drivers resumida
+	data->driverInfoArray = driverInfoArray; // array com informação de drivers resumida global
 	data->savedData = malloc(sizeof(querySavedData)); // estrutura em que se guarda novos array criados nas queries
 	data->savedData->driverRatingArray = buildRidesbyDriverSorted(driverInfoArray);
-
+	//dumpDriverInfoArray("query_2-ouputs",data->savedData->driverRatingArray,NULL,1);
 	return data;
 }
 
@@ -292,12 +290,9 @@ driverRatingInfo *appendDriverInfo(driverRatingInfo *currentArrayStruct, RidesSt
 	short int *ridesTracker = (short int *)currentArrayStruct->ridesNumber;
 	ridesTracker[1] += currentRide->distance;
 
-	//como assumo que o array de rides recebido já está sorted, não é preciso considerar novas datas mais recentes
-	// if (compDates(rideDate, currentArrayStruct->mostRecRideDate) >= 0)
-	// {
-	// 	free(currentArrayStruct->mostRecRideDate);
-	// 	currentArrayStruct->mostRecRideDate = strdup(rideDate);
-	// }
+	//como assumo que o array de rides recebido já está sorted, não é preciso comparar se novas inserções têm datas mais recentes, pois serão sempre
+	free(currentArrayStruct->mostRecRideDate);
+	currentArrayStruct->mostRecRideDate = strdup(currentRide->date);
 
     return (currentArrayStruct);
 }
@@ -587,6 +582,7 @@ GPtrArray * buildRidesByDriverGlobal(GHashTable * cityTable, int numberOfDrivers
 				}
 			}
 		}
+		//cálculo das médias e ordenação da info sobre drivers para cada cidade individualmente (usado na query 7)
 		cityData->driverSumArray=getPresentableValues(driverInfoInCityArray); // meter com MT também?? 
 		g_ptr_array_sort(cityData->driverSumArray,sort_byRatings_7); // meter com MT também??
 	}
@@ -796,8 +792,8 @@ void dumpCityRides (char * filename, GHashTable * cityTable, CityRides * rides, 
 	}
 }
 
-//dump driverInfoArray before getPresentablevalues!!
-void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToFilename) {
+//dump driverInfoArray: dataState == 0 -> before getPresentablevalues, dataState == 1 -> after getPresentablevalues!!
+void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToFilename, int dataState) {
 	if(addToFilename != NULL) filename = strcat(filename,addToFilename);
 	FILE *fp = fopen(filename, "w");
 	int i, numberOfDrivers = driverInfo->len;
@@ -806,9 +802,14 @@ void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToF
 		currentDriver = g_ptr_array_index(driverInfo, i);
 		if (currentDriver == NULL) fprintf(fp,"driverNumber:%d | NO INFO!\n",i+1);
 		else {
+			if (!dataState) {
 			unsigned int * ratings = (unsigned int *)currentDriver->ratingChart;
 			//NumberOfRides não foi calculado ainda, só depois de getPresentableValues, por isso não é incluído no print
 			fprintf(fp, "driverNumber:%d, mostRecdate: %s, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n", currentDriver->driverNumber,currentDriver->mostRecRideDate,ratings[0],ratings[1],ratings[2],ratings[3],ratings[4],currentDriver->ridesNumber[1]);
+			}
+			else {
+				fprintf(fp,"driverNumber:%d, mostRecdate:%s, avgRating: %f\n",currentDriver->driverNumber,currentDriver->mostRecRideDate, *(double *)currentDriver->ratingChart);
+			}
 		}
 	}
 	fclose(fp);

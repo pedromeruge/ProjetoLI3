@@ -37,8 +37,8 @@ void iterateOverCities(RidesData *, void *data, void (*iterator_func)(CityRides 
 void searchCityRidesByDate(CityRides *rides, char *dateA, char *dateB, int *res_start, int *res_end); // binary search de cityrides por data
 
 //funções de debug
-void dumpCityRides (char *, GHashTable *, CityRides *, GPtrArray *); // debug
-void dumpDriverInfoArray (char *, GPtrArray *, char *);
+void dumpCityRides (char *, GHashTable *, CityRides *, GPtrArray *);
+void dumpDriverInfoArray (char *, GPtrArray *, char *, int dataStatus);
 
 // CityIterator * cityIteratorInit(RidesData *); // retorna um iterador (precisa de free depois)
 // gboolean cityIteratorNext(CityIterator *); // itera pelas cidades
