@@ -477,7 +477,7 @@ gint sort_byRatings_2 (gconstpointer a, gconstpointer b) {
     else if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
         result = compDates(driver1->mostRecRideDate,driver2->mostRecRideDate);
         if (!result) 
-            result = driver1->driverNumber - driver2->driverNumber;
+            result = driver2->driverNumber - driver1->driverNumber; // comparação em ordem crescente do ID, 2 - 1, porque leitura final é feita do fim para o início
     }
     return result;
 }
@@ -493,7 +493,7 @@ gint sort_byRatings_7 (gconstpointer a, gconstpointer b) {
     if (diff > 0) result = 1;
     else if (diff <0) result = -1;
     else if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
-		result = (int)(driver1->driverNumber - driver2->driverNumber); // tem de se fazer a comparação em ordem decrescente, daí 1 - 2 (n sei bem porquê, mas funciona?);
+		result = driver1->driverNumber - driver2->driverNumber; // comparação em ordem decrescente do ID, 1 - 2, porque leitura final é feita do fim para o início
 	}
     return result;
 }
