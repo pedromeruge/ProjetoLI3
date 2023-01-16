@@ -49,7 +49,7 @@ const ridesByDriver *getRidesByDriver(const RidesData *);
 const ridesByDriver *getRidesByDriverSorted(const RidesData *);
 const ridesByDriver *getRidesByDriverInCity(const CityRides * );
 const driverRatingInfo *getDriverInfo(const ridesByDriver *, guint); // devolve a informação de um driver para todas as rides
-short int getridesByDriverArraySize(const ridesByDriver *);
+int getridesByDriverArraySize(const ridesByDriver *); // mudar para unsigned int ??
 
 double getDriverAvgRating(const driverRatingInfo *);
 double getDriverTipsTotal(const driverRatingInfo *);

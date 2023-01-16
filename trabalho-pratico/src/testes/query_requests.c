@@ -11,7 +11,7 @@
 
 #define LINE_SIZE 128
 #define PATH_SIZE 128
-#define QUERY_RESULT_PATH "exemplos_de_queries/fase2/regular-errors-outputs/command%d_output.txt"
+#define QUERY_RESULT_PATH "exemplos_de_queries/fase2/large-outputs/command%d_output.txt"
 #define N_OF_REPETITIONS 10
 #define MAX_QUERY_INPUTS 3
 

@@ -459,9 +459,9 @@ const driverRatingInfo *getDriverInfo(const ridesByDriver *ridesByDriver, guint 
 	return (currentArrayStruct);
 }
 
-short int getridesByDriverArraySize(const ridesByDriver *driverInfoArray)
+int getridesByDriverArraySize(const ridesByDriver *driverInfoArray)
 {
-	return (driverInfoArray->ridesArray->len);
+	return ((int) driverInfoArray->ridesArray->len);
 }
 
 gint sort_byRatings_2 (gconstpointer a, gconstpointer b) {
@@ -808,7 +808,7 @@ void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToF
 			fprintf(fp, "driverNumber:%d, mostRecdate: %s, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n", currentDriver->driverNumber,currentDriver->mostRecRideDate,ratings[0],ratings[1],ratings[2],ratings[3],ratings[4],currentDriver->ridesNumber[1]);
 			}
 			else {
-				fprintf(fp,"driverNumber:%d, mostRecdate:%s, avgRating: %f\n",currentDriver->driverNumber,currentDriver->mostRecRideDate, *(double *)currentDriver->ratingChart);
+				fprintf(fp,"driverNumber:%d,mostRecdate:%s,avgRating:%f,ridesN:%d,distTotal:%d\n",currentDriver->driverNumber,currentDriver->mostRecRideDate, *(double *)currentDriver->ratingChart,(int) currentDriver->ridesNumber[0],(int) currentDriver->ridesNumber[1]);
 			}
 		}
 	}
