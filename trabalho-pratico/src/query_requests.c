@@ -5,7 +5,9 @@
 #include "files.h"
 #define MAX_QUERY_INPUTS 3
 #define TOTAL_QUERIES_NUMBER 9
-#define LINE_SIZE 128
+#define TERMINAL_MAX_N_OF_LINES 20
+#define INPUT_STR_BUFF_SIZE 128
+#define OUTPUT_STR_BUFF_SIZE 64
 
 char *NOP(char * inputStr[], UserData *userData, DriverData *DriverData, RidesData *ridesData) {
     return NULL;
@@ -69,21 +71,61 @@ void helpCommands (void) {
 
 //valida a string recebida
 //TODO: verificação mais completa !!!!!!!!!!!!!!
+    // ver se nº de inputs é inferior a 1 ou superior a MAX_QUERY_INPUTS
+    // ver se nº de espaços entre argumentos correpsonde ao nº de inputs ?
 int validQueryInput (char * queryInput) {
     return ((queryInput[0] > 47) && (queryInput[0] < 58)); //temporário
+}
+
+// função que parte o output das queries em várias paginas, para ser mais legível
+// a partição em páginas é feita dentro do modo interativo (e não diretamente no output das queries) para não afetar o cálculo do tempo no modo batch, ainda que seja muito mais eficiente no modo batch 
+void printTerminalResults(char * queryResult) {
+
+    //separação da string em segmentos
+    int i, counter;
+    GArray * splitQueryResults = g_array_new(FALSE, FALSE, sizeof(char *));
+    while (queryResult[0] != '\0') {
+        for(i=0,counter = 0; queryResult[i] != '\0' && counter < TERMINAL_MAX_N_OF_LINES; i++) {
+            if (queryResult[i] == '\n') counter++;
+        }
+        queryResult[i-1] = '\0';
+        g_array_append_val(splitQueryResults,queryResult); // adiciona o segmento de string ao array
+        queryResult = queryResult + i;
+    }
+
+    int numberOfSegments = splitQueryResults->len;
+    printf("\x1B[1;1H\x1B[2J"); // limpar a tela
+    printf("\nResultado da query:\n---\n%s\n---\nPage 1-%d\n\n", g_array_index(splitQueryResults,char *, 0), numberOfSegments);
+    if (numberOfSegments == 1) return; // se o número de páginas for apenas 1, volta para interactRequests
+    
+    //apresentação dos segmentos de string por página
+    printf("Escolha um número no intervalo (1-%d) para visualizar a respetiva página de output, ou \"continue\" para introduzir inputs para outras queries\n\n",numberOfSegments); // só apresentar esta linha quando existem várias páginas
+    char * strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE); // buffer de cada linha lida // BUFFER MUITO GRANDE VER DEPOIS!!
+    while(fgets(strBuffer,INPUT_STR_BUFF_SIZE,stdin)) { // recebe continuamente input
+        strBuffer[strcspn(strBuffer, "\n")] = 0;
+        printf("\x1B[1;1H\x1B[2J"); // limpar a tela
+        if ((i = atoi(strBuffer))>0 && i <= numberOfSegments) {
+            printf("Resultado da query:\n---\n%s\n---\nPage %d-%d\n\n",g_array_index(splitQueryResults,char *, i-1), i,numberOfSegments);
+        }
+        else if (!strcmp(strBuffer,"continue")) return; // se escrever "continue" volta para interactRequests
+        else {
+            printf("\n(!) Input inválido\n\nEscolha um número no intervalo (1-%d) para visualizar a respetiva página de output, ou \"continue\" para introduzir inputs para outras queries\n\n",numberOfSegments);
+        }
+    }
+    g_array_free(splitQueryResults,TRUE); // dá free das strings, ou não? (isso já é feito na interactRequests)
 }
 
 //modo interativo de correr queries
 // TODO: Error check de inputs para queries no modo interativo
 int interactRequests(UserData *userData, DriverData *driverData, RidesData *ridesData) {
-    char *strBuffer = malloc(sizeof(char) * LINE_SIZE), // buffer de cada linha lida
+    char *strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida
          *queryResult = NULL; // pointer para a string resultante de cada querry
      int commandN = 1; // só para debug, pode-se remover depois
 
     printf("\x1B[1;1H\x1B[2J"); // limpar a tela
     printf("\n<Modo interativo>\n\nEscreva \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\nInput:\n");
 
-    while(fgets(strBuffer,LINE_SIZE,stdin)) { // recebe continuamente input
+    while(fgets(strBuffer,INPUT_STR_BUFF_SIZE,stdin)) { // recebe continuamente input
         strBuffer[strcspn(strBuffer, "\n")] = 0; // para remover eventual newline na string de input
         if (!strcmp(strBuffer,"help")) {
             helpCommands();
@@ -95,27 +137,28 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
                 printf("\nA query não devolveu nenhum resultado :(\n\n");
             }
             else {// se o resultado da querry não for NULL
-                printf("\nResultado da query:\n\n%s\n", queryResult);
+                printTerminalResults(queryResult);
             }
 
             commandN ++; // só para debug, pode-se remover depois
             free(queryResult);
         }
         else {
-            printf("(!) Input com formato incorreto\nEscreva \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n");
+            printf("\n(!) Input inválido\n\nEscreva \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n");
         }
         printf("Input:\n");
     }
-    fprintf(stdout, "A sair do modo interativo...\n");
+    printf("A sair do modo interativo...\n");
+    free(strBuffer);
     return 0; // pode ser usado para comandos de erro no futuro talvez?
 }
 
 //modo batch de correr queries
 int batchRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesData *ridesData) {
-    char *strBuffer = malloc(sizeof(char) * LINE_SIZE), // buffer de cada linha lida
+    char *strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida
          *queryResult = NULL;                          // pointer para a string resultante de cada querry
     ssize_t read;
-    size_t len = LINE_SIZE; // para o getline
+    size_t len = INPUT_STR_BUFF_SIZE; // para o getline
     int i, commandN = 1, writeRet;
 
     // lê linhas individualmente até chegar ao fim do ficheiro
