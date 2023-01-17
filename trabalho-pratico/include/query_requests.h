@@ -7,7 +7,7 @@
 
 #include "query_dispatch_table.h"
 
-int terminalRequests(UserData *userData, DriverData *driverData, RidesData *ridesData); // modo interativo
-int fileRequests (FILE * fp, UserData *userData, DriverData * driverData, RidesData *ridesData); // modo batch
+int interactRequests(UserData *userData, DriverData *driverData, RidesData *ridesData); // modo interativo
+int batchRequests (FILE * fp, UserData *userData, DriverData * driverData, RidesData *ridesData); // modo batch
 
 #endif
