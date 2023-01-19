@@ -4,9 +4,10 @@
 #include "query_requests.h"
 #include "files.h"
 #define MAX_QUERY_INPUTS 3
+#define MAX_QUERY_OUTPUTS 6
 #define TOTAL_QUERIES_NUMBER 9
 #define TERMINAL_MAX_N_OF_LINES 20
-#define INPUT_STR_BUFF_SIZE 128
+#define INPUT_STR_BUFF_SIZE 64
 #define OUTPUT_STR_BUFF_SIZE 64
 
 char *NOP(char * inputStr[], UserData *userData, DriverData *DriverData, RidesData *ridesData) {
@@ -77,41 +78,91 @@ int validQueryInput (char * queryInput) {
     return ((queryInput[0] > 47) && (queryInput[0] < 58)); //temporário
 }
 
-// função que parte o output das queries em várias paginas, para ser mais legível
-// a partição em páginas é feita dentro do modo interativo (e não diretamente no output das queries) para não afetar o cálculo do tempo no modo batch, ainda que seja muito mais eficiente no modo batch 
-void printTerminalResults(char * queryResult) {
+void printQueryOutput(GArray * splitQueryResults, int * segmMaxSizes, int pageN, int numberOfPages, int queryNumber) {
+    int i, segmNumber;
+    char * currPage = g_array_index(splitQueryResults,char *, pageN-1);
+    char * queryDescription[TOTAL_QUERIES_NUMBER] = {"nome;genero;idade;avaliacao_media;numero_viagens;total_gasto",
+                                                     "id;nome;avaliacao_media",
+                                                     "username;nome;distancia_total",
+                                                     "preco_medio",
+                                                     "preco_medio",
+                                                     "distancia_media",
+                                                     "id;nome;avaliacao_media",
+                                                     "id_condutor;nome_condutor;username_utilizador;nome_utilizador",
+                                                     "id_viagem;data_viagem;distancia;cidade;valor_gorjeta"};
 
-    //separação da string em segmentos
-    int i, counter;
-    GArray * splitQueryResults = g_array_new(FALSE, FALSE, sizeof(char *));
-    while (queryResult[0] != '\0') {
-        for(i=0,counter = 0; queryResult[i] != '\0' && counter < TERMINAL_MAX_N_OF_LINES; i++) {
-            if (queryResult[i] == '\n') counter++;
+    printf("\n# Query %d output\n",queryNumber);
+
+    // for (i=0;i<MAX_QUERY_OUTPUTS;i++) {
+    //     printf("pos %d: %d\n",i, segmMaxSizes[i]);
+    // }
+    //printf("Formato: %s\n---\nResultado:\n%s\n",queryDescription[queryNumber-1],currPage);
+    printf("Formato:\n%s\n---\n", queryDescription[queryNumber-1]);
+    while(currPage[0] != '\0') {
+      for (i=0, segmNumber=0; currPage[i] != '\n' && currPage[i] != '\0'; i++) {
+        if (currPage[i] == ';') {
+            currPage = currPage + i+1;
+            while (i < segmMaxSizes[segmNumber]) {
+            putchar(' ');
+            i++;
+            }
+            i=-1;
+            segmNumber++;
+            printf(" | ");
         }
-        queryResult[i-1] = '\0';
-        g_array_append_val(splitQueryResults,queryResult); // adiciona o segmento de string ao array
-        queryResult = queryResult + i;
+        else putchar(currPage[i]);
+      }
+    currPage = currPage + i+1;
+    if (currPage[-1] == '\0') currPage--;
+    putchar('\n');
     }
 
-    int numberOfSegments = splitQueryResults->len;
+    printf("---\nPage %d-%d\n\n",pageN, numberOfPages);
+}
+
+
+// função que parte o output das queries em várias paginas, para ser mais legível
+// a partição em páginas é feita dentro do modo interativo (e não diretamente no output das queries) para não afetar o cálculo do tempo no modo batch, ainda que seja muito mais eficiente no modo batch 
+void printTerminalResults(char * queryResult, int queryNumber) {
+
+    //separação da string em segmentos; cálculo dos caractéres necessários para cada parâmetro
+    int i, newlineCounter, segmNumber, segmMaxSize, 
+        * segmMaxSizes = calloc(MAX_QUERY_OUTPUTS,sizeof(int)); // array que guarda o tamanho da maior palavra, para cada segmento do output
+    GArray * splitQueryResults = g_array_new(FALSE, FALSE, sizeof(char *)); // gArray para realocar o array automaticamente
+
+    while (queryResult[0] != '\0') {
+        for(i=1,newlineCounter = 0; queryResult[i-1] != '\0' && newlineCounter < TERMINAL_MAX_N_OF_LINES; newlineCounter++, i++) { // para cada "página" de 20 linhas
+            for(segmNumber = 0; queryResult[i-1] != '\n'; segmNumber++, i++) { // para cada linha 
+                for (segmMaxSize = 0; queryResult[i] != ';' && queryResult[i] != '\n'; segmMaxSize++, i++); // para cada parâmetro de output de 1 linha
+                if (segmMaxSize > segmMaxSizes[segmNumber]) segmMaxSizes[segmNumber] = segmMaxSize;
+            }
+        }
+        queryResult[i-2] = '\0';
+        g_array_append_val(splitQueryResults,queryResult); // adiciona o segmento de string ao array
+        queryResult = queryResult + i-1;
+    }
+    segmMaxSizes[0] ++; // devido à forma como o loop foi feito (para n ter condições if a mais) inicia-se i=1, daí ter de se incrementar em 1 o valor segmMaxSizes[0]
+
+    int numberOfPages = splitQueryResults->len;
     printf("\x1B[1;1H\x1B[2J"); // limpar a tela
-    printf("\nResultado da query:\n---\n%s\n---\nPage 1-%d\n\n", g_array_index(splitQueryResults,char *, 0), numberOfSegments);
-    if (numberOfSegments == 1) return; // se o número de páginas for apenas 1, volta para interactRequests
+    printQueryOutput(splitQueryResults,segmMaxSizes, 1,numberOfPages, queryNumber);
+    if (numberOfPages == 1) return; // se o número de páginas for apenas 1, volta para interactRequests
     
     //apresentação dos segmentos de string por página
-    printf("Escolha um número no intervalo (1-%d) para visualizar a respetiva página de output, ou \"continue\" para introduzir inputs para outras queries\n\n",numberOfSegments); // só apresentar esta linha quando existem várias páginas
+    printf("Escolha um número no intervalo (1-%d) para visualizar a respetiva página de output, ou \"continue\" para introduzir inputs para outras queries\n\n",numberOfPages); // só apresentar esta linha quando existem várias páginas
     char * strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE); // buffer de cada linha lida // BUFFER MUITO GRANDE VER DEPOIS!!
     while(fgets(strBuffer,INPUT_STR_BUFF_SIZE,stdin)) { // recebe continuamente input
         strBuffer[strcspn(strBuffer, "\n")] = 0;
         printf("\x1B[1;1H\x1B[2J"); // limpar a tela
-        if ((i = atoi(strBuffer))>0 && i <= numberOfSegments) {
-            printf("Resultado da query:\n---\n%s\n---\nPage %d-%d\n\n",g_array_index(splitQueryResults,char *, i-1), i,numberOfSegments);
+        if ((i = atoi(strBuffer))>0 && i <= numberOfPages) { // se o input for válido, escreve o output da pagina pedida
+            printQueryOutput(splitQueryResults, segmMaxSizes, i, numberOfPages, queryNumber); 
         }
         else if (!strcmp(strBuffer,"continue")) return; // se escrever "continue" volta para interactRequests
-        else {
-            printf("\n(!) Input inválido\n\nEscolha um número no intervalo (1-%d) para visualizar a respetiva página de output, ou \"continue\" para introduzir inputs para outras queries\n\n",numberOfSegments);
+        else { // se o input for inválido ,escreve mensagem de erro
+            printf("\n(!) Input inválido\n\nEscolha um número no intervalo (1-%d) para visualizar a respetiva página de output, ou \"continue\" para introduzir inputs para outras queries\n\n",numberOfPages);
         }
     }
+    free(segmMaxSizes);
     g_array_free(splitQueryResults,TRUE); // dá free das strings, ou não? (isso já é feito na interactRequests)
 }
 
@@ -137,7 +188,7 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
                 printf("\nA query não devolveu nenhum resultado :(\n\n");
             }
             else {// se o resultado da querry não for NULL
-                printTerminalResults(queryResult);
+                printTerminalResults(queryResult, (strBuffer[0]-'0'));
             }
 
             commandN ++; // só para debug, pode-se remover depois
