@@ -16,8 +16,9 @@ TEST_DEBUG_BUILD_DIR := $(BASE_BUILD_DIR)/testes_debug
 
 CC := gcc
 
+NCURSESFLAGS := -lncurses
 GLIBFLAGS := $(shell pkg-config --cflags --libs gobject-2.0)
-STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell ./Scripts/get_threads.sh) $(PROFILING_OPTS)#-lm -pthread -Wconversion
+STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) $(NCURSESFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell ./Scripts/get_threads.sh) $(PROFILING_OPTS)#-lm -pthread -Wconversion
 CFLAGS := -O2 $(STD_FLAGS)
 DEBUG_FLAGS := -O0 -g3 $(STD_FLAGS) #-ggdb3
 LDFLAGS := $(PROFILING_OPTS)
@@ -66,7 +67,7 @@ CPPFLAGS := -MMD -MP
 all: $(TARGET_EXEC)
 
 $(TARGET_EXEC): $(OBJS_ALL)
-	$(CXX) $(OBJS_ALL) $(GLIBFLAGS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS_ALL) $(GLIBFLAGS) $(NCURSESFLAGS) -o $@ $(LDFLAGS)
 
 # C source
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -77,7 +78,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 debug: $(DEBUG_EXEC)
 
 $(DEBUG_EXEC): $(OBJS_DEBUG)
-	$(CXX) $(OBJS_DEBUG) $(GLIBFLAGS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS_DEBUG) $(GLIBFLAGS) $(NCURSESFLAGS) -o $@ $(LDFLAGS)
 
 $(DEBUG_BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(dir $@) $(RES_DIR)
