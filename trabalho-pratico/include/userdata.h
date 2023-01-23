@@ -16,7 +16,7 @@ void freeUserData(UserData * userdata); // limpa a estrutura de dados das rides
 //receber a informação de um user
 UserStruct * getUserPtrByUsername(UserData *, char *);
 
-void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score);
+void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score, float tip);
 
 //funções para aceder a informações de cada user
             //getUserName -> tem de já ser sabido, para poder aceder a outras informações do user

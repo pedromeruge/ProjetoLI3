@@ -218,7 +218,7 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 
-			add_user_info(userdata, driverdata, temp->user, temp->driver, temp->distance, temp->score_u);
+			add_user_info(userdata, driverdata, temp->user, temp->driver, temp->distance, temp->score_u, temp->tip);
 
 			// check if city is not already in hash table
 			if ((cityRides = g_hash_table_lookup(cityTable, city)) == NULL)

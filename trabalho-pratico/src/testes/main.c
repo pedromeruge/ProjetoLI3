@@ -30,7 +30,7 @@ int main (int argc, char **argv) {
 	
 	DATA drivers = getDriverData(files[1]);
 
-	DATA rides = getRidesData(files[2], getNumberOfDrivers(drivers));
+	DATA rides = getRidesData(files[2], users, drivers);
 
 	cpu_end = clock();
 	clock_gettime(CLOCK_REALTIME, &finish);
