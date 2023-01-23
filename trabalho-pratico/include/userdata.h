@@ -27,5 +27,8 @@ char * getUserAccCreation (UserStruct * data); // retorna a data de criação de
 unsigned char getUserPayMethod(UserStruct * data); // retorna o método de pagamento de um user
 unsigned char getUserStatus (UserStruct * data); // retorna o estado de um user
 int userIsValid(UserStruct *user); // 1 se for valido, 0 se nao for
+double getUserTotalSpent (UserStruct* user);
+double getAvgUserRating (UserStruct* user);
+int getUserNumberOfRides (UserStruct* user);
 
 #endif

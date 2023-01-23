@@ -18,9 +18,9 @@ struct UserStruct
 	char *accountCreation;
 	// unsigned char payMethod;
 	unsigned char status;
-	int total;
-	int distance[3];
-	int score[3];
+	int score;
+	short int total[3];
+	short int distance[3];
 };
 
 struct UserData
@@ -68,9 +68,9 @@ UserData *getUserData(FILE *ptr)
 	while (1) //(res != -1) // acaba por ser inutil por causa da condiçao do break
 	{
 		userstruct = malloc(sizeof(UserStruct));
-		memset((char *)userstruct + offsetof(UserStruct, total), 0, (4 * sizeof(int)));
 		if ((res = parse_with_format(ptr, userstruct, &format)) == 1)
 		{
+			memset((char *)userstruct + offsetof(UserStruct, score), 0, (sizeof(int) + (6 * sizeof(short int))));
 			username = userstruct->username;
 			if (g_hash_table_insert(table, username, userstruct) == FALSE)
 			{
@@ -155,7 +155,23 @@ int userIsValid(UserStruct *user) {
 void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score) {
     int carClass = getDriverCar(getDriverPtrByID(driverdata, driver));
 	UserStruct* user = g_hash_table_lookup(data->table, name);
-    (user->total) += 1;
+    (user->total) [carClass] += 1;
+	(user->score) += score;
     (user->distance) [carClass] += distance;
-	(user->score) [carClass] += score;
+}
+
+inline int getUserNumberOfRides (UserStruct* user) {
+	return (user->total[0] + user->total[1] + user->total[2]);
+}
+
+inline double getAvgUserRating (UserStruct* user) {
+	return ((double)user->score / (double)(user->total[0] + user->total[1] + user->total[2]));
+}
+
+inline double getUserTotalSpent (UserStruct* user) {
+	return ((double)(user->total[0] * 3.25 + user->total[1] * 4 + user->total[2] * 5.2 + user->distance[0] * 0.62 + user->distance[1] * 0.79 + user->distance[2] * 0.94)) / (double)(user->total[0] + user->total[1] + user->total[2]);
+}
+
+inline int getUserTotalDistance (UserStruct* user) {
+	return (user->distance[0] + user->distance[1] + user->distance[2]);
 }

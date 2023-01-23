@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 
 	DriverData *drivers = getDriverData(files[1]);
 
-	RidesData *rides = getRidesData(files[2], getNumberOfDrivers(drivers), users);
+	RidesData *rides = getRidesData(files[2], users, drivers);
 
 	printf("Finished loading\n");
 
