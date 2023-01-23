@@ -67,7 +67,7 @@ struct RidesData {
 void freeCityRides(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
-SecondaryRidesArray *getRides(FILE *, GHashTable *, parse_format *, int *);
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid, UserData *userdata, DriverData *driverdata);
 
 GPtrArray * buildRidesbyDriverSorted (GPtrArray *);
 GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int);
@@ -99,7 +99,7 @@ void *buildStatisticsInCity(void *data) {
 	return NULL;
 }
 
-RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
+RidesData * getRidesData(FILE *ptr, UserData *userdata, DriverData *driverdata) {
 	int i;
 
 	//inicializar as estruturas de dados relacionadas com as rides
@@ -107,7 +107,7 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	SecondaryRidesArray * secondaryArray;
 
 	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeCityRides); // keys levam malloc do array normal, nao vou dar free aqui;
-	
+
 	parse_format format;
 
 	parse_func_struct format_array[N_OF_FIELDS] = {
@@ -129,11 +129,11 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
 
-	secondaryArray = getRides(ptr, cityTable, &format, &invalid); // porque é que este loop ta feito assim????
+	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata);
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(ridesArray, secondaryArray);
-		secondaryArray = getRides(ptr, cityTable, &format, &invalid);
+		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata);
 	}
 
 	int num = (ridesArray->len - 1) * SIZE;
@@ -158,6 +158,7 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	gpointer value;
 	g_hash_table_iter_init (&iter, cityTable);
 	gpointer temp;
+	int numberOfDrivers = getNumberOfDrivers(driverdata);
 
 	for (i = 0; i < num_threads; i++) {
 		thread_info[i].len = 0;
@@ -202,7 +203,7 @@ RidesData * getRidesData(FILE *ptr, int numberOfDrivers) {
 	return data;
 }
 
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid) {
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid, UserData *userdata, DriverData *driverdata) {
 	
 	int i, res;
 	char *city;
@@ -216,6 +217,8 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format)) == 1) {
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
+
+			add_user_info(userdata, driverdata, temp->user, temp->driver, temp->distance, temp->score_u);
 
 			// check if city is not already in hash table
 			if ((cityRides = g_hash_table_lookup(cityTable, city)) == NULL)

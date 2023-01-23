@@ -18,6 +18,9 @@ struct UserStruct
 	char *accountCreation;
 	// unsigned char payMethod;
 	unsigned char status;
+	int total;
+	int distance[3];
+	int score[3];
 };
 
 struct UserData
@@ -65,6 +68,7 @@ UserData *getUserData(FILE *ptr)
 	while (1) //(res != -1) // acaba por ser inutil por causa da condiçao do break
 	{
 		userstruct = malloc(sizeof(UserStruct));
+		memset((char *)userstruct + offsetof(UserStruct, total), 0, (4 * sizeof(int)));
 		if ((res = parse_with_format(ptr, userstruct, &format)) == 1)
 		{
 			username = userstruct->username;
@@ -146,4 +150,12 @@ void freeUserData(UserData *userData)
 
 int userIsValid(UserStruct *user) {
 	return (user != NULL && USER_IS_VALID(user));
+}
+
+void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score) {
+    int carClass = getDriverCar(getDriverPtrByID(driverdata, driver));
+	UserStruct* user = g_hash_table_lookup(data->table, name);
+    (user->total) += 1;
+    (user->distance) [carClass] += distance;
+	(user->score) [carClass] += score;
 }
