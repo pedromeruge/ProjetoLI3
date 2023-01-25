@@ -23,3 +23,4 @@ for line in Lines:
 total = len(Lines) / 2
 print("Time to load data:\nCPU:{0} Wall clock:{1}".format(CPUtime_load / total, Walltime_load / total))
 print("Time to free data:\nCPU:{0} Wall clock:{1}".format(CPUtime_free / total, Walltime_free / total))
+file1.close()
