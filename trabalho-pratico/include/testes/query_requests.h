@@ -7,6 +7,6 @@
 #define NS_PER_SECOND 1000000000
 
 void sub_timespec(struct timespec t1, struct timespec t2, struct timespec *td);
-int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE*);
+int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE*, char *command_path);
 
 #endif

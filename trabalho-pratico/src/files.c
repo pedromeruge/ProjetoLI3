@@ -17,13 +17,13 @@ FILE **open_cmdfiles(int argc, char **argv) {
 		if ((fgets(dataFolderName,FILEPATH_SIZE,stdin)) == NULL) exit(2);
 		//strcpy(dataFolderName,"Datasets/fase1/data-regular");
 		dataFolderName[strcspn(dataFolderName, "\n")] = 0; // remover o '\n' do input
-	} else if (argc == 3) {
+	} else {
 		dataFolderName = argv[1];
 		queryFileName = argv[2];
 		numberOfInputFiles ++; // permite correr mais uma vez o loop abaixo, para abrir também o ficheiro de input das queries
-	} else {
-		fprintf(stderr,"Only accepted 1 or 3 inputs for program\n");
-		exit(3);
+	// } else {
+	// 	fprintf(stderr,"Only accepted 1 or 3 inputs for program\n");
+	// 	exit(3);
 	}
 	//fprintf(stderr,"exec-path: <%s>, 1º arg:<%s> 2ºarg: <%s>\n", argv[0], dataFolderName, queryFileName);
 

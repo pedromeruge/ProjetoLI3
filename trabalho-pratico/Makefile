@@ -109,7 +109,7 @@ $(TEST_DEBUG_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.c
 	$(CC) -I$(TEST_INC_DIR) $(CPPFLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 .PHONY: clean
-RM_DIRS := $(BASE_BUILD_DIR) $(TARGET_EXEC) $(DEBUG_EXEC) $(TEST_EXEC) $(TEST_DEBUG_EXEC) $(RES_DIR) testes_output.txt gmon* perf*
+RM_DIRS := $(BASE_BUILD_DIR) $(TARGET_EXEC) $(DEBUG_EXEC) $(TEST_EXEC) $(TEST_DEBUG_EXEC) $(RES_DIR) testes* gmon* perf*
 RED := \033[0;31m
 NC := \033[0m
 clean:

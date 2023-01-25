@@ -19,6 +19,10 @@ int main (int argc, char **argv) {
         fprintf(stderr, "Modo interativo não suporta testes!\nA sair do modo interativo...\n");
 		return 1;
 	}
+	if (argc < 3) {
+		fprintf(stderr, "Input para testes: dataset, batch file, diretoria com os outputs para serem comparados");
+		return 1;
+	}
 	//caso seja facultado o ficheiro e as querries no terminal - fase 1
     FILE ** files = open_cmdfiles(argc,argv); // array com pointers para os ficheiros {users,drivers,rides,querries}
 	FILE *test_output = fopen(TEST_OUT_PATH, "w");
@@ -42,7 +46,7 @@ int main (int argc, char **argv) {
 	snprintf(buffer, 128, "Loading Data\nCPU time:%g\nWall clock time:%d.%.9ld\n------------------------\n", cpu_time_used, (int)delta.tv_sec, delta.tv_nsec);
 	fputs(buffer, test_output);
 	
-	int ret = fileRequests(files[3], users, drivers, rides, test_output);
+	int ret = fileRequests(files[3], users, drivers, rides, test_output, argv[3]);
     if (ret) {
     	fprintf(stderr, "Error reading query requests");
         return 2;

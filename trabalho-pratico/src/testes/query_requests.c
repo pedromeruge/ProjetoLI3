@@ -11,7 +11,6 @@
 
 #define LINE_SIZE 128
 #define PATH_SIZE 128
-#define QUERY_RESULT_PATH "exemplos_de_queries/fase1/tests_1/command%d_output.txt"
 #define N_OF_REPETITIONS 10
 #define MAX_QUERY_INPUTS 3
 
@@ -140,15 +139,14 @@ int compareResult(char *resultStr, char *resultPath) {
 	return ret;
 }
 
-int writeResultsTests (int commandN, char * strResult) {
+int writeResultsTests (int commandN, char * strResult, const char *command_path) {
 	char resultPath[PATH_SIZE];
-	snprintf(resultPath, PATH_SIZE, QUERY_RESULT_PATH, commandN);
+	snprintf(resultPath, PATH_SIZE, "%s/command%d_output.txt", command_path, commandN);
 	
 	return compareResult(strResult, resultPath);
 }
 
-int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE *test_output) {
-	printf("---->Current test output path: %s\n", QUERY_RESULT_PATH);
+int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesData *ridesData, FILE *test_output, char *command_path) {
 	clock_t cpu_start, cpu_end;
 	double cpu_time_used;
 	struct timespec start, finish, delta;
@@ -166,6 +164,10 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 	double cpu_time_acc;
 	long double wall_clock_time_acc, tempAcc;
 	// q_test_func *test_funcs[9] = {q_test_undefined, test_q_2, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined, q_test_undefined};
+
+	int total[9] = {0};
+	double time[9] = {0};
+	int query;
 
     // lê linhas individualmente até chegar ao fim do ficheiro
 	for (i=0; (read = getline(&strBuffer, &len, fp) != -1); i++, commandN++) {
@@ -195,8 +197,9 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
         }
         strBuffer = temp;
 
+		query = (*tempsegstr[0]) - 49; // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
         //print de debug para os inputs de cada query
-        fprintf(stderr, "command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
+        fprintf(stderr, "command (%d), query |%d| input segments:", commandN, query + 1);
 
         for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++) {
             fprintf(stderr," <%.16s>",tempsegstr[j]);
@@ -206,7 +209,7 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 		cpu_start = clock();
 		clock_gettime(CLOCK_REALTIME, &start);
 		
-		querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr + 1,userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
+		querryResult = queryList[query] (tempsegstr + 1,userData,driverData,ridesData); 
 		
 		cpu_end = clock();
 		clock_gettime(CLOCK_REALTIME, &finish);
@@ -214,7 +217,7 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 		cpu_time_used = ((double) (cpu_end - cpu_start)) / CLOCKS_PER_SEC;
 
 		// test output
-		writeRet = writeResultsTests(commandN, querryResult);
+		writeRet = writeResultsTests(commandN, querryResult, command_path);
 		if (writeRet == 1) {
 			printf("Correct answer (querry yielded no result) || OR || Error reading file:exemplos_de_queries/tests_1/command%d_output.txt\n",commandN);
 			return 3;
@@ -233,7 +236,7 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 			snprintf(outBuffer, 128, "%d.%.9ld", (int)delta.tv_sec, delta.tv_nsec);
 			sscanf(outBuffer, "%Lf", &wall_clock_time_acc);
 			// printf("buffer value: %Lf", wall_clock_time_acc);
-			snprintf(outBuffer, 128, "CPU time:%g Wall clock time:%d.%.9ld\n", cpu_time_used, (int)delta.tv_sec, delta.tv_nsec);
+			snprintf(outBuffer, 128, "CPU time:%lf Wall clock time:%d.%.9ld\n", cpu_time_used, (int)delta.tv_sec, delta.tv_nsec);
 			fputs(outBuffer, test_output);
 			free(querryResult); // free do buffer de output
 			// isto afinal é meio inútil, por agora fica comentado
@@ -243,7 +246,7 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 				cpu_start = clock();
 				clock_gettime(CLOCK_REALTIME, &start);
 				
-				querryResult = queryList[(*tempsegstr[0]) - 49] (tempsegstr + 1,userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
+				querryResult = queryList[query] (tempsegstr + 1,userData,driverData,ridesData); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
 				
 				cpu_end = clock();
 				clock_gettime(CLOCK_REALTIME, &finish);
@@ -262,12 +265,19 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 				snprintf(outBuffer, 128, "CPU time:%g Wall clock time:%d.%.9ld\n", cpu_time_used, (int)delta.tv_sec, delta.tv_nsec);
 				fputs(outBuffer, test_output);
 			}
-			snprintf(outBuffer, 128, "Average: CPU:%g Wall clock:%Lf\n", cpu_time_acc / test, wall_clock_time_acc / test);
+			snprintf(outBuffer, 128, "Average: CPU:%lf Wall clock:%Lf\n", cpu_time_acc / test, wall_clock_time_acc / test);
 			fputs(outBuffer, test_output);
+			total[query] += 1;
+			time[query] += cpu_time_acc / test;
 		}
 		
 		len = LINE_SIZE; // após um getline, len é alterado para o tamanho da linha; tem de ser reset, a próxima linha pode ter len maior
     }
+	FILE *final_output = fopen("testes_final_output.txt", "w");
+	for (i = 0; i < 9; i++) {
+		if (total[i] == 0) fprintf(final_output, "%d not tested\n", i+1);
+		else fprintf(final_output, "%d %lf\n", i + 1, time[i] / total[i]);
+	}
     free (strBuffer); // free do buffer de input
     return 0;
 }
