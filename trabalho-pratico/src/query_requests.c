@@ -61,14 +61,12 @@ int validQueryInput (char * queryInput) {
 // apaga a linha atual na janela dada e escreve a str recebida
 void refreshWindow (WINDOW * window, char * str) {
     werase(window);
-    attron(A_BLINK);
     mvwaddstr(window,0,0,str);
-    attroff(A_BLINK);
     wrefresh(window);
 }
 
 void printHelpCommands(GArray * splitQueryResults, int pageN, int numberOfPages, WINDOW * windows[]) {
-    WINDOW * output = windows[2];
+    WINDOW * output = windows[3];
     char * currPage = g_array_index(splitQueryResults,char *, pageN-1);  // string da página atual (página pageN)
     wclear(output);
     wprintw(output,"Queries disponíveis:");
@@ -97,17 +95,6 @@ void printQueryStr(char * str, int * paramMaxSizes, WINDOW * window) {
         if (str[-1] == '\0') str--; // no caso de paragem, a string aponta para o '\0'
         waddch(window,'\n');
      }
-    
-    //tentativa anterior
-    // for(i=0, segmNumber = 0; str[i] != '\0'; segmNumber++, i++) { 
-    //     str = str + i;
-    //     for (i = 0, currentParamMax = paramMaxSizes[segmNumber]; str[i] != ';' && str[i] != '\0'; i++); // detetar o fim de um parâmetro, ou o fim de uma linha
-    //     str[i] = '\0'; // substitui o ';' ou '\n' por '\0' para poder imprimir esse segmento de string apenas // não fuciona para strings alocadas na staack como as queryDescriptions!!
-    //     waddstr(window,str);
-    //     for(temp = i; temp < currentParamMax; waddch(window,' '),temp ++); // adicionar espaços até chegar ao fim da coluna
-    //     waddch(window,'|');
-    // }
-    // wdelch(window); wdelch(window);
 }
 
 // função que imprime os conteúdos de uma página de output de uma query, partindo os parâmetros de cada linha da string em diferentes colunas
@@ -124,7 +111,7 @@ void printQueryOutput(GArray * splitQueryResults,int pageN, int * paramMaxSizes,
                                                      "id_viagem;data_viagem;distancia;cidade;valor_gorjeta"}; 
                                                      
     int i, segmNumber, totalChar;
-    WINDOW * output = windows[2];
+    WINDOW * output = windows[3];
     char * currPage = g_array_index(splitQueryResults,char *, pageN-1),  // string da página atual (página pageN)
          * currentDescription = queryDescriptions[queryNumber-1];
 
@@ -142,17 +129,10 @@ void printQueryOutput(GArray * splitQueryResults,int pageN, int * paramMaxSizes,
     spareChar /= segmNumber; // spareChar representa o nº de caractéres adicional que se pode acrescentar a cada tabela
     
     wclear(output);
-    for(i = 0; i < segmNumber; i++) {
-        wprintw(output,"%d;", paramMaxSizes[i]);
-    }
-    waddch(output,'\n');
+
     if (spareChar > 0) for(i = 0; i < segmNumber; paramMaxSizes[i] += spareChar, i++);
 
-    for(i = 0; i < segmNumber; i++) {
-        wprintw(output,"%d;", paramMaxSizes[i]);
-    }
-
-    wprintw(output,"segmNumber:%d, spareChar: %d, # Query %d output\n---\n",segmNumber, spareChar, queryNumber);
+    wprintw(output,"# Query %d output\n\n",queryNumber);
 
     printQueryStr(queryDescriptions[queryNumber-1],paramMaxSizes, output); // print da descrição da query
     printQueryStr(currPage,paramMaxSizes,output); // print do output da query
@@ -219,24 +199,24 @@ void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[])
 
     WINDOW //* tabs = windows[0],
     //* outputBorder = windows[1],
-    * output = windows[2],
+    * output = windows[3],
     //* inputBorder = windows[3],
-    * input = windows[4];
+    * input = windows[5];
 
+    
     //separação da string em segmentos, um para cada página; cálculo dos caractéres necessários para cada parâmetro (apenas quando escreve output de uma query)
     int * segmMaxSizes = NULL;
     GArray * splitQueryResults = (queryNumber != -1) ? splitStringMaxParam(queryResult,getmaxy(output)-5, &segmMaxSizes) 
                                                      : splitString(queryResult,getmaxy(output)-4,getmaxx(output));
 
-    //apresentação da primeira página (acontece sempre)
+    // menu de apresentação das páginas
     int numberOfPages = splitQueryResults->len;
+
+    // apresentação da primeira página (acontece sempre)
     (queryNumber != -1) ? printQueryOutput(splitQueryResults, 1, segmMaxSizes, numberOfPages, queryNumber, windows) 
                         : printHelpCommands(splitQueryResults,1, numberOfPages, windows);
 
     if (numberOfPages == 1) return; // se o número de páginas for apenas 1, volta para interactRequests
-
-    // menu de apresentação de outras páginas (quando há 2 ou mais páginas)
-    wprintw(output,"Escolha um número no intervalo (1-%d) para visualizar a respetiva página de output, ou \"continue\" para introduzir inputs para outras queries",numberOfPages); // só apresentar esta linha quando existem várias páginas
 
     refreshWindow(input,"Page:");
 
@@ -255,7 +235,7 @@ void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[])
             return; // se escrever "continue" volta para interactRequests
         }
         else { // se o input for inválido ,escreve mensagem de erro
-            wprintw(output,"(!) Input inválido\n\n Opções de input:\n\n - Número no intervalo (1-%d) para ver a respetiva página de output\n   Exemplo: \"2\" -> visualizar a página 2\n\n - Palavra \"continue\" para poder introduzir inputs para outras queries",numberOfPages);
+            wprintw(output,"(!) Input inválido\n\nOpções de input:\n\n- Número no intervalo (1-%d) para ver a respetiva página de output\n  Exemplo: \"2\" -> visualizar a página 2\n\n- Palavra \"continue\" para poder introduzir inputs para outras queries",numberOfPages);
             wrefresh(output);
         }
         // recriar linha de input limpa
@@ -266,8 +246,37 @@ void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[])
     g_array_free(splitQueryResults,TRUE); // dá free das strings, ou não? (isso já é feito na interactRequests)
 }
 
-// print da tela inicial
-void printBeginScreen(WINDOW * beginWindow, int maxX, int maxY) {
+WINDOW * * buildQueryScreen (WINDOW * stdscr, int maxX, int maxY) {
+
+    WINDOW * tabQueries = subwin(stdscr,3,13,0,3), 
+    * tabHelp = subwin(stdscr,3,13,0,17),
+    * outputBorder = subwin(stdscr,maxX-4,maxY,2,0), // borda da janela "output" (assim não é afetada por newlines escritas na subjanela)
+    * output = derwin(outputBorder,maxX-7,maxY-4,2,2),
+    * inputBorder = subwin(stdscr,3,maxY,maxX-3,0),
+    * input = derwin(inputBorder,1,maxY-2,1,1),
+    * * allWindows = malloc(sizeof(WINDOW *) * 6);
+    allWindows[0] = tabQueries; allWindows[1] = tabHelp;
+    allWindows[2] = outputBorder; allWindows[3] = output;
+    allWindows[4] = inputBorder; allWindows[5] = input;
+
+    waddstr(output,"Opções de input:\n\n- Comando de query para obter resultados\n\n- Comando \"help\" para ver todos os comandos disponíveis\n\n\nPara navegar entre as páginas de resultado obtidas, escrever apenas o número da página pretendida");
+    box(outputBorder,0,0);
+
+    mvwaddstr(tabQueries,1,3,"Queries");
+    wborder(tabQueries,0,0,0,' ',0,0,ACS_LRCORNER,ACS_LLCORNER); // tabQueries a intersetar a borda de output
+
+    mvwaddstr(tabHelp,1,4,"Ajuda");
+    wborder(tabHelp,0,0,0,0,0,0,ACS_BTEE,ACS_BTEE); // tabHelp atrás da borda de output
+
+    mvwaddstr(input,0,0,"Input:");
+    wborder(inputBorder,0,0,0,0,ACS_LTEE,ACS_RTEE,0,0);
+
+    wrefresh(stdscr);
+    return (allWindows);
+}
+
+// print da tela inicial e da estrutura inicial do modo interativo
+void buildBeginScreen(WINDOW * beginWindow, int maxX, int maxY) {
     char * initMsg[] = {"<Modo interativo>","Pressione qualquer tecla para iniciar"};
     curs_set(0); // meter o cursor invisível na tela inicial
     attron(A_BOLD);
@@ -299,12 +308,12 @@ void helpCommands (WINDOW * windows[]) {
 
     char * queryExamples [TOTAL_QUERIES_NUMBER] = {"1 7141\" ou \"1 SaCruz110", "2 100","3 100","4 Braga","5 17/06/2015 01/05/2016","6 Lisboa 17/08/2018 11/04/2019","7 1032 Faro","8 F 12","9 24/12/2021 25/12/2021" };
 
-    WINDOW //* tabs = windows[0],
-    //* outputBorder = windows[1],
-    * output = windows[2];
-    //* inputBorder = windows[3],
-    //* input = windows[4];
+    WINDOW * tabQueries = windows[0], * tabHelp = windows[1], * output = windows[3];
 
+    //atualizar bordas das tabs
+    wborder(tabQueries,0,0,0,0,0,0,ACS_BTEE,ACS_BTEE); // tabQueries atrás da borda de output
+    wborder(tabHelp,0,0,0,' ',0,0,ACS_LRCORNER,ACS_LLCORNER); // tabHelp a intersetar a borda de output
+    wrefresh(tabQueries); wrefresh(tabHelp);
     werase(output);
 
     //construir uma string com o texto que aparece na tab "help"
@@ -317,14 +326,15 @@ void helpCommands (WINDOW * windows[]) {
     //waddstr(output,helpInstructions);
     printResultInPages(helpInstructions,-1,windows); // apresentação do output em páginas
 
-    wrefresh(output);
+    // ao sair do modo "ajuda"
+    wborder(tabQueries,0,0,0,' ',0,0,ACS_LRCORNER,ACS_LLCORNER); // tabQueries a intersetar a borda de output
+    wborder(tabHelp,0,0,0,0,0,0,ACS_BTEE,ACS_BTEE); // tabHelp atrás da borda de output
+    wrefresh(tabQueries); wrefresh(tabHelp);
 }
 
 //modo interativo de correr queries
-// TODO: Error check de inputs para queries no modo interativo
 int interactRequests(UserData *userData, DriverData *driverData, RidesData *ridesData) {
     setlocale(LC_ALL, "");
-    setlocale(LC_NUMERIC,"C");
     initscr(); //iniciar o ncurses
 
     int maxX,maxY;
@@ -335,66 +345,59 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
     }
 
     //janela inicial; ao pressionar uma tecla salta para a página de input nas queries
-    printBeginScreen(stdscr,maxX,maxY);
+    buildBeginScreen(stdscr,maxX,maxY);
 
-    //janela das queries
-    WINDOW * tabs = newwin(3,maxY,0,0), 
-    * outputBorder = newwin(maxX-6,maxY,3,0), // borda da janela "output" (assim não é afetada por newlines escritas na subjanela)
-    * output = newwin(maxX-8,maxY-2,4,1),
-    * inputBorder = newwin(3,maxY,maxX-3,0),
-    * input = newwin(1,maxY-2,maxX-2,1),
-    * allWindows[] = {tabs,outputBorder,output,inputBorder,input};
-    refresh(); // refresh de "todas" as janelas
+    //estrutura da janela das queries e texto inicial
+    WINDOW * * allWindows = buildQueryScreen(stdscr,maxX,maxY);
+    WINDOW * tabQueries = allWindows[0],
+    * tabHelp = allWindows[1],
+    * outputBorder = allWindows[2],
+    * output = allWindows[3],
+    * inputBorder = allWindows[4],
+    * input = allWindows[5];
 
-    mvwaddstr(tabs,1,1," Queries   Help"); // printf sem input
-    mvwaddstr(input,0,0,"Input:");
-    
-    box(tabs,0,0);
-    box(outputBorder,0,0);
-    //box(output,0,0);
-    box(inputBorder,0,0);
-
-    wrefresh(outputBorder); // refresh da borda tem que vir antes, senão limpa tudo o que está no "outputs" !!
-    //wrefresh(output);
-    wrefresh(tabs);
-    wrefresh(inputBorder);
-
+    //menu de receber input para a tab queries, ou tab ajuda
     char *strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida
          *queryResult = NULL; // pointer para a string resultante de cada querry
-    int commandN = 1; // só para debug, pode-se remover depois
+    int commandN = 1, // só para debug, pode-se remover depois
+        queryNumber;
+
 
     while (wgetnstr(input,strBuffer, INPUT_STR_BUFF_SIZE) == OK) { // receber input no terminal
-        if (!strcmp(strBuffer,"exit")) { // se quiser sair do programa
+        if (!strcmp(strBuffer,"exit")) { //  sair do programa
             break;
         }
-        else if (!strcmp(strBuffer,"help")) { // se quiser os comandos de ajuda
+        else if (!strcmp(strBuffer,"help")) { // comandos de ajuda
             helpCommands(allWindows);
         }
         else if (validQueryInput(strBuffer)) { // se o input for válido para uma query, calcula-se a resposta
             queryResult = queryAssign(strBuffer,userData,driverData,ridesData,commandN);
-            
-            if (queryResult == NULL) {// se o resultado da query for NULL
-                waddstr(output,"A query não devolveu nenhum resultado :(");
+            queryNumber = atoi(strBuffer);
+
+            if (queryResult == NULL) { //  resultado da query é NULL
+                werase(output);
+                mvwprintw(output,0,0,"# Query %d output\n\nA query não devolveu nenhum resultado :(",queryNumber);
                 wrefresh(output);
             }
-            else {// se o resultado da querry não for NULL
-                printResultInPages(queryResult, atoi(strBuffer), allWindows); // atoi para no espaço, logo só lê o número da query
+            else {// resultado da querry não é NULL
+                printResultInPages(queryResult, queryNumber, allWindows); // atoi para no espaço, logo só lê o número da query
             }
 
             commandN ++; // só para debug, pode-se remover depois
             free(queryResult);
         }
         else {
-            waddstr(output,"(!) Input inválido\n\nEscreva \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n");
-            wrefresh(output);
+            refreshWindow(output,"(!) Input inválido\n\nComando \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n");
         }
         // recriar linha de input com apenas a string "Input:"
         refreshWindow(input,"Input:");
         //manter linha de output, para ver o resultado, enquanto não adiciona novo input
         //removi debug da queryAssign, estava a afetar a window de input !!, quando reformular a validação de input, tirar de coentário !
     }
-    free(strBuffer);
+    delwin(output); delwin(outputBorder); delwin(input); delwin(inputBorder);delwin(tabHelp);delwin(tabQueries);
     endwin();
+    free(allWindows);
+    free(strBuffer);
     return 0;
 }
 
