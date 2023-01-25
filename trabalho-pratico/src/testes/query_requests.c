@@ -278,6 +278,7 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 		if (total[i] == 0) fprintf(final_output, "%d not tested\n", i+1);
 		else fprintf(final_output, "%d %lf\n", i + 1, time[i] / total[i]);
 	}
+	fclose(final_output);
     free (strBuffer); // free do buffer de input
     return 0;
 }
