@@ -45,6 +45,7 @@ char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, Rid
     int numero;
     if ((numero = atoi(idstr)) != 0)
     {
+		if (testDriverBounds(driverData, numero) == 1) return NULL;
         DriverStruct *driverInf = getDriverPtrByID(driverData, numero);
 		if (driverInf == NULL) return NULL;
         const ridesByDriver *ridesInf = getRidesByDriver(ridesData);

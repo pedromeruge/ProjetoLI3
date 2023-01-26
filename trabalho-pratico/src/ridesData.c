@@ -825,14 +825,10 @@ RidesStruct * getRidePtrByID(RidesData *data, guint ID)
 	ID -= 1; // para a primeira ride passar a ser 0
 	guint i = ID / SIZE;
 	GPtrArray *array = data->ridesArray;
-	if (i > array->len) return NULL;
-
 	SecondaryRidesArray *secondaryArray = g_ptr_array_index(array, i);
 
 	RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
-	if (result == NULL || !RIDE_IS_VALID(result)) return NULL;
- 
-	return result;
+	return (RIDE_IS_VALID(result)) ? result : NULL;
 }
 
 inline int getRideID(const RidesStruct * ride) {

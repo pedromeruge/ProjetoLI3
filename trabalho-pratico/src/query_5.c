@@ -36,12 +36,12 @@ void result_func (CityRides *rides, void *otherData) {
 		currentRide = getCityRidesByIndex(rides, i);
 		ID = getRideDriver(currentRide);
 		currentDriver = getDriverPtrByID(driverData, ID);
-		if (currentDriver != NULL) {
+		// if (currentDriver != NULL) {
 			carClass = getDriverCar(currentDriver);
 			// A < B retorna -1
 			distance[carClass] += getRideDistance(currentRide);
 			numRides[carClass] += 1;
-		}
+		// }
 	}
 }
 

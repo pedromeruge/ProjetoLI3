@@ -22,6 +22,7 @@ DriverStruct * getDriverPtrByID(DriverData *, guint);
 int getNumberOfDrivers (DriverData *);
 
 // funções para aceder a informações individuais de cada driver
+int testDriverBounds(DriverData *data, guint ID);
 char * getDriverName(DriverStruct *); // retorna o nome de um driver
 char * getDriverBirthdate(DriverStruct *); // retorna a data de nascimento de um driver
 unsigned char getDriverGender(DriverStruct *); // retorna o género de um driver

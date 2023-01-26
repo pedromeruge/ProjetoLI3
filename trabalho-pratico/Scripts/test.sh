@@ -10,8 +10,8 @@ else
 		echo "Please do not run in Scripts directory"
 	else
 		echo "Testing time of each query"
-		echo "Running with $1 $2 $3"
-		./programa-testes $1 $2 $3 &> /dev/null
+		echo "Running with $@"
+		./programa-testes $@ &> /dev/null
 		cat testes_final_output.txt
 		rm testes_final_output.txt
 

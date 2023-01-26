@@ -137,11 +137,11 @@ DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
 	GPtrArray *array = data->driverArray;
 	ID -= 1;
 	guint i = ID / SIZE;
-	if (i > array->len) return NULL;
+	// deixou de ser checked aqui
+	// if (i > array->len) return NULL;
 	SecondaryDriverArray *secondaryArray = g_ptr_array_index(array, i);
 	DriverStruct * result = &(secondaryArray->array[ID - SIZE * i]);
-	if (! DRIVER_IS_VALID(result)) return NULL;
-	return result;
+	return DRIVER_IS_VALID(result) ? result : NULL;
 }
 
 // devolve o número de drivers no ficheiro de input; função necessária para criar arrays sobre drivers, no ridesData.c
@@ -151,6 +151,14 @@ int getNumberOfDrivers (DriverData * driverData) {
 	SecondaryDriverArray * secondaryArray = g_ptr_array_index(driverArray, driverArray->len - 1);
 	num += secondaryArray->len;
 	return num;
+}
+
+// 1 se ultrapassar bounds
+inline int testDriverBounds(DriverData *data, guint ID) {
+	GPtrArray *array = data->driverArray;
+	ID -= 1;
+	guint i = ID / SIZE;
+	return (i > array->len) ? 1 : 0; 
 }
 
 inline char *getDriverName(DriverStruct *driver)
