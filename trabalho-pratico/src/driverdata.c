@@ -153,45 +153,45 @@ int getNumberOfDrivers (DriverData * driverData) {
 	return num;
 }
 
-char *getDriverName(DriverStruct *driver)
+inline char *getDriverName(DriverStruct *driver)
 {
 	return strndup(driver->name, DRIVER_STR_BUFF);
 }
 
-char *getDriverBirthdate(DriverStruct *driver)
+inline char *getDriverBirthdate(DriverStruct *driver)
 {
 	return strndup(driver->birthdate, DRIVER_STR_BUFF);
 }
 
-unsigned char getDriverGender(DriverStruct *driver)
+inline unsigned char getDriverGender(DriverStruct *driver)
 {
 	return (driver->gender);
 }
 
-unsigned char getDriverCar(DriverStruct *driver)
+inline unsigned char getDriverCar(DriverStruct *driver)
 {
 	return (driver->carClass);
 }
-char *getDriverPlate(DriverStruct *driver)
+inline char *getDriverPlate(DriverStruct *driver)
 {
 	return strndup(driver->licensePlate, DRIVER_STR_BUFF);
 }
 
-char *getDriverCity(DriverStruct *driver)
+inline char *getDriverCity(DriverStruct *driver)
 {
 	return strndup(driver->city, DRIVER_STR_BUFF);
 }
 
-char *getDriverAccCreation(DriverStruct *driver)
+inline char *getDriverAccCreation(DriverStruct *driver)
 {
 	return strndup(driver->accountCreation, DRIVER_STR_BUFF);
 }
 
-unsigned char getDriverStatus(DriverStruct *driver)
+inline unsigned char getDriverStatus(DriverStruct *driver)
 {
 	return (driver->status);
 }
 
-int driverIsValid(DriverStruct *driver) {
+inline int driverIsValid(DriverStruct *driver) {
 	return (driver != NULL && DRIVER_IS_VALID(driver));
 }

@@ -13,6 +13,7 @@ else
 		echo "Running with $1 $2 $3"
 		./programa-testes $1 $2 $3 &> /dev/null
 		cat testes_final_output.txt
+		rm testes_final_output.txt
 
 		echo "Testing time of load/free"
 		for ((i = 0; i < 10; i++))
@@ -21,6 +22,7 @@ else
 			./programa-testes $1 &>/dev/null
 		done
 		./Scripts/parse_load_times.py
+		rm testes_final_output.txt
 
 		echo "Testing max memory, in kbytes (once)"
 		/usr/bin/time -f "%M" -o testes_final_output.txt ./programa-principal $1 $2 &> /dev/null

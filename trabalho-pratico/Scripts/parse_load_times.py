@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Using readlines()
-file1 = open('testes_output_final.txt', 'r')
+file1 = open('testes_final_output.txt', 'r')
 Lines = file1.readlines()
   
 CPUtime_load = 0

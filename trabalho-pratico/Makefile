@@ -16,7 +16,7 @@ TEST_DEBUG_BUILD_DIR := $(BASE_BUILD_DIR)/testes_debug
 
 CC := gcc
 
-NCURSESFLAGS := -lncurses
+NCURSESFLAGS := -lncursesw
 GLIBFLAGS := $(shell pkg-config --cflags --libs gobject-2.0)
 STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) $(NCURSESFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell ./Scripts/get_threads.sh) $(PROFILING_OPTS)#-lm -pthread -Wconversion
 CFLAGS := -O2 $(STD_FLAGS)

@@ -98,36 +98,36 @@ UserData *getUserData(FILE *ptr)
 	return data;
 }
 
-UserStruct *getUserPtrByUsername(UserData *data, char *name)
+inline UserStruct *getUserPtrByUsername(UserData *data, char *name)
 {
 	GHashTable *table = data->table;
 	return (UserStruct *)(g_hash_table_lookup(table, name));
 }
 
-char *getUserName(UserStruct *data)
+inline char *getUserName(UserStruct *data)
 {
 	dupe_str(data->name);
 	// return strndup(data->name, USER_STR_BUFF);
 }
 
-char *getUserUsername(UserStruct *data)
+inline char *getUserUsername(UserStruct *data)
 {
 	dupe_str(data->username);
 	// return strndup(data->username, USER_STR_BUFF);
 }
 
-unsigned char getUserGender(UserStruct *data)
+inline unsigned char getUserGender(UserStruct *data)
 {
 	return (data->gender);
 }
 
-char *getUserBirthdate(UserStruct *data)
+inline char *getUserBirthdate(UserStruct *data)
 {
 	dupe_str(data->birthdate);
 	// return strndup(data->birthdate, USER_STR_BUFF);
 }
 
-char *getUserAccCreation(UserStruct *data)
+inline char *getUserAccCreation(UserStruct *data)
 {
 	dupe_str(data->accountCreation);
 	// return strndup(data->accountCreation, USER_STR_BUFF);
@@ -149,7 +149,7 @@ void freeUserData(UserData *userData)
 	free(userData);
 }
 
-int userIsValid(UserStruct *user) {
+inline int userIsValid(UserStruct *user) {
 	return (user != NULL && USER_IS_VALID(user));
 }
 

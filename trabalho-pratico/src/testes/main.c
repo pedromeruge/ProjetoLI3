@@ -17,7 +17,7 @@ int main (int argc, char **argv) {
 
 	if (argc == 2) { // testar o tempo de load, mais nada
 		FILE ** files = open_cmdfiles(argc,argv);
-		FILE *output = fopen("testes_output_final.txt", "a");
+		FILE *output = fopen("testes_final_output.txt", "a");
 
 		cpu_start = clock();
 		clock_gettime(CLOCK_REALTIME, &start);
