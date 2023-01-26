@@ -18,47 +18,47 @@ char *NOP(char * inputStr[], UserData *userData, DriverData *DriverData, RidesDa
     return NULL;
 }
 
-// É da responsabilidade da caller function dar free da string
-char * queryAssign(char * queryInput, UserData * userData, DriverData * driverData, RidesData * ridesData, int commandN) { // remover commandN, no futuro, só é usado para o debug
+//parte a string de input de uma query, preenchendo um array dado com os segmentos;
+// devolve o número de inputs para a query (excluindo o número da query)
+int queryInputSplit(char * queryInput, char *inputSplit[]) { // remover commandN, no futuro, só é usado para o debug
     int i;
-    query_func *queryList[9] = {query_1, query_2, query_3, query_4, query_5, query_6, query_7, NOP, query_9};
-    char *strHolder, *tempsegstr[MAX_QUERY_INPUTS+1]; // array com segmentos de input para uma query (atualizado em cada linha)
-    //char *  *temp;
-    //temp = queryInput;
+    char *strHolder; // array com segmentos de input para uma query (atualizado em cada linha)
+
     queryInput[strcspn(queryInput, "\n")] = 0; // para remover eventual newline na string de input
     
-    tempsegstr[0] = NULL;
-    tempsegstr[1] = NULL;
-    tempsegstr[2] = NULL;
-    tempsegstr[3] = NULL;
+    inputSplit[0] = NULL; 
+    inputSplit[1] = NULL;
+    inputSplit[2] = NULL;
+    inputSplit[3] = NULL;
     
     for (i = 0; i <= MAX_QUERY_INPUTS && (strHolder = strsep(&queryInput, " ")); i++) {
-        tempsegstr[i] = strHolder;
+        inputSplit[i] = strHolder;
     }
-    //strBuffer = temp;
+    return (i-1); // i-1 dá o número de argumentos recebidos, para além do nº da query
+}
+
+// devolve o output da query, numa string
+// é da responsabilidade da caller function dar free da string
+// remover commandN no futuro, só é usado para o debug
+char * queryAssign(char * queryInputs[], UserData * userData, DriverData * driverData, RidesData * ridesData, int commandN) {
+    query_func *queryList[9] = {query_1, query_2, query_3, query_4, query_5, query_6, query_7, NOP, query_9};
 
     //### print de debug para os input de uma query
-    // printf("command (%d), query |%d| input segments:",commandN,(*tempsegstr[0]) - 49 + 1);
-	// ***** printf("%d:%d ", commandN,(*tempsegstr[0]) - 49 + 1);
-
-	// int j;
-    // for (j = 1;j <= MAX_QUERY_INPUTS && tempsegstr[j]; j++)
-    //     printf(" <%.16s>",tempsegstr[j]);
-    // putchar('\n');
+	//printf("%d:%d ", commandN,(*queryInputs[0]) - 49 + 1);
     //### 
 
-    return (queryList[(*tempsegstr[0]) - 49](tempsegstr+1, userData, driverData, ridesData)); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
+    return (queryList[(*queryInputs[0]) - 49](queryInputs+1, userData, driverData, ridesData)); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
 }
 
-//valida a string recebida
-//TODO: verificação mais completa !!!!!!!!!!!!!!
-    // ver se nº de inputs é inferior a 1 ou superior a MAX_QUERY_INPUTS
-    // ver se nº de espaços entre argumentos correpsonde ao nº de inputs ?
-int validQueryInput (char * queryInput) {
-    return ((queryInput[0] > 47) && (queryInput[0] < 58)); //temporário
+//valida o comando para query recebido
+int validQueryInput (char * queryInput, char * inputSplit[], int * queryNumber) {
+    int queryArgs[TOTAL_QUERIES_NUMBER] = {1,1,1,1,2,3,2,2,2};
+    int queryNArgs = queryInputSplit(queryInput,inputSplit);
+    (*queryNumber) = atoi(inputSplit[0]); // queryNumber = 0 se falhar o atoi
+    return ((*queryNumber) > 0 && (*queryNumber) < 10 && queryNArgs == queryArgs[(*queryNumber)-1]);
 }
 
-// apaga a linha atual na janela dada e escreve a str recebida
+// apaga a janela recebida e escreve a str recebida
 void refreshWindow (WINDOW * window, char * str) {
     werase(window);
     mvwaddstr(window,0,0,str);
@@ -225,7 +225,7 @@ void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[])
 
     while (wgetnstr(input,strBuffer, INPUT_STR_BUFF_SIZE) == OK) {// recebe continuamente input
         wclear(output);
-        if ((i = atoi(strBuffer))>0 && i <= numberOfPages) { // se o input for válido, escreve o output da pagina pedida
+        if ((i = atoi(strBuffer))>0 && i <= numberOfPages && strBuffer[1] == '\0') { // se o input for válido, escreve o output da pagina pedida
             (queryNumber != -1) ? printQueryOutput(splitQueryResults, i, segmMaxSizes, numberOfPages, queryNumber, windows) 
                                 : printHelpCommands(splitQueryResults, i ,numberOfPages, windows);
         }
@@ -246,13 +246,13 @@ void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[])
     g_array_free(splitQueryResults,TRUE); // dá free das strings, ou não? (isso já é feito na interactRequests)
 }
 
-WINDOW * * buildQueryScreen (WINDOW * stdscr, int maxX, int maxY) {
+WINDOW * * buildQueryScreen (WINDOW * stdscrn, int maxX, int maxY) {
 
-    WINDOW * tabQueries = subwin(stdscr,3,13,0,3), 
-    * tabHelp = subwin(stdscr,3,13,0,17),
-    * outputBorder = subwin(stdscr,maxX-4,maxY,2,0), // borda da janela "output" (assim não é afetada por newlines escritas na subjanela)
+    WINDOW * tabQueries = subwin(stdscrn,3,13,0,3), 
+    * tabHelp = subwin(stdscrn,3,13,0,17),
+    * outputBorder = subwin(stdscrn,maxX-4,maxY,2,0), // borda da janela "output" (assim não é afetada por newlines escritas na subjanela)
     * output = derwin(outputBorder,maxX-7,maxY-4,2,2),
-    * inputBorder = subwin(stdscr,3,maxY,maxX-3,0),
+    * inputBorder = subwin(stdscrn,3,maxY,maxX-3,0),
     * input = derwin(inputBorder,1,maxY-2,1,1),
     * * allWindows = malloc(sizeof(WINDOW *) * 6);
     allWindows[0] = tabQueries; allWindows[1] = tabHelp;
@@ -334,7 +334,7 @@ void helpCommands (WINDOW * windows[]) {
 
 //modo interativo de correr queries
 int interactRequests(UserData *userData, DriverData *driverData, RidesData *ridesData) {
-    setlocale(LC_ALL, "");
+    setlocale(LC_ALL, ""); // permitir caractérs UTF-8
     initscr(); //iniciar o ncurses
 
     int maxX,maxY;
@@ -347,18 +347,14 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
     //janela inicial; ao pressionar uma tecla salta para a página de input nas queries
     buildBeginScreen(stdscr,maxX,maxY);
 
-    //estrutura da janela das queries e texto inicial
+    // página de input para as queries (escolheu-se aparecer esta página primeiro)
     WINDOW * * allWindows = buildQueryScreen(stdscr,maxX,maxY);
-    WINDOW * tabQueries = allWindows[0],
-    * tabHelp = allWindows[1],
-    * outputBorder = allWindows[2],
-    * output = allWindows[3],
-    * inputBorder = allWindows[4],
-    * input = allWindows[5];
+    WINDOW * output = allWindows[3], * input = allWindows[5];
 
-    //menu de receber input para a tab queries, ou tab ajuda
+    //menu de receber input
     char *strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida
-         *queryResult = NULL; // pointer para a string resultante de cada querry
+         *queryResult = NULL, // guarda a string resultante de cada querry
+         *queryInputSplit[MAX_QUERY_INPUTS+1]; // array com segmentos de input para uma query, atualizado por queryInputSplit
     int commandN = 1, // só para debug, pode-se remover depois
         queryNumber;
 
@@ -370,9 +366,8 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
         else if (!strcmp(strBuffer,"help")) { // comandos de ajuda
             helpCommands(allWindows);
         }
-        else if (validQueryInput(strBuffer)) { // se o input for válido para uma query, calcula-se a resposta
-            queryResult = queryAssign(strBuffer,userData,driverData,ridesData,commandN);
-            queryNumber = atoi(strBuffer);
+        else if (validQueryInput(strBuffer,queryInputSplit,&queryNumber)) { // se o input for um número para uma query
+            queryResult = queryAssign(queryInputSplit,userData,driverData,ridesData,commandN);
 
             if (queryResult == NULL) { //  resultado da query é NULL
                 werase(output);
@@ -382,19 +377,21 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
             else {// resultado da querry não é NULL
                 printResultInPages(queryResult, queryNumber, allWindows); // atoi para no espaço, logo só lê o número da query
             }
-
-            commandN ++; // só para debug, pode-se remover depois
             free(queryResult);
         }
         else {
-            refreshWindow(output,"(!) Input inválido\n\nComando \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n");
+            refreshWindow(output,"(!) Comando inválido\n\nComando \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n");
         }
         // recriar linha de input com apenas a string "Input:"
         refreshWindow(input,"Input:");
         //manter linha de output, para ver o resultado, enquanto não adiciona novo input
         //removi debug da queryAssign, estava a afetar a window de input !!, quando reformular a validação de input, tirar de coentário !
     }
-    delwin(output); delwin(outputBorder); delwin(input); delwin(inputBorder);delwin(tabHelp);delwin(tabQueries);
+
+    int i;
+    //libertar as janelas de ncurses criadas
+    for (i=5;i>=0;i--) 
+        if (delwin(allWindows[i])==ERR) fprintf(stderr,"erro a apagar pos:%d",i);
     endwin();
     free(allWindows);
     free(strBuffer);
@@ -403,8 +400,9 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
 
 //modo batch de correr queries
 int batchRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesData *ridesData) {
-    char *strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida
-         *queryResult = NULL;                          // pointer para a string resultante de cada querry
+    char *strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida do ficheiro
+         *queryResult = NULL, // pointer para a string resultante de cada query
+         *inputSplit[MAX_QUERY_INPUTS+1]; // array com segmentos de input para uma query, atualizado por queryInputSplit
     ssize_t read;
     size_t len = INPUT_STR_BUFF_SIZE; // para o getline
     int i, commandN = 1, writeRet;
@@ -412,7 +410,8 @@ int batchRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
     // lê linhas individualmente até chegar ao fim do ficheiro
     for (i = 0; (read = getline(&strBuffer, &len, fp) != -1); i++, commandN++) {
 
-        queryResult = queryAssign(strBuffer,userData, driverData, ridesData,commandN);
+        queryInputSplit(strBuffer,inputSplit);
+        queryResult = queryAssign(inputSplit,userData, driverData, ridesData,commandN);
 		fflush(stdout);
 
         writeRet = writeResults(commandN, queryResult);
