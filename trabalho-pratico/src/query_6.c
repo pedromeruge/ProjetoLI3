@@ -28,6 +28,9 @@ char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 
 	double avgDistance = (double)distance / (double)total;
 
+	free(dateA);
+	free(dateB);
+
 	char *resultTruncated = malloc(STR_BUFF_SIZE * sizeof(char));
 	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", avgDistance);
 

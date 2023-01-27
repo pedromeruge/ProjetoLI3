@@ -25,7 +25,7 @@ else
 		rm testes_final_output.txt
 
 		echo "Testing max memory, in kbytes (once)"
-		/usr/bin/time -f "%M" -o testes_final_output.txt ./programa-principal $1 $2 &> /dev/null
+		/usr/bin/time -f "%M (time: %E)" -o testes_final_output.txt ./programa-principal $1 $2 &> /dev/null
 		cat testes_final_output.txt
 
 		rm testes_final_output.txt
