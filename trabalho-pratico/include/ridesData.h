@@ -5,8 +5,6 @@
 #include "driverdata.h"
 #include "userdata.h"
 
-#define SIZE 1000
-
 // informações de uma ride
 typedef struct RidesStruct RidesStruct;
 

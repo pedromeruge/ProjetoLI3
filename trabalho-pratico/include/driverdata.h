@@ -3,8 +3,6 @@
 
 #include "commonParsing.h"
 
-#define SIZE 1000
-
 //informações de um driver
 typedef struct DriverStruct DriverStruct;
 

@@ -2,6 +2,7 @@
 
 #define RIDE_STR_BUFF 32
 #define N_OF_FIELDS 10
+#define SIZE 100000
 
 #define RIDE_IS_VALID(ride) (ride->user != NULL)
 

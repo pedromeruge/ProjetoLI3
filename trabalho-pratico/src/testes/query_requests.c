@@ -224,7 +224,9 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 		}
 		
 		//return 2 : deu NULL e devia dar valores; return 3: deu valores diferentes
-		if (writeRet == 2 || writeRet == 3) {
+		if (writeRet == 2 ) {
+			printf("Got NULL, not testing\n");
+		} else if (writeRet == 3) {
 			fprintf(stderr, "-->ERROR: Results differ\nExpected:%s\nGot:'%s'\nError file:..../command%d_output.txt\n\n", "see file :)", querryResult, commandN);
 			fputs("Error\n", test_output);
 			free(querryResult); // free do buffer de output

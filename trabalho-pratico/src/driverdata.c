@@ -4,6 +4,8 @@
 
 #define N_OF_FIELDS 9
 
+#define SIZE 10000
+
 #define DRIVER_IS_VALID(driver) (driver->name != NULL)
 
 struct DriverStruct
