@@ -145,10 +145,10 @@ void printQueryOutput(GArray * splitQueryResults,int pageN, int * paramMaxSizes,
 // parte a string em conjuntos de n linhas, colocando-as no GArray
 // a sepração de strings garante que informações sobre uma query específica não são separados em páginas diferentes (para definir uma secção que não deve ser separada em páginas diferentes, ela tem de acabar com 2 '\n' seguidos)
 GArray * splitString (char * str, int numberOfLines, int numberOfColumns) {
-    int i, counter, lineTracker, groupTracker; // lineTracker contabiliza linhas extras, quando a frase não cabe numa linha do terminal, groupTracker garante que não aparece partes de informação de uma query em páginas diferentes
+    int i, counter, lineTracker; // lineTracker contabiliza linhas extras, quando a frase não cabe numa linha do terminal, groupTracker garante que não aparece partes de informação de uma query em páginas diferentes
     GArray * splitStrResults = g_array_new(FALSE, FALSE, sizeof(char *));
     while (str[0] != '\0') {
-        for(i = 0, lineTracker = 0, groupTracker = 0, counter = 0; str[i] != '\0' && counter < numberOfLines; lineTracker++,i++) {
+        for(i = 0, lineTracker = 0, counter = 0; str[i] != '\0' && counter < numberOfLines; lineTracker++,i++) {
             if (str[i] == '\n' || lineTracker == numberOfColumns) {
                 counter++;
                 lineTracker = 0;
@@ -380,7 +380,7 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
             free(queryResult);
         }
         else {
-            refreshWindow(output,"(!) Comando inválido\n\nComando \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n");
+            refreshWindow(output,"(!) Comando inválido\n\nComando \"help\" na consola para saber todos os comandos disponíveis e o seus formatos\n\n""Comando \"exit\" para sair do programa");
         }
         // recriar linha de input com apenas a string "Input:"
         refreshWindow(input,"Input:");

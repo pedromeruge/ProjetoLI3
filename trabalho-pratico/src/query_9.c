@@ -11,8 +11,8 @@
 // } RidesStructWithID;
 
 typedef struct {
-	char *dateStart, 
-        *dateEnd;
+	DATE dateStart, 
+         dateEnd;
     GPtrArray * ridesInTimeFrame;
 } DataStruct;
 
@@ -24,17 +24,18 @@ char * printArrayToStr(const GPtrArray * ridesArray) {
     char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * arrayLen); // malloc muito grande, talvez particionar em array de strings com BUFFER_SIZE (1000 talvez?)
     if (resultStr == NULL) return NULL; // if malloc fails
     resultStr[0] = '\0';
-    char temp[STR_BUFF_SIZE], * rideDate, * rideCity;
-    const RidesStruct * currentRide = NULL;
+    char temp[STR_BUFF_SIZE], * rideCity;
+    DATE rideDate;
+    RidesStruct * currentRide = NULL;
 
     for(i=0;i<arrayLen;i++) {
         currentRide = (RidesStruct *) g_ptr_array_index(ridesArray,i);
-        rideDate = getRideDate(currentRide);
+        getRideDate(&rideDate,currentRide);
         rideCity = getRideCity(currentRide);
-    snprintf(temp,STR_BUFF_SIZE,"%0*d;%s;%d;%s;%.3f\n", 12, getRideID(currentRide), rideDate,getRideDistance(currentRide), rideCity, getRideTip(currentRide));
+    snprintf(temp,STR_BUFF_SIZE,"%0*d;%0*d/%0*d/%hd;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, rideDate.day, 2, rideDate.month, rideDate.year, getRideDistance(currentRide), rideCity, getRideTip(currentRide));
     strncat(resultStr,temp,STR_BUFF_SIZE);
 
-    free(rideDate);
+    //free(rideDate);
     free(rideCity);
     }
     
@@ -44,18 +45,18 @@ char * printArrayToStr(const GPtrArray * ridesArray) {
 //se esta função passasse para ridesData seria mais rapida, tirando os get !
 // função que faz o sort do array de rides, conforme os parâmetros fornecidos
 gint sort_9 (gconstpointer a, gconstpointer b) {
-    const RidesStruct * ride1 = *(RidesStruct **) a;
-    const RidesStruct * ride2 = *(RidesStruct **) b;
+    RidesStruct * ride1 = *(RidesStruct **) a;
+    RidesStruct * ride2 = *(RidesStruct **) b;
     short int ride1dist = getRideDistance(ride1),
     ride2dist = getRideDistance(ride2);
     gint result = (gint) (ride2dist - ride1dist); // ordem decrescente
 
     if (result == 0) {
-        char * ride1date = getRideDate(ride1),
-        * ride2date = getRideDate(ride2);
-        result = compDates(ride2date,ride1date); // ordem decrescente
-        free(ride1date); 
-        free(ride2date);
+        DATE ride1date; getRideDate(&ride1date,ride1);
+        DATE ride2date; getRideDate(&ride2date,ride2);
+        result = compDates(&ride2date,&ride1date); // ordem decrescente
+        //free(ride1date); 
+        //free(ride2date);
 
         if (result == 0) {
             int ride1ID = getRideID(ride1),
@@ -70,8 +71,8 @@ gint sort_9 (gconstpointer a, gconstpointer b) {
 //função usada em iterateOverCities; 
 void build_func (CityRides *rides, void *otherData) {
     DataStruct * data = (DataStruct *)otherData;
-    char * dateStart = data->dateStart,
-         * dateEnd = data->dateEnd;
+    DATE * dateStart = &data->dateStart,
+         * dateEnd = &data->dateEnd;
     GPtrArray * ridesInTimeFrame = data->ridesInTimeFrame;
 
     int startDatePos, endDatePos, i;
@@ -89,10 +90,10 @@ void build_func (CityRides *rides, void *otherData) {
 }
 
 char * query_9 (char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
-    char * dateA = inputStr[0], * dateB = inputStr[1];
+    DATE * dateA = atoDate(inputStr[0]), * dateB = atoDate(inputStr[1]);
 
 	GPtrArray * m_ridesInTimeFrame = g_ptr_array_new_with_free_func(NULL); // mudar para new full
-    DataStruct data = {.dateStart = dateA, .dateEnd = dateB, .ridesInTimeFrame = m_ridesInTimeFrame};
+    DataStruct data = {.dateStart = (*dateA), .dateEnd = (*dateB), .ridesInTimeFrame = m_ridesInTimeFrame};
 
     iterateOverCities(ridesData,(void *) &data, build_func);
     g_ptr_array_sort(m_ridesInTimeFrame, sort_9);
@@ -100,6 +101,6 @@ char * query_9 (char * inputStr[], UserData *userData, DriverData *driverData, R
     char * result = printArrayToStr(m_ridesInTimeFrame);
 
     g_ptr_array_free(m_ridesInTimeFrame,TRUE);
-
+    free(dateA);free(dateB);
     return result;
 }

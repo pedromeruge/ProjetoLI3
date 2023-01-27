@@ -5,7 +5,7 @@
 typedef struct {
 	unsigned int *m_distance,
 	*m_numRides;
-	char *m_dateA, *m_dateB;
+	DATE m_dateA, m_dateB;
 	DriverData *m_driverData;
 	// int reps;
 } DataStruct;
@@ -15,7 +15,7 @@ void result_func (CityRides *rides, void *otherData) {
 	// CityRides *rides = (CityRides *)cityData;
 	unsigned int *distance = data->m_distance, *numRides = data->m_numRides;
 	DriverData * driverData = data->m_driverData;
-	char *dateA = data->m_dateA, *dateB = data->m_dateB;
+	DATE * dateA = &data->m_dateA, * dateB = &data->m_dateB;
 
 	DriverStruct * currentDriver;
 	RidesStruct * currentRide;
@@ -46,12 +46,12 @@ void result_func (CityRides *rides, void *otherData) {
 }
 
 char * query_5 (char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
-	char * dateA = inputStr[0], * dateB = inputStr[1];
-	
+	DATE * dateA = atoDate(inputStr[0]), * dateB = atoDate(inputStr[1]);
+
 	unsigned int distance[3] = {0, 0, 0}, // basic, green, premium
 		numRides[3] = {0, 0, 0};
 	DataStruct data = {
-		.m_distance = distance, .m_numRides = numRides, .m_dateA = dateA, .m_dateB = dateB, .m_driverData = driverData//, .reps = 0
+		.m_distance = distance, .m_numRides = numRides, .m_dateA = *dateA, .m_dateB = *dateB, .m_driverData = driverData//, .reps = 0
 	};
 	iterateOverCities(ridesData, (void *)&data, result_func);
 
@@ -61,6 +61,6 @@ char * query_5 (char * inputStr[], UserData *userData, DriverData *driverData, R
 	double cost = ((double)(numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94)) / (double)(total);
 	char *resultTruncated = malloc(STR_BUFF_SIZE * sizeof(char));
 	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", cost);
-
+	free(dateA); free(dateB);
 	return resultTruncated;
 }

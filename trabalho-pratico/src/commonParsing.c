@@ -22,6 +22,7 @@ char *loadString(FILE *ptr)
 			str[j] = sBuffer[j];
 		}
 		str[j] = '\0';
+
 	}
 
 	// sBuffer[i] = '\0';
@@ -131,34 +132,45 @@ int p_getAccountStatus(FILE *ptr, void *res) {
 	return 1;
 }
 
-int compDates(char *dateA, char *dateB)
-{
+int compDates(DATE * dateA, DATE * dateB) {
 	// DD/MM/YYYY
 	int res;
-	if ((res = strncmp(dateA + 6, dateB + 6, 4)) != 0)
-	{
+	if ((res = (dateA->year - dateB->year)) != 0)
 		return res;
-	}
-	else if ((res = strncmp(dateA + 3, dateB + 3, 2)) != 0)
-	{
+	else if ((res = dateA->month - dateB->month) != 0)
 		return res;
-	} else {
-		return strncmp(dateA, dateB, 2);
-	}
+	else
+		return ((dateA->day) - (dateB->day));
+}
+
+//TODO: mudar para structa = structb, é mais eficiente que memcpy!!
+inline void dateDup (DATE * dest, const DATE * src) {
+	*dest = *src;
+}
+
+DATE * atoDate (char * date) {
+	DATE * newDate = malloc(sizeof(DATE));
+	//short int day = atoi(date), month= atoi(date+3), year = atoi(date+6);
+	short int day, month, year;
+	sscanf(date, "%2hd/%2hd/%4hd", &day, &month, &year);
+	*newDate = (DATE) {(char)day,(char)month,year};
+	return newDate;
 }
 
 int p_getDate(FILE *ptr, void *res) {
-	*(char **)res = loadString(ptr);
-	char *date = *(char **)res; 
-	if (date == NULL) return 0;
-	int chars_parsed, day, month, year;
-	if (sscanf(date, "%2d/%2d/%4d%n", &day, &month, &year, &chars_parsed) != 3 ||
-		date[chars_parsed] != '\0' ||
+	char tempBuffer[BUFF_SIZE];
+	writeString(ptr, tempBuffer);
+	if (tempBuffer[0] == '\0') return 0;
+	int chars_parsed;
+	short int day, month, year;
+	if (sscanf(tempBuffer, "%2hd/%2hd/%4hd%n", &day, &month, &year, &chars_parsed) != 3 ||
+		tempBuffer[chars_parsed] != '\0' ||
 		(day < 1 || day > 31) ||
 		(month < 1 || month > 12)
 	) {
 		return 0;
 	}
+	*(DATE *)res = (DATE){((char)day),((char)month),year};
 	return 1;
 }
 

@@ -10,13 +10,13 @@ struct DriverStruct
 {
 	// id está subentendido pela posição
 	char *name;
-	char *birthdate;
+	DATE birthdate;
 	unsigned char gender;
 	// estes podem todos ser mudados para alguma coisa melhor
 	unsigned char carClass; // é usado o primeiro char da palavra para converter em 0, 1 ou 2
 	char *licensePlate;
 	char *city;
-	char *accountCreation;
+	DATE accountCreation;
 	unsigned char status;
 };
 
@@ -73,12 +73,12 @@ DriverData * getDriverData(FILE *ptr)
 	parse_func_struct format_array[N_OF_FIELDS] = {
 		{ p_getDriverID, 0, 0 }, // os dados disto nunca sao escritos, é só para ver se é NULL
 		{ p_getName, offsetof(DriverStruct, name), 1, },
-		{ p_getDate, offsetof(DriverStruct, birthdate), 1, },
+		{ p_getDate, offsetof(DriverStruct, birthdate), 0, },
 		{ p_getGender, offsetof(DriverStruct, gender), 0, },
 		{ p_getCarClass, offsetof(DriverStruct, carClass), 0, },
 		{ p_getLicensePlate, offsetof(DriverStruct, licensePlate), 1, },
 		{ p_getCity,offsetof(DriverStruct, city), 1, },
-		{ p_getDate, offsetof(DriverStruct, accountCreation), 1, },
+		{ p_getDate, offsetof(DriverStruct, accountCreation), 0, },
 		{ p_getAccountStatus, offsetof(DriverStruct, status), 0, },
 	};
 
@@ -121,10 +121,10 @@ void freeDriversPtrArray(void * data) {
 		block = &array[i];
 		if (DRIVER_IS_VALID(block)) {
 			free(block->name);
-			free(block->birthdate);
+			//free(&block->birthdate);
 			free(block->licensePlate);
 			free(block->city);
-			free(block->accountCreation);
+			//free(&block->accountCreation);
 		}
 	}
 	free(secondaryArray);
@@ -166,9 +166,10 @@ inline char *getDriverName(DriverStruct *driver)
 	return strndup(driver->name, DRIVER_STR_BUFF);
 }
 
-inline char *getDriverBirthdate(DriverStruct *driver)
+//ver modularidade depois!
+inline void getDriverBirthdate(DATE * date, DriverStruct *driver)
 {
-	return strndup(driver->birthdate, DRIVER_STR_BUFF);
+	dateDup(date,&driver->birthdate);
 }
 
 inline unsigned char getDriverGender(DriverStruct *driver)
@@ -190,9 +191,10 @@ inline char *getDriverCity(DriverStruct *driver)
 	return strndup(driver->city, DRIVER_STR_BUFF);
 }
 
-inline char *getDriverAccCreation(DriverStruct *driver)
+//ver modularidade depois!
+inline void getDriverAccCreation(DATE * date, DriverStruct *driver)
 {
-	return strndup(driver->accountCreation, DRIVER_STR_BUFF);
+	dateDup(date,&driver->accountCreation);
 }
 
 inline unsigned char getDriverStatus(DriverStruct *driver)

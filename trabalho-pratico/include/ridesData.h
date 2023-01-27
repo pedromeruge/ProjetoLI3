@@ -35,7 +35,7 @@ RidesStruct *getCityRidesByIndex(CityRides *, guint); // devolve uma ride de uma
    iterator_func tem 1 pointer para dados (CityRides de cada cidade) e outro para onde escrever resultados ou passar dados à função
    data é passado como segundo argumento da funçao */
 void iterateOverCities(RidesData *, void *data, void (*iterator_func)(CityRides *, void *));
-void searchCityRidesByDate(CityRides *rides, char *dateA, char *dateB, int *res_start, int *res_end); // binary search de cityrides por data
+void searchCityRidesByDate(CityRides *rides, DATE * dateA, DATE * dateB, int *res_start, int *res_end); // binary search de cityrides por data
 
 //funções de debug
 void dumpCityRides (char *, GHashTable *, CityRides *, GPtrArray *);
@@ -54,7 +54,7 @@ int getridesByDriverArraySize(const ridesByDriver *); // mudar para unsigned int
 
 double getDriverAvgRating(const driverRatingInfo *);
 double getDriverTipsTotal(const driverRatingInfo *);
-char *getDriverMostRecRideDate(const driverRatingInfo *);
+void getDriverMostRecRideDate(DATE *, const driverRatingInfo *);
 short int getDriverRidesNumber(const driverRatingInfo *);
 int getDriverNumber(const driverRatingInfo *);
 short int getDriverDistTraveled(const driverRatingInfo *);
@@ -75,7 +75,7 @@ RidesStruct *getRidePtrByID(RidesData *, guint);
 // funções de rides associadas a ID no ficheiro
 //  funções para aceder a informações individuais de cada ride
 int getRideID(const RidesStruct *);
-char *getRideDate(const RidesStruct *);         // retorna a data de uma ride
+void getRideDate(DATE *,const RidesStruct *);         // retorna a data de uma ride
 int getRideDriver(RidesStruct *);   // retorna o ID do driver de uma ride
 char *getRideUser(RidesStruct *);         // retorna o nome do user de uma ride
 char *getRideCity(const RidesStruct *);         // retorna a cidade de uma ride
@@ -83,7 +83,7 @@ short int getRideDistance(const RidesStruct *); // retorna a distância de uma r
 short int getRideScore_u(RidesStruct *);  // retorna a avaliação do user de uma ride
 short int getRideScore_d(RidesStruct *);  // retorna a avaliação do driver de uma ride
 float getRideTip(const RidesStruct *);          // retorna a tip de uma ride
-char *getRideComment(RidesStruct *);      // retorna o comentário de uma ride
+//char *getRideComment(RidesStruct *);      // retorna o comentário de uma ride
 int rideIsValid(RidesStruct *ride); // 1 se for valido, 0 se nao for
 int getNumberOfRides(RidesData * data);
 

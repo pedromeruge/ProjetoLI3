@@ -5,7 +5,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <glib.h>
-#include "driverdata.h"
 
 typedef enum {
 	F = 70,
@@ -29,7 +28,11 @@ typedef enum {
 	PREMIUM = 2
 } CarClasses;
 
-typedef void* DATA;
+typedef struct date {
+	char day;
+	char month;
+	short int year;
+} DATE;
 
 typedef int parse_func (FILE *ptr, void *res);
 
@@ -47,7 +50,9 @@ typedef struct {
 
 // char *loadString(FILE *ptr);
 void writeString(FILE *ptr, char *buffer);
-int compDates (char * dateA, char * dateB);
+int compDates (DATE * dateA, DATE * dateB);
+void dateDup (DATE * dest, const DATE * src);
+DATE * atoDate (char * date);
 
 int p_getPayMethod(FILE *ptr, void *res);
 int p_getAccountStatus(FILE *ptr, void *res);

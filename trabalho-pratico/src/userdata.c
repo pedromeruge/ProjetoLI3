@@ -16,15 +16,15 @@ struct UserStruct
 	char *username;
 	char *name;
 	unsigned char gender;
-	char *birthdate;
-	char *accountCreation;
+	DATE birthdate,
+		 accountCreation;
 	// unsigned char payMethod;
 	unsigned char status;
 	int score;
 	short int total[3];
 	short int distance[3];
 	float tips;
-	char * mostRecRideDate;
+	DATE mostRecRideDate;
 };
 
 struct UserData
@@ -37,8 +37,8 @@ void freeTableData(void *userData)
 {
 	UserStruct *data = userData;
 	free(data->name);
-	free(data->birthdate);
-	free(data->accountCreation);
+	//free(data->birthdate);
+	//free(data->accountCreation);
 	free(data);
 }
 
@@ -58,8 +58,8 @@ UserData *getUserData(FILE *ptr)
 		{ p_getUserName, offsetof(UserStruct, username), 1, },
 		{ p_getName, offsetof(UserStruct, name), 1, },
 		{ p_getGender, offsetof(UserStruct, gender), 0, },
-		{ p_getDate, offsetof(UserStruct, birthdate), 1, },
-		{ p_getDate, offsetof(UserStruct, accountCreation), 1, },
+		{ p_getDate, offsetof(UserStruct, birthdate), 0, },
+		{ p_getDate, offsetof(UserStruct, accountCreation), 0, },
 		{ p_getPayMethod, 0, 0, }, // este offset nao interessa
 		// o parametro é inútil mas temos de fazer check para ver se está vazio, a função nunca escreve nada na struct do user
 		{ p_getAccountStatus, offsetof(UserStruct, status), 0, },
@@ -78,8 +78,8 @@ UserData *getUserData(FILE *ptr)
 		userstruct = malloc(sizeof(UserStruct));
 		if ((res = parse_with_format(ptr, userstruct, &format)) == 1)
 		{
-			g_ptr_array_add(array, userstruct);
-			memset((char *)userstruct + offsetof(UserStruct, score), 0, (sizeof(float) + sizeof(int) + (6 * sizeof(short int)) + sizeof(char *)));
+			if (userstruct->status == 1) g_ptr_array_add(array, userstruct); // só adiciona se for ativo
+			memset((char *)userstruct + offsetof(UserStruct, score), 0, (sizeof(float) + sizeof(int) + (6 * sizeof(short int)) + sizeof(DATE)));
 			username = userstruct->username;
 			if (g_hash_table_insert(table, username, userstruct) == FALSE)
 			{
@@ -105,39 +105,38 @@ UserData *getUserData(FILE *ptr)
 	return data;
 }
 
-UserStruct *getUserPtrByUsername(UserData *data, char *name)
+inline UserStruct *getUserPtrByUsername(UserData *data, char *name)
 {
 	GHashTable *table = data->table;
 	return (UserStruct *)(g_hash_table_lookup(table, name));
 }
 
-char *getUserName(UserStruct *data)
+inline char *getUserName(UserStruct *data)
 {
 	dupe_str(data->name);
 	// return strndup(data->name, USER_STR_BUFF);
 }
 
-char *getUserUsername(UserStruct *data)
+inline char *getUserUsername(UserStruct *data)
 {
 	dupe_str(data->username);
 	// return strndup(data->username, USER_STR_BUFF);
 }
 
-unsigned char getUserGender(UserStruct *data)
+inline unsigned char getUserGender(UserStruct *data)
 {
 	return (data->gender);
 }
 
-char *getUserBirthdate(UserStruct *data)
+inline void getUserBirthdate(DATE * date, UserStruct *data)
 {
-	dupe_str(data->birthdate);
-	// return strndup(data->birthdate, USER_STR_BUFF);
+	dateDup(date,&data->birthdate);
 }
 
-char *getUserAccCreation(UserStruct *data)
+//ver modularidade!
+inline void getUserAccCreation(DATE * date, UserStruct *data)
 {
-	dupe_str(data->accountCreation);
-	// return strndup(data->accountCreation, USER_STR_BUFF);
+	dateDup(date,&data->accountCreation);
 }
 
 unsigned char getUserStatus(UserStruct *data)
@@ -156,15 +155,15 @@ int userIsValid(UserStruct *user) {
 	return (user != NULL && USER_IS_VALID(user));
 }
 
-void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score, float tip, char * date) {
+void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score, float tip, DATE * date) {
     int carClass = getDriverCar(getDriverPtrByID(driverdata, driver));
 	UserStruct* user = g_hash_table_lookup(data->table, name);
 	(user->tips) += tip;
     (user->total) [carClass] += 1;
 	(user->score) += score;
     (user->distance) [carClass] += distance;
-	if(user->mostRecRideDate == NULL || (compDates(user->mostRecRideDate, date) > 0)) {
-		user->mostRecRideDate = date;
+	if(user->mostRecRideDate.day == 0 || (compDates(&user->mostRecRideDate, date) < 0)) {
+		dateDup (&user->mostRecRideDate,date);
 	}
 }
 
@@ -192,10 +191,10 @@ gint userDistComp (gconstpointer a, gconstpointer b) {
     UserStruct * user1 = *(UserStruct **) a, * user2 = *(UserStruct **) b;
     short int * distance1 = user1->distance, * distance2 = user2->distance; 
     gint result =  distance1[0] + distance1[1] + distance1[2] - distance2[0] - distance2[1] - distance2[2];
-    if (result == 0 && user1->mostRecRideDate != NULL) {
-        result = compDates(user1->mostRecRideDate, user2->mostRecRideDate);
+    if (result == 0 && user1->mostRecRideDate.day != 0) {
+        result = compDates(&user1->mostRecRideDate, &user2->mostRecRideDate);
         if (result == 0) {
-            return strcmp(user1->username, user2->username);
+            return strcmp(user2->username, user1->username);
         } else return result;
     } else return result;
 }
@@ -210,12 +209,12 @@ char * userTopN (UserData * data, int N) {
     GPtrArray * array = data->userDistanceArray;
     int arraylength = array->len;
     UserStruct * userInf;
-    for(i = arraylength - 1; i > (const int)(arraylength - N); i--) {
+    for(i = arraylength - 1; i > (const int)(arraylength - N - 1); i--) {
         userInf = (UserStruct *)g_ptr_array_index(array, i);
         username = userInf->username;
         name = userInf->name;
         dist = userInf->distance[0] + userInf->distance[1] + userInf->distance[2];
-        snprintf(temp, STR_BUFF_SIZE, "%s,%s,%d", username, name, dist);
+        snprintf(temp, STR_BUFF_SIZE, "%s;%s;%d\n", username, name, dist);
         strncat(result,temp,STR_BUFF_SIZE);
     }
     return result;
