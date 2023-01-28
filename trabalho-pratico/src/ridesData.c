@@ -32,6 +32,7 @@ typedef struct {
 struct CityRides {
 	GPtrArray * cityRidesArray;
 	GPtrArray * driverSumArray;
+	int distance[3], total[3];
 }; 
 
 struct ridesByDriver {
@@ -214,6 +215,7 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 	SecondaryRidesArray *secondaryArrayStruct = malloc(sizeof(SecondaryRidesArray));
 	RidesStruct * ridesStructArray = secondaryArrayStruct->ridesArray, *temp;
 	CityRides * cityRides;
+	unsigned char carClass;
 
 	for (i = 0; i < SIZE; i++) {
 
@@ -232,11 +234,17 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 				cityRides->driverSumArray = NULL;
 				g_ptr_array_add(cityRides->cityRidesArray, temp);
 				g_hash_table_insert(cityTable, city, cityRides);
+
+				memset(cityRides->distance, 0, sizeof(int) * 3);
+				memset(cityRides->total, 0, sizeof(int) * 3);
 			}
 			else
 			{
 				// if yes, append to all the other data
 				g_ptr_array_add(cityRides->cityRidesArray, temp);
+				carClass = getDriverCar(getDriverPtrByID(driverdata, temp->driver));
+				cityRides->total[carClass] ++;
+				cityRides->distance[carClass] += temp->distance;
 			}
 		} else if (res == -1) {// se chegarmos a EOF
 				if (i == 0) {
@@ -881,4 +889,12 @@ int getNumberOfRides(RidesData * data) {
 	SecondaryRidesArray * secondaryArray = g_ptr_array_index(array, array->len - 1);
 	num += secondaryArray->len;
 	return num;
+}
+
+inline int *getRidesDistance(CityRides *rides) {
+	return rides->distance;
+}
+
+inline int *getRidesTotal(CityRides *rides) {
+	return rides->total;
 }

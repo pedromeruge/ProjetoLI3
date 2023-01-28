@@ -28,6 +28,8 @@ typedef enum {
 	PREMIUM = 2
 } CarClasses;
 
+// no futuro mudar todas as datas para ints?
+// por agora nao vou mudar para nao ser preciso fazer contas nos prints e etc
 typedef struct date {
 	char day;
 	char month;

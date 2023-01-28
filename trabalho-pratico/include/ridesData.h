@@ -28,6 +28,8 @@ void freeRidesData(RidesData *); // limpa a estrutura de dados das rides
 CityRides *getRidesByCity(RidesData *, char *);       // devolve todas as rides associadas a uma cidade
 guint getNumberOfCityRides(CityRides *);              // devolve o número de rides para uma cidade
 RidesStruct *getCityRidesByIndex(CityRides *, guint); // devolve uma ride de uma cidade
+int *getRidesDistance(CityRides *rides); // devolve distance[] de uma cidade
+int *getRidesTotal(CityRides *rides); // devolve total[] de uma cidade
 
 /* aplica iterator_func a todas as CityRides (ou seja, a todas as cidades)
    iterator_func tem 1 pointer para dados (CityRides de cada cidade) e outro para onde escrever resultados ou passar dados à função

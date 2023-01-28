@@ -1,5 +1,6 @@
 #include "commonParsing.h"
 #include <ctype.h>
+#include <stdint.h>
 
 #define IF_EOF(ptr) if(loadString(ptr) == NULL) return -1;
 
@@ -133,14 +134,10 @@ int p_getAccountStatus(FILE *ptr, void *res) {
 }
 
 int compDates(DATE * dateA, DATE * dateB) {
-	// DD/MM/YYYY
-	int res;
-	if ((res = (dateA->year - dateB->year)) != 0)
-		return res;
-	else if ((res = dateA->month - dateB->month) != 0)
-		return res;
-	else
-		return ((dateA->day) - (dateB->day));
+	// isto transforma o short e 2 chars para 1 int
+	int32_t resA = (int32_t)( ((uint32_t)(dateA->year))<<16 | (uint8_t)dateA->month<<8 | (uint8_t)dateA->day);
+	int32_t resB = (int32_t)( ((uint32_t)(dateB->year))<<16 | (uint8_t)dateB->month<<8 | (uint8_t)dateB->day);
+	return resA - resB;
 }
 
 //TODO: mudar para structa = structb, é mais eficiente que memcpy!!
