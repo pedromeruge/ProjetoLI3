@@ -11,7 +11,7 @@
 // } RidesStructWithID;
 
 typedef struct {
-	DATE dateStart, 
+	Date dateStart, 
          dateEnd;
     GPtrArray * ridesInTimeFrame;
 } DataStruct;
@@ -25,16 +25,16 @@ char * printArrayToStr(const GPtrArray * ridesArray) {
     // if (resultStr == NULL) return NULL; // if malloc fails
     resultStr[0] = '\0';
     char * rideCity;
-    DATE rideDate;
+    Date rideDate;
     RidesStruct * currentRide = NULL;
 
 	int offset = 0;
 
     for(i = 0 ; i < arrayLen; i++) {
         currentRide = (RidesStruct *) g_ptr_array_index(ridesArray,i);
-        getRideDate(&rideDate,currentRide);
+        rideDate = getRideDate(currentRide);
         rideCity = getRideCity(currentRide);
-		offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%0*d/%0*d/%hd;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, rideDate.day, 2, rideDate.month, rideDate.year, getRideDistance(currentRide), rideCity, getRideTip(currentRide));
+		offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%0*d/%0*d/%hd;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, GET_DATE_DAY(rideDate), 2, GET_DATE_MONTH(rideDate), GET_DATE_YEAR(rideDate), getRideDistance(currentRide), rideCity, getRideTip(currentRide));
 
 		//free(rideDate);
 		free(rideCity);
@@ -53,9 +53,9 @@ gint sort_9 (gconstpointer a, gconstpointer b) {
     gint result = (gint) (ride2dist - ride1dist); // ordem decrescente
 
     if (result == 0) {
-        DATE ride1date; getRideDate(&ride1date,ride1);
-        DATE ride2date; getRideDate(&ride2date,ride2);
-        result = compDates(&ride2date,&ride1date); // ordem decrescente
+        Date ride1date = getRideDate(ride1),
+        ride2date = getRideDate(ride2);
+        result = compDates(ride2date, ride1date); // ordem decrescente
         //free(ride1date); 
         //free(ride2date);
 
@@ -72,29 +72,29 @@ gint sort_9 (gconstpointer a, gconstpointer b) {
 //função usada em iterateOverCities; 
 void build_func (CityRides *rides, void *otherData) {
     DataStruct * data = (DataStruct *)otherData;
-    DATE * dateStart = &data->dateStart,
-         * dateEnd = &data->dateEnd;
+    Date dateStart = data->dateStart,
+         dateEnd = data->dateEnd;
     GPtrArray * ridesInTimeFrame = data->ridesInTimeFrame;
 
     int startDatePos, endDatePos, i;
     RidesStruct * currentRide;
 
-    searchCityRidesByDate(rides,dateStart,dateEnd,&startDatePos,&endDatePos);
+    searchCityRidesByDate(rides, dateStart, dateEnd, &startDatePos, &endDatePos);
 
     if ((startDatePos | endDatePos) < 0) return; // é preciso??
-    for (i=startDatePos;i<=endDatePos;i++) { // mal!!! // tem de se incluir int nas ridesStruct
-        currentRide = getCityRidesByIndex(rides,i);
+    for (i = startDatePos; i <= endDatePos; i++) { // mal!!! // tem de se incluir int nas ridesStruct
+        currentRide = getCityRidesByIndex(rides, i);
         if (getRideTip(currentRide) > 0) { // se o user tiver dado tip
-            g_ptr_array_add(ridesInTimeFrame,currentRide); // da para usar g_bytes_new_static?
+            g_ptr_array_add(ridesInTimeFrame, currentRide); // da para usar g_bytes_new_static?
         }
     }
 }
 
 char * query_9 (char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
-    DATE * dateA = atoDate(inputStr[0]), * dateB = atoDate(inputStr[1]);
+    Date dateA = atoDate(inputStr[0]), dateB = atoDate(inputStr[1]);
 
 	GPtrArray * m_ridesInTimeFrame = g_ptr_array_new_with_free_func(NULL); // mudar para new full
-    DataStruct data = {.dateStart = (*dateA), .dateEnd = (*dateB), .ridesInTimeFrame = m_ridesInTimeFrame};
+    DataStruct data = {.dateStart = dateA, .dateEnd = dateB, .ridesInTimeFrame = m_ridesInTimeFrame};
 
     iterateOverCities(ridesData,(void *) &data, build_func);
     g_ptr_array_sort(m_ridesInTimeFrame, sort_9);
@@ -102,6 +102,5 @@ char * query_9 (char * inputStr[], UserData *userData, DriverData *driverData, R
     char * result = printArrayToStr(m_ridesInTimeFrame);
 
     g_ptr_array_free(m_ridesInTimeFrame,TRUE);
-    free(dateA);free(dateB);
     return result;
 }

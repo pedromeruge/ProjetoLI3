@@ -133,25 +133,9 @@ int p_getAccountStatus(FILE *ptr, void *res) {
 	return 1;
 }
 
-inline int compDates(const DATE * dateA, const DATE * dateB) {
+inline int compDates(Date dateA, Date dateB) {
 	// isto transforma o short e 2 chars para 1 int
-	int32_t resA = (int32_t)( ((uint32_t)(dateA->year))<<16 | (uint8_t)dateA->month<<8 | (uint8_t)dateA->day);
-	int32_t resB = (int32_t)( ((uint32_t)(dateB->year))<<16 | (uint8_t)dateB->month<<8 | (uint8_t)dateB->day);
-	return resA - resB;
-}
-
-//TODO: mudar para structa = structb, é mais eficiente que memcpy!!
-inline void dateDup (DATE * dest, const DATE * src) {
-	*dest = *src;
-}
-
-DATE * atoDate (char * date) {
-	DATE * newDate = malloc(sizeof(DATE));
-	//short int day = atoi(date), month= atoi(date+3), year = atoi(date+6);
-	short int day, month, year;
-	sscanf(date, "%2hd/%2hd/%4hd", &day, &month, &year);
-	*newDate = (DATE) {(char)day,(char)month,year};
-	return newDate;
+	return dateA - dateB;
 }
 
 int p_getDate(FILE *ptr, void *res) {
@@ -159,15 +143,16 @@ int p_getDate(FILE *ptr, void *res) {
 	writeString(ptr, tempBuffer);
 	if (tempBuffer[0] == '\0') return 0;
 	int chars_parsed;
-	short int day, month, year;
-	if (sscanf(tempBuffer, "%2hd/%2hd/%4hd%n", &day, &month, &year, &chars_parsed) != 3 ||
+	uint32_t year;
+	uint8_t month, day;
+	if (sscanf(tempBuffer, "%2hhu/%2hhu/%4u%n", &day, &month, &year, &chars_parsed) != 3 ||
 		tempBuffer[chars_parsed] != '\0' ||
 		(day < 1 || day > 31) ||
 		(month < 1 || month > 12)
 	) {
 		return 0;
 	}
-	*(DATE *)res = (DATE){((char)day),((char)month),year};
+	*(Date *)res = (Date) (year << 16 | month << 8 | day);
 	return 1;
 }
 
@@ -388,4 +373,10 @@ void dumpWithFormat(void *data, parse_format *format) {
 			printf("%s\n", *(char **)(field_ptr + current.offset));
 		}
 	}
+}
+
+Date atoDate(char *str) {
+	// DD/MM/YYYY
+	int day = atoi(str), month = atoi(str + 3), year = atoi(str + 6);
+	return (uint32_t)(((uint32_t) year) << 16 | ((uint8_t) month) << 8 | (uint8_t) day);
 }

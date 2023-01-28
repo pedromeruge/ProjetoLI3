@@ -12,13 +12,13 @@ struct DriverStruct
 {
 	// id está subentendido pela posição
 	char *name;
-	DATE birthdate;
+	Date birthdate;
 	unsigned char gender;
 	// estes podem todos ser mudados para alguma coisa melhor
 	unsigned char carClass; // é usado o primeiro char da palavra para converter em 0, 1 ou 2
 	char *licensePlate;
 	char *city;
-	DATE accountCreation;
+	Date accountCreation;
 	unsigned char status;
 };
 
@@ -169,9 +169,9 @@ inline char *getDriverName(DriverStruct *driver)
 }
 
 //ver modularidade depois!
-inline void getDriverBirthdate(DATE * date, DriverStruct *driver)
+inline Date getDriverBirthdate(DriverStruct *driver)
 {
-	dateDup(date,&driver->birthdate);
+	return driver->birthdate;
 }
 
 inline unsigned char getDriverGender(DriverStruct *driver)
@@ -194,9 +194,9 @@ inline char *getDriverCity(DriverStruct *driver)
 }
 
 //ver modularidade depois!
-inline void getDriverAccCreation(DATE * date, DriverStruct *driver)
+inline Date getDriverAccCreation(DriverStruct *driver)
 {
-	dateDup(date,&driver->accountCreation);
+	return driver->accountCreation;
 }
 
 inline unsigned char getDriverStatus(DriverStruct *driver)

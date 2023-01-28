@@ -16,7 +16,7 @@ struct UserStruct
 	char *username;
 	char *name;
 	unsigned char gender;
-	DATE birthdate,
+	Date birthdate,
 		 accountCreation;
 	// unsigned char payMethod;
 	unsigned char status;
@@ -24,7 +24,7 @@ struct UserStruct
 	short int total[3];
 	short int distance[3];
 	float tips;
-	DATE mostRecRideDate;
+	Date mostRecRideDate;
 };
 
 struct UserData
@@ -79,7 +79,7 @@ UserData *getUserData(FILE *ptr)
 		if ((res = parse_with_format(ptr, userstruct, &format)) == 1)
 		{
 			if (userstruct->status == 1) g_ptr_array_add(array, userstruct); // só adiciona se for ativo
-			memset((char *)userstruct + offsetof(UserStruct, score), 0, (sizeof(float) + sizeof(int) + (6 * sizeof(short int)) + sizeof(DATE)));
+			memset((char *)userstruct + offsetof(UserStruct, score), 0, (sizeof(float) + (2 * sizeof(int)) + (6 * sizeof(short int))));
 			username = userstruct->username;
 			if (g_hash_table_insert(table, username, userstruct) == FALSE)
 			{
@@ -128,15 +128,14 @@ inline unsigned char getUserGender(UserStruct *data)
 	return (data->gender);
 }
 
-inline void getUserBirthdate(DATE * date, UserStruct *data)
+inline Date getUserBirthdate(UserStruct *data)
 {
-	dateDup(date,&data->birthdate);
+	return data->birthdate;
 }
 
-//ver modularidade!
-inline void getUserAccCreation(DATE * date, UserStruct *data)
+inline Date getUserAccCreation(UserStruct *data)
 {
-	dateDup(date,&data->accountCreation);
+	return data->accountCreation;
 }
 
 unsigned char getUserStatus(UserStruct *data)
@@ -155,15 +154,15 @@ int userIsValid(UserStruct *user) {
 	return (user != NULL && USER_IS_VALID(user));
 }
 
-void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score, float tip, DATE * date) {
+void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score, float tip, Date date) {
     int carClass = getDriverCar(getDriverPtrByID(driverdata, driver));
 	UserStruct* user = g_hash_table_lookup(data->table, name);
 	(user->tips) += tip;
     (user->total) [carClass] += 1;
 	(user->score) += score;
     (user->distance) [carClass] += distance;
-	if(user->mostRecRideDate.day == 0 || (compDates(&user->mostRecRideDate, date) < 0)) {
-		dateDup (&user->mostRecRideDate,date);
+	if(user->mostRecRideDate == 0 || (compDates(user->mostRecRideDate, date) < 0)) {
+		user->mostRecRideDate = date;
 	}
 }
 
@@ -191,8 +190,8 @@ gint userDistComp (gconstpointer a, gconstpointer b) {
     UserStruct * user1 = *(UserStruct **) a, * user2 = *(UserStruct **) b;
     short int * distance1 = user1->distance, * distance2 = user2->distance; 
     gint result =  distance1[0] + distance1[1] + distance1[2] - distance2[0] - distance2[1] - distance2[2];
-    if (result == 0 && user1->mostRecRideDate.day != 0) {
-        result = compDates(&user1->mostRecRideDate, &user2->mostRecRideDate);
+    if (result == 0 && user1->mostRecRideDate != 0) {
+        result = compDates(user1->mostRecRideDate, user2->mostRecRideDate);
         if (result == 0) {
             return strcmp(user2->username, user1->username);
         } else return result;

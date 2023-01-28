@@ -10,7 +10,7 @@
 struct RidesStruct
 {
 	int ID;
-	DATE date;
+	Date date;
 	int driver;
 	char *user;
 	char *city;
@@ -44,7 +44,7 @@ struct ridesByDriver {
 struct driverRatingInfo {
     void * ratingChart; // void * porque vai guardar um array de ratings de 1 a 5 e distância viajada, e mais tarde é convertido para um (double *) do valor médio desses ratings
     double tips; // inicialmente guarda número de tips, depois guarda o total_auferido
-    DATE mostRecRideDate; // ride mais recente
+    Date mostRecRideDate; // ride mais recente
     short int  * ridesNumber; // guardar [número de rides, total viajado]
     int driverNumber; // talvez meter em int o valor, ocupa menos espaço com char?
 };
@@ -241,7 +241,7 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *fo
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 
-			add_user_info(userdata, driverdata, temp->user, temp->driver, temp->distance, temp->score_u, temp->tip, &temp->date);
+			add_user_info(userdata, driverdata, temp->user, temp->driver, temp->distance, temp->score_u, temp->tip, temp->date);
 
 			// check if city is not already in hash table
 			if ((cityRides = g_hash_table_lookup(cityTable, city)) == NULL)
@@ -308,7 +308,7 @@ driverRatingInfo *newDriverInfo(RidesStruct *currentRide)
 	short int *ridesTracker = (short int *)new->ridesNumber;
 	ridesTracker[1] = currentRide->distance;
 	new->tips = currentRide->tip;
-	dateDup(&new->mostRecRideDate,&currentRide->date); // devo copiar a string para a nova struct, para não haver dependências no futuro??
+	new->mostRecRideDate = currentRide->date; // devo copiar a string para a nova struct, para não haver dependências no futuro??
 	new->driverNumber = currentRide->driver;
     return new;
 }
@@ -323,7 +323,7 @@ driverRatingInfo *appendDriverInfo(driverRatingInfo *currentArrayStruct, RidesSt
 	ridesTracker[1] += currentRide->distance;
 
 	//como assumo que o array de rides recebido já está sorted, não é preciso comparar se novas inserções têm datas mais recentes, pois serão sempre
-	dateDup(&currentArrayStruct->mostRecRideDate,&currentRide->date);
+	currentArrayStruct->mostRecRideDate = currentRide->date;
 
     return (currentArrayStruct);
 }
@@ -380,8 +380,7 @@ driverRatingInfo *newOpaqueDriverInfo(int driverNumber)
 	// 	newStruct->mostRecRideDate = strdup("00/00/0000"); 
 	// 	newStruct->ridesNumber = calloc(2,sizeof(short int));} else { 
 
-	// para poupar memória não se preenche estes campos
-	memset(&newStruct->mostRecRideDate, 0, sizeof(DATE)); // meter datas a 0
+	newStruct->mostRecRideDate = 0; // meter datas a 0
 	//newStruct->mostRecRideDate.year = 0;
 	newStruct->ridesNumber = NULL;
 	return (newStruct);
@@ -389,11 +388,7 @@ driverRatingInfo *newOpaqueDriverInfo(int driverNumber)
 
 inline gint compareRidesByDate(gconstpointer a, gconstpointer b)
 {
-	DATE dateA = (*(RidesStruct **)a)->date, dateB = (*(RidesStruct **)b)->date;
-
-	int32_t resA = (int32_t)( ((uint32_t)(dateA.year))<<16 | (uint8_t)dateA.month<<8 | (uint8_t)dateA.day);
-	int32_t resB = (int32_t)( ((uint32_t)(dateB.year))<<16 | (uint8_t)dateB.month<<8 | (uint8_t)dateB.day);
-	return resA - resB;
+	return (*(RidesStruct **)a)->date - (*(RidesStruct **)b)->date;
 }
 
 void freeRidesData(RidesData *data)
@@ -496,7 +491,7 @@ gint sort_byRatings_2 (gconstpointer a, gconstpointer b) {
     if (diff > 0) result = 1;
     else if (diff <0) result = -1;
     else if (!result && drv1Rating) {  // previne comparações entre nodos de riders com rating 0 (não apareciam nas rides)
-        result = compDates(&driver1->mostRecRideDate,&driver2->mostRecRideDate);
+        result = compDates(driver1->mostRecRideDate, driver2->mostRecRideDate);
         if (!result) 
             result = driver2->driverNumber - driver1->driverNumber; // comparação em ordem crescente do ID, 2 - 1, porque leitura final é feita do fim para o início
     }
@@ -545,7 +540,7 @@ GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int numberOfDriver
 driverRatingInfo *newDriverGlobalInfo(driverRatingInfo *currentDriverInfo) {
 	driverRatingInfo * newStruct = malloc(sizeof(driverRatingInfo));
 	newStruct->driverNumber = currentDriverInfo->driverNumber;
-	dateDup(&newStruct->mostRecRideDate,&currentDriverInfo->mostRecRideDate);
+	newStruct->mostRecRideDate = currentDriverInfo->mostRecRideDate;
 	newStruct->tips = currentDriverInfo->tips;
 	newStruct->ridesNumber = calloc(2, sizeof(short int));
 	memcpy(newStruct->ridesNumber,currentDriverInfo->ridesNumber,sizeof(short int) * 2);
@@ -557,11 +552,11 @@ driverRatingInfo *newDriverGlobalInfo(driverRatingInfo *currentDriverInfo) {
 driverRatingInfo * appendDriverGlobalInfo(driverRatingInfo *currentGlobalArrayStruct, driverRatingInfo * currentCityArrayStruct) {
 	short int i;
 	unsigned int * ratingsTo, * ratingsFrom;
-	DATE * CityMostRecRideDate = &currentCityArrayStruct->mostRecRideDate; // teste de um driver n ter informação na cidade é data == NULL
-	DATE * GlobalMostRecRideDate = &currentGlobalArrayStruct->mostRecRideDate;
+	Date CityMostRecRideDate = currentCityArrayStruct->mostRecRideDate; // teste de um driver n ter informação na cidade é data == NULL
+	Date GlobalMostRecRideDate = currentGlobalArrayStruct->mostRecRideDate;
 	if (compDates(CityMostRecRideDate, GlobalMostRecRideDate) >= 0) {
 		//free(&lobalMostRecRideDate);
-		dateDup(&currentGlobalArrayStruct->mostRecRideDate,CityMostRecRideDate);
+		currentGlobalArrayStruct->mostRecRideDate = CityMostRecRideDate;
 	}
 	ratingsTo = (unsigned int *)currentGlobalArrayStruct->ratingChart;
 	ratingsFrom = (unsigned int *)currentCityArrayStruct->ratingChart;
@@ -621,9 +616,9 @@ inline double getDriverTipsTotal(const driverRatingInfo *currentArrayStruct)
 	return (currentArrayStruct->tips);
 }
 
-inline void getDriverMostRecRideDate(DATE * date, const driverRatingInfo * currentArrayStruct)
+inline Date getDriverMostRecRideDate(const driverRatingInfo * currentArrayStruct)
 {
-	dateDup(date,&currentArrayStruct->mostRecRideDate);
+	return currentArrayStruct->mostRecRideDate;
 }
 
 inline short int getDriverRidesNumber(const driverRatingInfo *currentArrayStruct)
@@ -675,7 +670,7 @@ void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(CityR
 // coisa mais manhosa que a manhosidade
 // adaptação do bsearch que pode ou não funcionar
 // se der errado ao menos é rápido
-int custom_bsearch(GPtrArray *array, DATE * date, int mode) {
+int custom_bsearch(GPtrArray *array, Date date, int mode) {
 	int lim = array->len - 1,
 	base = 0,
 	cmp = 0,
@@ -684,7 +679,7 @@ int custom_bsearch(GPtrArray *array, DATE * date, int mode) {
 	for (; lim != 0; lim >>= 1) {
 		index = base + (lim >> 1);
 		ride = g_ptr_array_index(array, index);
-		cmp = compDates(date,&ride->date);
+		cmp = compDates(date, ride->date);
 		if (cmp == 0) {
 			// return index;
 			break;
@@ -700,14 +695,14 @@ int custom_bsearch(GPtrArray *array, DATE * date, int mode) {
 	if (cmp > 0) {
 		for (; cmp > 0; index ++) {
 			ride = g_ptr_array_index(array, index);
-			cmp = compDates(date, &ride->date);
+			cmp = compDates(date, ride->date);
 		}
 		index--;
 		if (mode == BSEARCH_END) index--;
 	} else if (cmp < 0) {
 		for (; cmp < 0; index --) {
 			ride = g_ptr_array_index(array, index);
-			cmp = compDates(date, &ride->date);
+			cmp = compDates(date, ride->date);
 		}
 		index++;
 		if (mode == BSEARCH_START) index++;
@@ -716,14 +711,14 @@ int custom_bsearch(GPtrArray *array, DATE * date, int mode) {
 			do {
 				index --;
 				ride = g_ptr_array_index(array, index);
-				cmp = compDates(date, &ride->date);
+				cmp = compDates(date, ride->date);
 			} while (index >= 0 && cmp == 0);
 			index++;
 		} else if (index < len - 1) {
 			do {
 				index++;
 				ride = g_ptr_array_index(array, index);
-				cmp = compDates(date, &ride->date);
+				cmp = compDates(date, ride->date);
 			} while (index < len && cmp == 0);
 			index--;
 		}
@@ -732,15 +727,15 @@ int custom_bsearch(GPtrArray *array, DATE * date, int mode) {
 	return index;
 }
 
-void searchCityRidesByDate(CityRides * cityRides, DATE * dateA, DATE * dateB, int *res_start, int *res_end) {
+void searchCityRidesByDate(CityRides * cityRides, Date dateA, Date dateB, int *res_start, int *res_end) {
 	GPtrArray *array = cityRides->cityRidesArray;
 	int len = array->len;
-	DATE * first, * last;
+	Date first, last;
 	RidesStruct *ride;
 	ride = g_ptr_array_index(array, 0);
-	first = &ride->date;
+	first = ride->date;
 	ride = g_ptr_array_index(array, len - 1);
-	last = &ride->date;
+	last = ride->date;
 
 	// printf("-------------------------------\nRequested dates: %d/%d/%hd %d/%d/%hd\n", dateA->day,dateA->month,dateA->year, dateB->day,dateB->month,dateB->year);
 	// printf("First: %d/%d/%hd last: %d/%d/%hd\n", first->day,first->month,first->year, last->day,last->month,last->year);
@@ -797,7 +792,8 @@ void dumpCityRides (char * filename, GHashTable * cityTable, CityRides * rides, 
 			for (j = 0; j < (const int)array->len; j++) {
 				ride = g_ptr_array_index(array, j);
 				//fprintf(fp,"%s",ride->date);
-				fprintf(fp, "%s iter%d | date:%d/%d/%d, driver: %d, distance: %d\n", ride->city,j, (int) ride->date.day, (int)ride->date.month,ride->date.year,ride->driver,ride->distance);
+				fprintf(fp, "%s iter%d | date:%d/%d/%d, driver: %d, distance: %d\n", ride->city,j, GET_DATE_DAY(ride->date),\
+					GET_DATE_MONTH(ride->date), GET_DATE_YEAR(ride->date), ride->driver, ride->distance);
 			}
 			fclose(fp);
 		}
@@ -809,7 +805,8 @@ void dumpCityRides (char * filename, GHashTable * cityTable, CityRides * rides, 
 		for (i = 0; i < (const int)array->len; i++) {
 			ride = g_ptr_array_index(array, i);
 			//fprintf(fp,"%s",ride->date);
-			fprintf(fp, "%s iter%d | date:%d/%d/%d, driver: %d, distance: %d\n",ride->city,i, (int) ride->date.day, (int)ride->date.month,ride->date.year,ride->driver,ride->distance);
+			fprintf(fp, "%s iter%d | date:%d/%d/%d, driver: %d, distance: %d\n",ride->city,i, GET_DATE_DAY(ride->date),\
+				GET_DATE_MONTH(ride->date), GET_DATE_YEAR(ride->date), ride->driver, ride->distance);
 		}
 	fclose(fp);
 	}
@@ -828,10 +825,14 @@ void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToF
 			if (!dataState) {
 			unsigned int * ratings = (unsigned int *)currentDriver->ratingChart;
 			//NumberOfRides não foi calculado ainda, só depois de getPresentableValues, por isso não é incluído no print
-			fprintf(fp, "driverNumber:%d, mostRecdate: %d/%d/%hd, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n", currentDriver->driverNumber,(int)currentDriver->mostRecRideDate.day,(int)currentDriver->mostRecRideDate.month,currentDriver->mostRecRideDate.year,ratings[0],ratings[1],ratings[2],ratings[3],ratings[4],currentDriver->ridesNumber[1]);
+			fprintf(fp, "driverNumber:%d, mostRecdate: %d/%d/%hd, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n",\
+				currentDriver->driverNumber, GET_DATE_DAY(currentDriver->mostRecRideDate), GET_DATE_MONTH(currentDriver->mostRecRideDate),\
+				GET_DATE_YEAR(currentDriver->mostRecRideDate), ratings[0], ratings[1], ratings[2], ratings[3], ratings[4], currentDriver->ridesNumber[1]);
 			}
 			else {
-				fprintf(fp,"driverNumber:%d,mostRecdate: %d/%d/%hd, avgRating:%f, ridesN:%d, distTotal:%d\n",currentDriver->driverNumber,(int)currentDriver->mostRecRideDate.day,(int)currentDriver->mostRecRideDate.month,currentDriver->mostRecRideDate.year, *(double *)currentDriver->ratingChart,(int) currentDriver->ridesNumber[0],(int) currentDriver->ridesNumber[1]);
+				fprintf(fp,"driverNumber:%d,mostRecdate: %d/%d/%hd, avgRating:%f, ridesN:%d, distTotal:%d\n",currentDriver->driverNumber,\
+					GET_DATE_DAY(currentDriver->mostRecRideDate), GET_DATE_MONTH(currentDriver->mostRecRideDate), GET_DATE_YEAR(currentDriver->mostRecRideDate),\
+					*(double *)currentDriver->ratingChart,(int) currentDriver->ridesNumber[0],(int) currentDriver->ridesNumber[1]);
 			}
 		}
 	}
@@ -854,9 +855,8 @@ inline int getRideID(const RidesStruct * ride) {
 	return ride->ID;
 }
 
-//ver o encapsulamento depois!
-inline void getRideDate(DATE * date, const RidesStruct *ride){
-	dateDup(date,&ride->date);
+inline Date getRideDate(const RidesStruct *ride){
+	return ride->date;
 }
 
 inline int getRideDriver(RidesStruct *ride) {

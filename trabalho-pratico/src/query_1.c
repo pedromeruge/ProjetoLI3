@@ -1,23 +1,25 @@
 #include "query_1.h"
 
-char getAge(DATE * date)
+char getAge(Date date)
 {
     int month1[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    int present_date = REFERENCE_DATE;
+    int present_day = REFERENCE_DAY;
     int present_month = REFERENCE_MONTH;
     int present_year = REFERENCE_YEAR;
 
-    if (date->day > present_date)
+	int day = GET_DATE_DAY(date), month = GET_DATE_MONTH(date), year = GET_DATE_YEAR(date);
+
+    if (day > present_day)
     {
-        present_date = present_date + month1[date->month - 1];
+        present_day = present_day + month1[month - 1];
         present_month = present_month - 1;
     }
-    if (date->month > present_month)
+    if (month > present_month)
     {
         present_year = present_year - 1;
         present_month = present_month + 12;
     }
-    int final_year = present_year - date->year;
+    int final_year = present_year - year;
     return final_year;
 }
 
@@ -56,9 +58,9 @@ char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, Rid
         else
         {
             char *d_name = getDriverName(driverInf);
-            DATE birthdate; getDriverBirthdate(&birthdate,driverInf);
+            Date birthdate = getDriverBirthdate(driverInf);
             char *driverResult = malloc(STR_BUFF_SIZE * sizeof(char));
-            snprintf(driverResult, STR_BUFF_SIZE, "%s;%c;%d;%.3f;%d;%.3f\n", d_name, getDriverGender(driverInf), getAge(&birthdate), 
+            snprintf(driverResult, STR_BUFF_SIZE, "%s;%c;%d;%.3f;%d;%.3f\n", d_name, getDriverGender(driverInf), getAge(birthdate), 
             getDriverAvgRating(driver_r_Inf), getDriverRidesNumber(driver_r_Inf), driver_total_earned(numero, ridesData, driverData));
             free(d_name);
             free((ridesByDriver *)ridesInf);
@@ -76,9 +78,9 @@ char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, Rid
         else
         {
             char *u_name = getUserName(userInf);
-            DATE birthdate; getUserBirthdate(&birthdate,userInf);
+            Date birthdate = getUserBirthdate(userInf);
             char *userResult = malloc(STR_BUFF_SIZE * sizeof(char));
-            snprintf(userResult, STR_BUFF_SIZE, "%s;%c;%d;%.3f;%d;%.3f\n", u_name, getUserGender(userInf), getAge(&birthdate), 
+            snprintf(userResult, STR_BUFF_SIZE, "%s;%c;%d;%.3f;%d;%.3f\n", u_name, getUserGender(userInf), getAge(birthdate), 
             getAvgUserRating(userInf), getUserNumberOfRides(userInf), 
             getUserTotalSpent(userInf));
             free(u_name);

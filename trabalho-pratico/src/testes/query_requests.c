@@ -220,7 +220,7 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 		writeRet = writeResultsTests(commandN, querryResult, command_path);
 		if (writeRet == 1) {
 			printf("Correct answer (querry yielded no result) || OR || Error reading file:exemplos_de_queries/tests_1/command%d_output.txt\n",commandN);
-			return 3;
+			// return 3;
 		}
 		
 		//return 2 : deu NULL e devia dar valores; return 3: deu valores diferentes

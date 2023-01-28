@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <glib.h>
+#include <stdint.h>
 
 typedef enum {
 	F = 70,
@@ -28,13 +29,11 @@ typedef enum {
 	PREMIUM = 2
 } CarClasses;
 
-// no futuro mudar todas as datas para ints?
-// por agora nao vou mudar para nao ser preciso fazer contas nos prints e etc
-typedef struct date {
-	char day;
-	char month;
-	short int year;
-} DATE;
+typedef uint32_t Date;
+
+#define GET_DATE_YEAR(date) (date >> 16)
+#define GET_DATE_MONTH(date) ((date & (uint32_t)0x0000FF00) >> 8)
+#define GET_DATE_DAY(date) (date & (uint32_t)0x000000FF)
 
 typedef int parse_func (FILE *ptr, void *res);
 
@@ -52,9 +51,7 @@ typedef struct {
 
 // char *loadString(FILE *ptr);
 void writeString(FILE *ptr, char *buffer);
-int compDates (const DATE * dateA, const DATE * dateB);
-void dateDup (DATE * dest, const DATE * src);
-DATE * atoDate (char * date);
+int compDates(Date dateA, Date dateB);
 
 int p_getPayMethod(FILE *ptr, void *res);
 int p_getAccountStatus(FILE *ptr, void *res);
@@ -73,6 +70,7 @@ int p_getLicensePlate(FILE *ptr, void *res);
 int p_getID(FILE *ptr, void *res);
 int p_getDriverID(FILE *ptr, void *res);
 int p_getComment(FILE *ptr, void *res);
+Date atoDate(char *str);
 
 int parse_with_format(FILE *ptr, void *data, parse_format *format);
 void dumpWithFormat(void *data, parse_format *format);

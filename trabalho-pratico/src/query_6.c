@@ -4,7 +4,7 @@
 
 char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
 	char * city = inputStr[0];
-	DATE * dateA = atoDate(inputStr[1]), * dateB = atoDate(inputStr[2]);
+	Date dateA = atoDate(inputStr[1]), dateB = atoDate(inputStr[2]);
 	
 	unsigned int distance = 0;
 	CityRides *rides = getRidesByCity(ridesData, city);
@@ -27,9 +27,6 @@ char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 	if (total == 0) return NULL;
 
 	double avgDistance = (double)distance / (double)total;
-
-	free(dateA);
-	free(dateB);
 
 	char *resultTruncated = malloc(STR_BUFF_SIZE * sizeof(char));
 	snprintf(resultTruncated, STR_BUFF_SIZE, "%.3f\n", avgDistance);
