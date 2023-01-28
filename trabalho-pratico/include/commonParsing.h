@@ -52,7 +52,7 @@ typedef struct {
 
 // char *loadString(FILE *ptr);
 void writeString(FILE *ptr, char *buffer);
-int compDates (DATE * dateA, DATE * dateB);
+int compDates (const DATE * dateA, const DATE * dateB);
 void dateDup (DATE * dest, const DATE * src);
 DATE * atoDate (char * date);
 

@@ -1,4 +1,5 @@
 #include "ridesData.h"
+#include <stdint.h>
 
 #define RIDE_STR_BUFF 32
 #define N_OF_FIELDS 10
@@ -386,17 +387,13 @@ driverRatingInfo *newOpaqueDriverInfo(int driverNumber)
 	return (newStruct);
 }
 
-gint compareRidesByDate(gconstpointer a, gconstpointer b)
+inline gint compareRidesByDate(gconstpointer a, gconstpointer b)
 {
-	gint res;
 	DATE dateA = (*(RidesStruct **)a)->date, dateB = (*(RidesStruct **)b)->date;
-	// DD/MM/YYYY
-	if ((res = dateA.year - dateB.year) != 0)
-		return res;
-	else if ((res = dateA.month - dateB.month) != 0)
-		return res;
-	else
-		return ((dateA.day) - (dateB.day));
+
+	int32_t resA = (int32_t)( ((uint32_t)(dateA.year))<<16 | (uint8_t)dateA.month<<8 | (uint8_t)dateA.day);
+	int32_t resB = (int32_t)( ((uint32_t)(dateB.year))<<16 | (uint8_t)dateB.month<<8 | (uint8_t)dateB.day);
+	return resA - resB;
 }
 
 void freeRidesData(RidesData *data)

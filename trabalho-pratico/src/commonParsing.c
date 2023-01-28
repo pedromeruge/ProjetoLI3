@@ -133,7 +133,7 @@ int p_getAccountStatus(FILE *ptr, void *res) {
 	return 1;
 }
 
-int compDates(DATE * dateA, DATE * dateB) {
+inline int compDates(const DATE * dateA, const DATE * dateB) {
 	// isto transforma o short e 2 chars para 1 int
 	int32_t resA = (int32_t)( ((uint32_t)(dateA->year))<<16 | (uint8_t)dateA->month<<8 | (uint8_t)dateA->day);
 	int32_t resB = (int32_t)( ((uint32_t)(dateB->year))<<16 | (uint8_t)dateB->month<<8 | (uint8_t)dateB->day);
