@@ -224,16 +224,18 @@ int fileRequests (FILE * fp, UserData *userData, DriverData *driverData, RidesDa
 		}
 		
 		//return 2 : deu NULL e devia dar valores; return 3: deu valores diferentes
+		// agora mesmo com respostas erradas sao feitos testes
 		if (writeRet == 2 ) {
 			printf("Got NULL, not testing\n");
-		} else if (writeRet == 3) {
-			fprintf(stderr, "-->ERROR: Results differ\nExpected:%s\nGot:'%s'\nError file:..../command%d_output.txt\n\n", "see file :)", querryResult, commandN);
-			fputs("Error\n", test_output);
-			free(querryResult); // free do buffer de output
-
 		} else {
-			printf("Correct answer, continuing tests\n");
+			if (writeRet == 3) {
+				fprintf(stderr, "-->ERROR: Results differ\nExpected:%s\nGot:'%s'\nError file:..../command%d_output.txt\n\n", "see file :)", querryResult, commandN);
+				fputs("Error\n", test_output);
+				free(querryResult); // free do buffer de output
 
+			} else {
+				printf("Correct answer, continuing tests\n");
+			}
 			cpu_time_acc = cpu_time_used;
 			snprintf(outBuffer, 128, "%d.%.9ld", (int)delta.tv_sec, delta.tv_nsec);
 			sscanf(outBuffer, "%Lf", &wall_clock_time_acc);

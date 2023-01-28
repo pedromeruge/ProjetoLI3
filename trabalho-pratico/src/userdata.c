@@ -216,7 +216,7 @@ char * userTopN (UserData * data, int N) {
         username = userInf->username;
         name = userInf->name;
         dist = userInf->distance[0] + userInf->distance[1] + userInf->distance[2];
-        offset += 2 + snprintf(result + offset, STR_BUFF_SIZE, "%s;%s;%d\n", username, name, dist);
+        offset += snprintf(result + offset, STR_BUFF_SIZE, "%s;%s;%d\n", username, name, dist);
     }
     return result;
 }

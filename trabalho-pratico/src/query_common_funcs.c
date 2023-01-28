@@ -20,7 +20,7 @@ char * topN(const ridesByDriver * driverRatingArray, int N, DriverData *driverDa
         driverName = getDriverName(currentDriver);
         driverStatus = getDriverStatus(currentDriver);
         if (driverStatus == 1) {
-			offset += 2 + snprintf(result + offset,STR_BUFF_SIZE,"%0*d;%s;%.3f\n", 12, driverNumber, driverName, getDriverAvgRating(currentArrayStruct));
+			offset += snprintf(result + offset,STR_BUFF_SIZE,"%0*d;%s;%.3f\n", 12, driverNumber, driverName, getDriverAvgRating(currentArrayStruct));
 			j--;
         }
         free(driverName);
