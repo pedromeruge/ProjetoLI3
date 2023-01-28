@@ -18,7 +18,8 @@ CC := gcc
 
 NCURSESFLAGS := -lncurses
 GLIBFLAGS := $(shell pkg-config --cflags --libs gobject-2.0)
-STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) $(NCURSESFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter -DN_OF_THREADS=$(shell ./Scripts/get_threads.sh) $(PROFILING_OPTS)#-lm -pthread -Wconversion
+THREADS := -DN_OF_THREADS=1 #$(shell ./Scripts/get_threads.sh) #mudado para = 1 para ser sequencial
+STD_FLAGS := -I$(INC_DIR) $(GLIBFLAGS) $(NCURSESFLAGS) -Wall -Wextra -pedantic -Wno-unused-parameter $(THREADS) $(PROFILING_OPTS)#-lm -pthread -Wconversion
 CFLAGS := -O2 $(STD_FLAGS)
 DEBUG_FLAGS := -O0 -g3 $(STD_FLAGS) #-ggdb3
 LDFLAGS := $(PROFILING_OPTS)

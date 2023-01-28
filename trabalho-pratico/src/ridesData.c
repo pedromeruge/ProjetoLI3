@@ -102,9 +102,69 @@ void *buildStatisticsInCity(void *data) {
 	return NULL;
 }
 
-RidesData * getRidesData(FILE *ptr, UserData *userdata, DriverData *driverdata) {
-	int i;
+void buildStatisticsInCitySequencial(CityRides *rides, int numberOfDrivers) {
+	GPtrArray *array = rides->cityRidesArray;
+	g_ptr_array_sort(array, compareRidesByDate);
+	rides->driverSumArray = buildRidesByDriverInCity(array, numberOfDrivers);
+}
 
+void multiThreadedCityRides(GHashTable *cityTable, DriverData *driverdata, int numberOfDrivers) {
+	guint num_cities = g_hash_table_size(cityTable);
+
+
+	GHashTableIter iter;
+	gpointer value;
+	g_hash_table_iter_init (&iter, cityTable);
+	gpointer temp;
+	int i;
+	CityRides *cityRidesArray[num_cities]; // é um único array
+
+	if (N_OF_THREADS == 1) { // modo sequencial, nao da spawn de nenhuma thread
+		while (g_hash_table_iter_next (&iter, &temp, &value)) {
+			buildStatisticsInCitySequencial((CityRides *)value, numberOfDrivers);
+		}
+
+	} else {
+		int num_threads = num_cities <= N_OF_THREADS ? num_cities : N_OF_THREADS;
+		// cities_per_thread = (num_cities / num_threads) + 1;
+		
+		ThreadStruct thread_info[num_threads], *currentThread;
+
+		for (i = 0; i < num_threads; i++) {
+			thread_info[i].len = 0;
+			thread_info[i].n_of_drivers = numberOfDrivers;
+		}
+
+		// preencher array de CityRides * que as threads vão usar
+		// i < ... é preciso???
+		for (i = 0; g_hash_table_iter_next (&iter, &temp, &value) && i < (int)num_cities; i++) {
+			cityRidesArray[i] = (CityRides *)value;
+			currentThread = &thread_info[i % num_cities]; // quick mafs estao certas???
+			// printf("city %d (%s) assigned to thread %d\n", i, (char *)temp, i % num_cities);
+			if (currentThread->len == 0) {
+				currentThread->cityRidesPtrArray = &cityRidesArray[i];
+				// printf("This was the first city for this thread\n");
+			}
+			(currentThread->len)++;
+		}
+
+		for (i = 0; i < num_threads - 1; i++) {
+			currentThread = &thread_info[i];
+			currentThread->thread = g_thread_new(NULL, buildStatisticsInCity, currentThread);
+		}
+		// main thread é a [num_threads - 1]
+		currentThread = &thread_info[i];
+		buildStatisticsInCity(currentThread);
+
+		// ultima thread é a main, por isso nao precisa de join
+		for (i = 0; i < (int)num_cities - 1; i++) {
+			g_thread_join(thread_info[i].thread);
+		}
+	}
+
+}
+
+RidesData * getRidesData(FILE *ptr, UserData *userdata, DriverData *driverdata) {
 	//inicializar as estruturas de dados relacionadas com as rides
 	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
 	SecondaryRidesArray * secondaryArray;
@@ -144,55 +204,12 @@ RidesData * getRidesData(FILE *ptr, UserData *userdata, DriverData *driverdata) 
 	num += secondaryArray->len;
 	printf("Total number of rides: %d\nNumber of invalid rides: %d\n", num, invalid);
 
+
 	//## MT para cálulco de estatística de dados para cada cidade
 	// assumimos que o nº de cidades esta bem distribuido (na fase 1 pelo menos estava)
-	
-	guint num_cities = g_hash_table_size(cityTable);
-
-	int num_threads = num_cities <= N_OF_THREADS ? num_cities : N_OF_THREADS;
-	// cities_per_thread = (num_cities / num_threads) + 1;
-
-	CityRides *cityRidesArray[num_cities]; // é um único array
-	ThreadStruct thread_info[num_threads], *currentThread;
-
-	// printf("%d citites, %d available cores, spawning %d extra threads\n",(int)num_cities, N_OF_THREADS, num_threads - 1);
-
-	GHashTableIter iter;
-	gpointer value;
-	g_hash_table_iter_init (&iter, cityTable);
-	gpointer temp;
 	int numberOfDrivers = getNumberOfDrivers(driverdata);
 
-	for (i = 0; i < num_threads; i++) {
-		thread_info[i].len = 0;
-		thread_info[i].n_of_drivers = numberOfDrivers;
-	}
-
-	// preencher array de CityRides * que as threads vão usar
-	// i < ... é preciso???
-	for (i = 0; g_hash_table_iter_next (&iter, &temp, &value) && i < (int)num_cities; i++) {
-		cityRidesArray[i] = (CityRides *)value;
-		currentThread = &thread_info[i % num_cities]; // quick mafs estao certas???
-		// printf("city %d (%s) assigned to thread %d\n", i, (char *)temp, i % num_cities);
-		if (currentThread->len == 0) {
-			currentThread->cityRidesPtrArray = &cityRidesArray[i];
-			// printf("This was the first city for this thread\n");
-		}
-		(currentThread->len)++;
-	}
-
-	for (i = 0; i < num_threads - 1; i++) {
-		currentThread = &thread_info[i];
-		currentThread->thread = g_thread_new(NULL, buildStatisticsInCity, currentThread);
-	}
-	// main thread é a [num_threads - 1]
-	currentThread = &thread_info[i];
-	buildStatisticsInCity(currentThread);
-
-	// ultima thread é a main, por isso nao precisa de join
-	for (i = 0; i < (int)num_cities - 1; i++) {
-		g_thread_join(thread_info[i].thread);
-	}
+	multiThreadedCityRides(cityTable, driverdata, numberOfDrivers);
 	
 	GPtrArray * driverInfoArray = buildRidesByDriverGlobal(cityTable,numberOfDrivers);
 
