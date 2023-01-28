@@ -203,19 +203,20 @@ char * userTopN (UserData * data, int N) {
     int i, dist;
     char * name, * username;
     char * result = malloc(N * STR_BUFF_SIZE * sizeof(char));
-    if (result == NULL) exit (1);
+    // if (result == NULL) exit (1);
     result[0] = '\0';
-    char temp[STR_BUFF_SIZE];
     GPtrArray * array = data->userDistanceArray;
     int arraylength = array->len;
     UserStruct * userInf;
+
+	int offset = 0;
+
     for(i = arraylength - 1; i > (const int)(arraylength - N - 1); i--) {
         userInf = (UserStruct *)g_ptr_array_index(array, i);
         username = userInf->username;
         name = userInf->name;
         dist = userInf->distance[0] + userInf->distance[1] + userInf->distance[2];
-        snprintf(temp, STR_BUFF_SIZE, "%s;%s;%d\n", username, name, dist);
-        strncat(result,temp,STR_BUFF_SIZE);
+        offset += 2 + snprintf(result + offset, STR_BUFF_SIZE, "%s;%s;%d\n", username, name, dist);
     }
     return result;
 }

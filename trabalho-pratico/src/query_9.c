@@ -22,21 +22,22 @@ typedef struct {
 char * printArrayToStr(const GPtrArray * ridesArray) {
     int i, arrayLen = ridesArray->len;
     char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * arrayLen); // malloc muito grande, talvez particionar em array de strings com BUFFER_SIZE (1000 talvez?)
-    if (resultStr == NULL) return NULL; // if malloc fails
+    // if (resultStr == NULL) return NULL; // if malloc fails
     resultStr[0] = '\0';
-    char temp[STR_BUFF_SIZE], * rideCity;
+    char * rideCity;
     DATE rideDate;
     RidesStruct * currentRide = NULL;
 
-    for(i=0;i<arrayLen;i++) {
+	int offset = 0;
+
+    for(i = 0 ; i < arrayLen; i++) {
         currentRide = (RidesStruct *) g_ptr_array_index(ridesArray,i);
         getRideDate(&rideDate,currentRide);
         rideCity = getRideCity(currentRide);
-    snprintf(temp,STR_BUFF_SIZE,"%0*d;%0*d/%0*d/%hd;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, rideDate.day, 2, rideDate.month, rideDate.year, getRideDistance(currentRide), rideCity, getRideTip(currentRide));
-    strncat(resultStr,temp,STR_BUFF_SIZE);
+		offset += 2 + snprintf(resultStr + offset,STR_BUFF_SIZE,"%0*d;%0*d/%0*d/%hd;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, rideDate.day, 2, rideDate.month, rideDate.year, getRideDistance(currentRide), rideCity, getRideTip(currentRide));
 
-    //free(rideDate);
-    free(rideCity);
+		//free(rideDate);
+		free(rideCity);
     }
     
     return resultStr;
