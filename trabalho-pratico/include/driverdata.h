@@ -14,21 +14,21 @@ DriverData * getDriverData(FILE *ptr); // retorna a estrutura de dados de driver
 void freeDriverData(DriverData * data); // limpa a estrutura de drivers
 
 // receber a informação de um driver
-DriverStruct * getDriverPtrByID(DriverData *, guint);
+DriverStruct * getDriverPtrByID(const DriverData *, guint);
 
 //número de drivers no ficheiro de input
-int getNumberOfDrivers (DriverData *);
+int getNumberOfDrivers(const DriverData *);
 
 // funções para aceder a informações individuais de cada driver
-int testDriverBounds(DriverData *data, guint ID);
-char * getDriverName(DriverStruct *); // retorna o nome de um driver
-Date getDriverBirthdate(DriverStruct *); // retorna a data de nascimento de um driver
-unsigned char getDriverGender(DriverStruct *); // retorna o género de um driver
-unsigned char getDriverCar(DriverStruct *); // retorna o tipo de carro de um driver
-char * getDriverPlate(DriverStruct *); // retorna a matrícula de um driver
-char * getDriverCity(DriverStruct *); // retorna a cidade de um driver
-Date getDriverAccCreation(DriverStruct *); // retorna a data de criação da conta de um driver
-unsigned char getDriverStatus(DriverStruct *); // retorna o estado de um driver
-int driverIsValid(DriverStruct *driver); // 1 se for valido, 0 se nao for
+int testDriverBounds(const DriverData *data, guint ID);
+char * getDriverName(const DriverStruct *); // retorna o nome de um driver
+Date getDriverBirthdate(const DriverStruct *); // retorna a data de nascimento de um driver
+unsigned char getDriverGender(const DriverStruct *); // retorna o género de um driver
+unsigned char getDriverCar(const DriverStruct *); // retorna o tipo de carro de um driver
+char * getDriverPlate(const DriverStruct *); // retorna a matrícula de um driver
+char * getDriverCity(const DriverStruct *); // retorna a cidade de um driver
+Date getDriverAccCreation(const DriverStruct *); // retorna a data de criação da conta de um driver
+unsigned char getDriverStatus(const DriverStruct *); // retorna o estado de um driver
+int driverIsValid(const DriverStruct *driver); // 1 se for valido, 0 se nao for
 
 #endif

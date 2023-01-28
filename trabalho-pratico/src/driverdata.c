@@ -38,7 +38,7 @@ struct parse_func_struct {
 
 void freeDriversPtrArray(void * data);
 
-SecondaryDriverArray *getDrivers(FILE *ptr, parse_format *format, int *invalid)
+SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *invalid)
 {
 	int i, res;
 
@@ -133,7 +133,7 @@ void freeDriversPtrArray(void * data) {
 }
 
 // devolve a struct(dados) associada ao driver número i
-DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
+DriverStruct *getDriverPtrByID(const DriverData * data, guint ID)
 {
 	// no bounds checking
 	GPtrArray *array = data->driverArray;
@@ -147,7 +147,7 @@ DriverStruct *getDriverPtrByID(DriverData * data, guint ID)
 }
 
 // devolve o número de drivers no ficheiro de input; função necessária para criar arrays sobre drivers, no ridesData.c
-int getNumberOfDrivers (DriverData * driverData) { 
+int getNumberOfDrivers (const DriverData * driverData) { 
 	GPtrArray * driverArray = driverData->driverArray;
 	int num = (driverArray->len - 1) * SIZE;
 	SecondaryDriverArray * secondaryArray = g_ptr_array_index(driverArray, driverArray->len - 1);
@@ -156,54 +156,54 @@ int getNumberOfDrivers (DriverData * driverData) {
 }
 
 // 1 se ultrapassar bounds
-inline int testDriverBounds(DriverData *data, guint ID) {
+inline int testDriverBounds(const DriverData *data, guint ID) {
 	GPtrArray *array = data->driverArray;
 	ID -= 1;
 	guint i = ID / SIZE;
 	return (i > array->len) ? 1 : 0; 
 }
 
-inline char *getDriverName(DriverStruct *driver)
+inline char *getDriverName(const DriverStruct *driver)
 {
 	return strndup(driver->name, DRIVER_STR_BUFF);
 }
 
 //ver modularidade depois!
-inline Date getDriverBirthdate(DriverStruct *driver)
+inline Date getDriverBirthdate(const DriverStruct *driver)
 {
 	return driver->birthdate;
 }
 
-inline unsigned char getDriverGender(DriverStruct *driver)
+inline unsigned char getDriverGender(const DriverStruct *driver)
 {
 	return (driver->gender);
 }
 
-inline unsigned char getDriverCar(DriverStruct *driver)
+inline unsigned char getDriverCar(const DriverStruct *driver)
 {
 	return (driver->carClass);
 }
-inline char *getDriverPlate(DriverStruct *driver)
+inline char *getDriverPlate(const DriverStruct *driver)
 {
 	return strndup(driver->licensePlate, DRIVER_STR_BUFF);
 }
 
-inline char *getDriverCity(DriverStruct *driver)
+inline char *getDriverCity(const DriverStruct *driver)
 {
 	return strndup(driver->city, DRIVER_STR_BUFF);
 }
 
 //ver modularidade depois!
-inline Date getDriverAccCreation(DriverStruct *driver)
+inline Date getDriverAccCreation(const DriverStruct *driver)
 {
 	return driver->accountCreation;
 }
 
-inline unsigned char getDriverStatus(DriverStruct *driver)
+inline unsigned char getDriverStatus(const DriverStruct *driver)
 {
 	return (driver->status);
 }
 
-inline int driverIsValid(DriverStruct *driver) {
+inline int driverIsValid(const DriverStruct *driver) {
 	return (driver != NULL && DRIVER_IS_VALID(driver));
 }

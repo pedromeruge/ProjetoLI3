@@ -21,21 +21,21 @@ typedef struct driverRatingInfo driverRatingInfo;
 typedef struct RidesData RidesData;
 
 // funções de criar e destruir estrutura de dados de rides
-RidesData * getRidesData(FILE *ptr, UserData *userdata, DriverData *driverdata); // retorna a estrutura de dados de rides
+RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata); // retorna a estrutura de dados de rides
 void freeRidesData(RidesData *); // limpa a estrutura de dados das rides
 
 // funções de rides associadas a cidades
-CityRides *getRidesByCity(RidesData *, char *);       // devolve todas as rides associadas a uma cidade
-guint getNumberOfCityRides(CityRides *);              // devolve o número de rides para uma cidade
-RidesStruct *getCityRidesByIndex(CityRides *, guint); // devolve uma ride de uma cidade
-int *getRidesDistance(CityRides *rides); // devolve distance[] de uma cidade
-int *getRidesTotal(CityRides *rides); // devolve total[] de uma cidade
+const CityRides *getRidesByCity(const RidesData *, const char *);       // devolve todas as rides associadas a uma cidade
+guint getNumberOfCityRides(const CityRides *);              // devolve o número de rides para uma cidade
+const RidesStruct *getCityRidesByIndex(const CityRides *, guint); // devolve uma ride de uma cidade
+const int *getRidesDistance(const CityRides *rides); // devolve distance[] de uma cidade
+const int *getRidesTotal(const CityRides *rides); // devolve total[] de uma cidade
 
 /* aplica iterator_func a todas as CityRides (ou seja, a todas as cidades)
    iterator_func tem 1 pointer para dados (CityRides de cada cidade) e outro para onde escrever resultados ou passar dados à função
    data é passado como segundo argumento da funçao */
-void iterateOverCities(RidesData *, void *data, void (*iterator_func)(CityRides *, void *));
-void searchCityRidesByDate(CityRides *rides, Date dateA, Date dateB, int *res_start, int *res_end); // binary search de cityrides por data
+void iterateOverCities(const RidesData *, void *data, void (*iterator_func)(const CityRides *, void *));
+void searchCityRidesByDate(const CityRides *rides, Date dateA, Date dateB, int *res_start, int *res_end); // binary search de cityrides por data
 
 //funções de debug
 void dumpCityRides (char *, GHashTable *, CityRides *, GPtrArray *);
@@ -70,22 +70,22 @@ gint sort_byRatings_7 (gconstpointer a, gconstpointer b); // função que compar
 //static char * topN(const ridesByDriver * driverRatingArray, int N, DriverData *driverData);
 
 // receber a informação de uma ride
-RidesStruct *getRidePtrByID(RidesData *, guint);
+RidesStruct *getRidePtrByID(const RidesData *, guint);
 
 // funções de rides associadas a ID no ficheiro
 //  funções para aceder a informações individuais de cada ride
 int getRideID(const RidesStruct *);
 Date getRideDate(const RidesStruct *);         // retorna a data de uma ride
-int getRideDriver(RidesStruct *);   // retorna o ID do driver de uma ride
-char *getRideUser(RidesStruct *);         // retorna o nome do user de uma ride
+int getRideDriver(const RidesStruct *);   // retorna o ID do driver de uma ride
+char *getRideUser(const RidesStruct *);         // retorna o nome do user de uma ride
 char *getRideCity(const RidesStruct *);         // retorna a cidade de uma ride
 short int getRideDistance(const RidesStruct *); // retorna a distância de uma ride
-short int getRideScore_u(RidesStruct *);  // retorna a avaliação do user de uma ride
-short int getRideScore_d(RidesStruct *);  // retorna a avaliação do driver de uma ride
+short int getRideScore_u(const RidesStruct *);  // retorna a avaliação do user de uma ride
+short int getRideScore_d(const RidesStruct *);  // retorna a avaliação do driver de uma ride
 float getRideTip(const RidesStruct *);          // retorna a tip de uma ride
 //char *getRideComment(RidesStruct *);      // retorna o comentário de uma ride
-int rideIsValid(RidesStruct *ride); // 1 se for valido, 0 se nao for
-int getNumberOfRides(RidesData * data);
+int rideIsValid(const RidesStruct *ride); // 1 se for valido, 0 se nao for
+int getNumberOfRides(const RidesData * data);
 
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
 

@@ -105,40 +105,40 @@ UserData *getUserData(FILE *ptr)
 	return data;
 }
 
-inline UserStruct *getUserPtrByUsername(UserData *data, char *name)
+inline UserStruct *getUserPtrByUsername(const UserData *data, const char *name)
 {
 	GHashTable *table = data->table;
 	return (UserStruct *)(g_hash_table_lookup(table, name));
 }
 
-inline char *getUserName(UserStruct *data)
+inline char *getUserName(const UserStruct *data)
 {
 	dupe_str(data->name);
 	// return strndup(data->name, USER_STR_BUFF);
 }
 
-inline char *getUserUsername(UserStruct *data)
+inline char *getUserUsername(const UserStruct *data)
 {
 	dupe_str(data->username);
 	// return strndup(data->username, USER_STR_BUFF);
 }
 
-inline unsigned char getUserGender(UserStruct *data)
+inline unsigned char getUserGender(const UserStruct *data)
 {
 	return (data->gender);
 }
 
-inline Date getUserBirthdate(UserStruct *data)
+inline Date getUserBirthdate(const UserStruct *data)
 {
 	return data->birthdate;
 }
 
-inline Date getUserAccCreation(UserStruct *data)
+inline Date getUserAccCreation(const UserStruct *data)
 {
 	return data->accountCreation;
 }
 
-unsigned char getUserStatus(UserStruct *data)
+unsigned char getUserStatus(const UserStruct *data)
 {
 	return (data->status);
 }
@@ -150,11 +150,11 @@ void freeUserData(UserData *userData)
     free(userData);
 }
 
-int userIsValid(UserStruct *user) {
+int userIsValid(const UserStruct *user) {
 	return (user != NULL && USER_IS_VALID(user));
 }
 
-void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score, float tip, Date date) {
+void add_user_info (const UserData* data, const DriverData* driverdata, const char* name, int driver, int distance, int score, float tip, Date date) {
     int carClass = getDriverCar(getDriverPtrByID(driverdata, driver));
 	UserStruct* user = g_hash_table_lookup(data->table, name);
 	(user->tips) += tip;
@@ -166,23 +166,23 @@ void add_user_info (UserData* data, DriverData* driverdata, char* name, int driv
 	}
 }
 
-inline int getUserNumberOfRides (UserStruct* user) {
+inline int getUserNumberOfRides (const UserStruct* user) {
 	return (user->total[0] + user->total[1] + user->total[2]);
 }
 
-inline double getAvgUserRating (UserStruct* user) {
+inline double getAvgUserRating (const UserStruct* user) {
 	return ((double)user->score / (double)(user->total[0] + user->total[1] + user->total[2]));
 }
 
-inline double getUserTotalSpent (UserStruct* user) {
+inline double getUserTotalSpent (const UserStruct* user) {
 	return ((double)(user->total[0] * 3.25 + user->total[1] * 4 + user->total[2] * 5.2 + user->distance[0] * 0.62 + user->distance[1] * 0.79 + user->distance[2] * 0.94 + user->tips));
 }
 
-inline int getUserTotalDistance (UserStruct* user) {
+inline int getUserTotalDistance (const UserStruct* user) {
 	return (user->distance[0] + user->distance[1] + user->distance[2]);
 }
 
-void sort_userarray (UserData * data) {
+void sort_userarray (const UserData * data) {
 	g_ptr_array_sort(data->userDistanceArray, userDistComp); 
 }
 
@@ -198,7 +198,7 @@ gint userDistComp (gconstpointer a, gconstpointer b) {
     } else return result;
 }
 
-char * userTopN (UserData * data, int N) {
+char * userTopN (const UserData * data, int N) {
     int i, dist;
     char * name, * username;
     char * result = malloc(N * STR_BUFF_SIZE * sizeof(char));

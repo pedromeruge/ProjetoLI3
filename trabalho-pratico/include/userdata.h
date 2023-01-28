@@ -15,27 +15,27 @@ UserData * getUserData(FILE *ptr); // retorna a estrutura de dados de rides
 void freeUserData(UserData * userdata); // limpa a estrutura de dados das rides
 
 //receber a informação de um user
-UserStruct * getUserPtrByUsername(UserData *, char *);
+UserStruct * getUserPtrByUsername(const UserData *, const char *);
 
-void add_user_info (UserData* data, DriverData* driverdata, char* name, int driver, int distance, int score, float tip, Date date);
+void add_user_info (const UserData* data, const DriverData* driverdata, const char* name, int driver, int distance, int score, float tip,  Date date);
 
-void sort_userarray (UserData * data);
+void sort_userarray (const UserData * data);
 
 gint userDistComp (gconstpointer a, gconstpointer b);
 
-char * userTopN (UserData * data, int N);
+char * userTopN (const UserData * data, int N);
 
 //funções para aceder a informações de cada user
             //getUserName -> tem de já ser sabido, para poder aceder a outras informações do user
-char * getUserName (UserStruct * data); // retorna o nome de um user (diferente do nome de input em GetUserPtrByName)
-unsigned char getUserGender(UserStruct *); // retorna o género de um user
-Date getUserBirthdate(UserStruct* data); // retorna a data de nascimento de um user
-Date getUserAccCreation (UserStruct * data); // retorna a data de criação de conta de um user
-unsigned char getUserPayMethod(UserStruct * data); // retorna o método de pagamento de um user
-unsigned char getUserStatus (UserStruct * data); // retorna o estado de um user
-int userIsValid(UserStruct *user); // 1 se for valido, 0 se nao for
-double getUserTotalSpent (UserStruct* user);
-double getAvgUserRating (UserStruct* user);
-int getUserNumberOfRides (UserStruct* user);
+char * getUserName (const UserStruct * data); // retorna o nome de um user (diferente do nome de input em GetUserPtrByName)
+unsigned char getUserGender(const UserStruct *); // retorna o género de um user
+Date getUserBirthdate(const UserStruct* data); // retorna a data de nascimento de um user
+Date getUserAccCreation (const UserStruct * data); // retorna a data de criação de conta de um user
+unsigned char getUserPayMethod(const UserStruct * data); // retorna o método de pagamento de um user
+unsigned char getUserStatus (const UserStruct * data); // retorna o estado de um user
+int userIsValid(const UserStruct *user); // 1 se for valido, 0 se nao for
+double getUserTotalSpent (const UserStruct* user);
+double getAvgUserRating (const UserStruct* user);
+int getUserNumberOfRides (const UserStruct* user);
 
 #endif

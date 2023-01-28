@@ -7,10 +7,10 @@ char *query_6(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 	Date dateA = atoDate(inputStr[1]), dateB = atoDate(inputStr[2]);
 	
 	unsigned int distance = 0;
-	CityRides *rides = getRidesByCity(ridesData, city);
+	const CityRides *rides = getRidesByCity(ridesData, city);
 	if (rides == NULL) return NULL;
 
-	RidesStruct *currentRide;
+	const RidesStruct *currentRide;
 
 	int start, end, total = 0, i;
 	searchCityRidesByDate(rides, dateA, dateB, &start, &end);

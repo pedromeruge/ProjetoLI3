@@ -70,14 +70,14 @@ gint sort_9 (gconstpointer a, gconstpointer b) {
 
 // função que acrescenta a um array novo todas as rides que entrem no intervalo de tempo fornecido, em que o user tenha dado gorjeta
 //função usada em iterateOverCities; 
-void build_func (CityRides *rides, void *otherData) {
+void build_func (const CityRides *rides, void *otherData) {
     DataStruct * data = (DataStruct *)otherData;
     Date dateStart = data->dateStart,
          dateEnd = data->dateEnd;
     GPtrArray * ridesInTimeFrame = data->ridesInTimeFrame;
 
     int startDatePos, endDatePos, i;
-    RidesStruct * currentRide;
+    const RidesStruct * currentRide;
 
     searchCityRidesByDate(rides, dateStart, dateEnd, &startDatePos, &endDatePos);
 
@@ -85,7 +85,7 @@ void build_func (CityRides *rides, void *otherData) {
     for (i = startDatePos; i <= endDatePos; i++) { // mal!!! // tem de se incluir int nas ridesStruct
         currentRide = getCityRidesByIndex(rides, i);
         if (getRideTip(currentRide) > 0) { // se o user tiver dado tip
-            g_ptr_array_add(ridesInTimeFrame, currentRide); // da para usar g_bytes_new_static?
+            g_ptr_array_add(ridesInTimeFrame, (gpointer)currentRide); // da para usar g_bytes_new_static?
         }
     }
 }

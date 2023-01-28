@@ -70,7 +70,7 @@ struct RidesData {
 void freeCityRides(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid, UserData *userdata, DriverData *driverdata);
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata);
 
 GPtrArray * buildRidesbyDriverSorted (GPtrArray *);
 GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int);
@@ -109,7 +109,7 @@ void buildStatisticsInCitySequencial(CityRides *rides, int numberOfDrivers) {
 	rides->driverSumArray = buildRidesByDriverInCity(array, numberOfDrivers);
 }
 
-void multiThreadedCityRides(GHashTable *cityTable, DriverData *driverdata, int numberOfDrivers) {
+void multiThreadedCityRides(GHashTable *cityTable, const DriverData *driverdata, int numberOfDrivers) {
 	guint num_cities = g_hash_table_size(cityTable);
 
 
@@ -165,7 +165,7 @@ void multiThreadedCityRides(GHashTable *cityTable, DriverData *driverdata, int n
 
 }
 
-RidesData * getRidesData(FILE *ptr, UserData *userdata, DriverData *driverdata) {
+RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata) {
 	//inicializar as estruturas de dados relacionadas com as rides
 	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
 	SecondaryRidesArray * secondaryArray;
@@ -225,7 +225,7 @@ RidesData * getRidesData(FILE *ptr, UserData *userdata, DriverData *driverdata) 
 	return data;
 }
 
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, parse_format *format, int *invalid, UserData *userdata, DriverData *driverdata) {
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata) {
 	
 	int i, res;
 	char *city;
@@ -637,22 +637,22 @@ inline int getDriverNumber(const driverRatingInfo *currentArrayStruct)
 }
 
 // funções relativas a rides ordenadas por cidade
-inline CityRides *getRidesByCity(RidesData *data, char *city) // responsabilidade da caller function dar free
+inline const CityRides *getRidesByCity(const RidesData *data, const char *city) // responsabilidade da caller function dar free
 {
 	return g_hash_table_lookup(data->cityTable, city);
 }
 
-inline guint getNumberOfCityRides(CityRides *rides)
+inline guint getNumberOfCityRides(const CityRides *rides)
 {
 	return rides->cityRidesArray->len;
 }
 
-inline RidesStruct *getCityRidesByIndex(CityRides *rides, guint ID)
+inline const RidesStruct *getCityRidesByIndex(const CityRides *rides, guint ID)
 {
 	return (RidesStruct *)g_ptr_array_index(rides->cityRidesArray, (int)ID);
 }
 
-void iterateOverCities(RidesData *rides, void *data, void (*iterator_func)(CityRides *, void *))
+void iterateOverCities(const RidesData *rides, void *data, void (*iterator_func)(const CityRides *, void *))
 {
 	GHashTableIter iter;
 	g_hash_table_iter_init(&iter, rides->cityTable);
@@ -727,7 +727,7 @@ int custom_bsearch(GPtrArray *array, Date date, int mode) {
 	return index;
 }
 
-void searchCityRidesByDate(CityRides * cityRides, Date dateA, Date dateB, int *res_start, int *res_end) {
+void searchCityRidesByDate(const CityRides * cityRides, Date dateA, Date dateB, int *res_start, int *res_end) {
 	GPtrArray *array = cityRides->cityRidesArray;
 	int len = array->len;
 	Date first, last;
@@ -840,7 +840,7 @@ void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToF
 }
 
 // devolve a struct(dados) associada à ride número i
-RidesStruct * getRidePtrByID(RidesData *data, guint ID)
+RidesStruct * getRidePtrByID(const RidesData *data, guint ID)
 {
 	ID -= 1; // para a primeira ride passar a ser 0
 	guint i = ID / SIZE;
@@ -859,12 +859,12 @@ inline Date getRideDate(const RidesStruct *ride){
 	return ride->date;
 }
 
-inline int getRideDriver(RidesStruct *ride) {
+inline int getRideDriver(const RidesStruct *ride) {
 	return (ride->driver);
 }
 
 //ver o encapsulamente depois!
-inline char * getRideUser(RidesStruct *ride) {
+inline char * getRideUser(const RidesStruct *ride) {
 	return strndup(ride->user, RIDE_STR_BUFF);
 }
 
@@ -876,11 +876,11 @@ inline short int getRideDistance(const RidesStruct *ride) {
 	return (ride->distance);
 }
 
-inline short int getRideScore_u(RidesStruct *ride) {
+inline short int getRideScore_u(const RidesStruct *ride) {
 	return (ride->score_u);
 }
 
-inline short int getRideScore_d(RidesStruct *ride) {
+inline short int getRideScore_d(const RidesStruct *ride) {
 	return (ride->score_d);
 }
 
@@ -893,11 +893,11 @@ inline float getRideTip(const RidesStruct *ride) {
 // 	return strndup(ride->comment, RIDE_STR_BUFF);
 // }
 
-inline int rideIsValid(RidesStruct *ride) {
+inline int rideIsValid(const RidesStruct *ride) {
 	return (ride != NULL && RIDE_IS_VALID(ride));
 }
 
-int getNumberOfRides(RidesData * data) {
+int getNumberOfRides(const RidesData * data) {
 	GPtrArray * array = data->ridesArray;
 	int num = (array->len - 1) * SIZE;
 	SecondaryRidesArray * secondaryArray = g_ptr_array_index(array, array->len - 1);
@@ -905,10 +905,10 @@ int getNumberOfRides(RidesData * data) {
 	return num;
 }
 
-inline int *getRidesDistance(CityRides *rides) {
+inline const int *getRidesDistance(const CityRides *rides) {
 	return rides->distance;
 }
 
-inline int *getRidesTotal(CityRides *rides) {
+inline const int *getRidesTotal(const CityRides *rides) {
 	return rides->total;
 }

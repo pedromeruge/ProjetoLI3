@@ -70,9 +70,9 @@ int p_getLicensePlate(FILE *ptr, void *res);
 int p_getID(FILE *ptr, void *res);
 int p_getDriverID(FILE *ptr, void *res);
 int p_getComment(FILE *ptr, void *res);
-Date atoDate(char *str);
+Date atoDate(const char *str);
 
-int parse_with_format(FILE *ptr, void *data, parse_format *format);
+int parse_with_format(FILE *ptr, void *data, const parse_format *format);
 void dumpWithFormat(void *data, parse_format *format);
 
 #endif

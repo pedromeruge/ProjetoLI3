@@ -299,7 +299,7 @@ int p_getComment(FILE *ptr, void *res) {
 }
 
 // esta função automaticamente dá skip da linha que acabou de levar parse, em caso de erro ou nao
-int parse_with_format(FILE *ptr, void *data, parse_format *format) {
+int parse_with_format(FILE *ptr, void *data, const parse_format *format) {
 	int i = 0, res;
 	parse_func_struct *array = format->format_array;
 	parse_func_struct current;
@@ -375,7 +375,7 @@ void dumpWithFormat(void *data, parse_format *format) {
 	}
 }
 
-Date atoDate(char *str) {
+Date atoDate(const char *str) {
 	// DD/MM/YYYY
 	int day = atoi(str), month = atoi(str + 3), year = atoi(str + 6);
 	return (uint32_t)(((uint32_t) year) << 16 | ((uint8_t) month) << 8 | (uint8_t) day);
