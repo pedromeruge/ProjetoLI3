@@ -59,6 +59,9 @@ char *safer_loadString(FILE *ptr, int *eof) {
 }
 
 // este nao faz check de newline!!!
+// -1: EOF
+// 0: empty
+// 1: correu bem
 int safer_writeString(FILE *ptr, char *buffer)
 {
 	int i, chr;
@@ -272,18 +275,12 @@ int p_getLicensePlate(FILE *ptr, void *res) {
 }
 
 int p_getID(FILE *ptr, void *res) {
-	int eof = 0;
-	char *str = safer_loadString(ptr, &eof);
-	if (eof == 1) {
-		free(str);
-		return -1;
+	char buff[BUFF_SIZE];
+	int ret = safer_writeString(ptr, buff);
+	if (ret == 1) {
+		*(int *)res = atoi(buff);
 	}
-	if (str == NULL) {
-		return 0;
-	}
-	*(int *)res = atoi(str);
-	free(str);
-	return 1;
+	return ret;
 }
 
 int p_getDriverID(FILE *ptr, void *res) {
