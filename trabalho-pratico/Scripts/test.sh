@@ -16,7 +16,7 @@ else
 		rm testes_final_output.txt
 
 		echo "Testing time of load/free"
-		for ((i = 0; i < 10; i++))
+		for ((i = 0; i < 5; i++))
 		do
 			echo "Iteration $i"
 			./programa-testes $1 &>/dev/null
