@@ -2,25 +2,14 @@
 
 char getAge(Date date)
 {
-    int month1[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    int present_day = REFERENCE_DAY;
-    int present_month = REFERENCE_MONTH;
-    int present_year = REFERENCE_YEAR;
-
 	int day = GET_DATE_DAY(date), month = GET_DATE_MONTH(date), year = GET_DATE_YEAR(date);
 
-    if (day > present_day)
-    {
-        present_day = present_day + month1[month - 1];
-        present_month = present_month - 1;
-    }
-    if (month > present_month)
-    {
-        present_year = present_year - 1;
-        present_month = present_month + 12;
-    }
-    int final_year = present_year - year;
-    return final_year;
+	int age_year = REFERENCE_YEAR - year;
+
+	if (REFERENCE_MONTH < month || (REFERENCE_MONTH == month && REFERENCE_DAY < day)) {
+		age_year--;
+	}
+	return age_year;
 }
 
 double driver_total_earned(int idstr, RidesData *ridesdata, DriverData *driverData)
