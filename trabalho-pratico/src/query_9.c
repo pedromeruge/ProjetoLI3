@@ -34,7 +34,7 @@ char * printArrayToStr(const GPtrArray * ridesArray) {
         currentRide = (RidesStruct *) g_ptr_array_index(ridesArray,i);
         rideDate = getRideDate(currentRide);
         rideCity = getRideCity(currentRide);
-		offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%0*d/%0*d/%hd;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, GET_DATE_DAY(rideDate), 2, GET_DATE_MONTH(rideDate), GET_DATE_YEAR(rideDate), getRideDistance(currentRide), rideCity, getRideTip(currentRide));
+		offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%0*d/%0*d/%u;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, GET_DATE_DAY(rideDate), 2, GET_DATE_MONTH(rideDate), GET_DATE_YEAR(rideDate), getRideDistance(currentRide), rideCity, getRideTip(currentRide));
 
 		//free(rideDate);
 		free(rideCity);

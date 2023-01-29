@@ -4,7 +4,7 @@
 #define RIDE_STR_BUFF 32
 #define N_OF_FIELDS 10
 #define SIZE 100000
-
+#define RIDES_PER_CITY 200000
 #define RIDE_IS_VALID(ride) (ride->user != NULL)
 
 struct RidesStruct
@@ -70,7 +70,7 @@ struct RidesData {
 void freeCityRides(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata);
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, int numberOfDrivers);
 
 GPtrArray * buildRidesbyDriverSorted (GPtrArray *);
 GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int);
@@ -87,6 +87,7 @@ driverRatingInfo * newOpaqueDriverInfo (int);
 void freeRidesPtrArray (void *);
 void freeRidesRating(void *);
 
+//construir array de cada cidade, com multithreading
 void *buildStatisticsInCity(void *data) {
 	ThreadStruct *thread = (ThreadStruct *)data;
 	int i;
@@ -103,12 +104,6 @@ void *buildStatisticsInCity(void *data) {
 	return NULL;
 }
 
-void buildStatisticsInCitySequencial(CityRides *rides, int numberOfDrivers) {
-	GPtrArray *array = rides->cityRidesArray;
-	g_ptr_array_sort(array, compareRidesByDate);
-	rides->driverSumArray = buildRidesByDriverInCity(array, numberOfDrivers);
-}
-
 void multiThreadedCityRides(GHashTable *cityTable, const DriverData *driverdata, int numberOfDrivers) {
 	guint num_cities = g_hash_table_size(cityTable);
 
@@ -121,9 +116,9 @@ void multiThreadedCityRides(GHashTable *cityTable, const DriverData *driverdata,
 	CityRides *cityRidesArray[num_cities]; // é um único array
 
 	if (N_OF_THREADS == 1) { // modo sequencial, nao da spawn de nenhuma thread
-		while (g_hash_table_iter_next (&iter, &temp, &value)) {
-			buildStatisticsInCitySequencial((CityRides *)value, numberOfDrivers);
-		}
+		// while (g_hash_table_iter_next (&iter, &temp, &value)) {
+		// 	buildStatisticsInCitySequencial((CityRides *)value, numberOfDrivers);
+		// }
 
 	} else {
 		int num_threads = num_cities <= N_OF_THREADS ? num_cities : N_OF_THREADS;
@@ -166,12 +161,16 @@ void multiThreadedCityRides(GHashTable *cityTable, const DriverData *driverdata,
 }
 
 RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata) {
-	//inicializar as estruturas de dados relacionadas com as rides
+
+	int numberOfDrivers = getNumberOfDrivers(driverdata); // número de drivers, necessário para construir arrays com info de cada driver (Q1,Q2,Q7)
+
+	//inicializar as estruturas de dados relacionadas com as rides lidas do ficheiro diretamente
 	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
 	SecondaryRidesArray * secondaryArray;
 
+	//inicializa uma hash table
 	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeCityRides); // keys levam malloc do array normal, nao vou dar free aqui;
-
+	
 	parse_format format;
 
 	parse_func_struct format_array[N_OF_FIELDS] = {
@@ -193,11 +192,11 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
 
-	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata);
+	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, numberOfDrivers);
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(ridesArray, secondaryArray);
-		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata);
+		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, numberOfDrivers);
 	}
 
 	int num = (ridesArray->len - 1) * SIZE;
@@ -205,11 +204,8 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	num += secondaryArray->len;
 	printf("Total number of rides: %d\nNumber of invalid rides: %d\n", num, invalid);
 
-
 	//## MT para cálulco de estatística de dados para cada cidade
 	// assumimos que o nº de cidades esta bem distribuido (na fase 1 pelo menos estava)
-	int numberOfDrivers = getNumberOfDrivers(driverdata);
-
 	multiThreadedCityRides(cityTable, driverdata, numberOfDrivers);
 	
 	GPtrArray * driverInfoArray = buildRidesByDriverGlobal(cityTable,numberOfDrivers);
@@ -225,7 +221,7 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	return data;
 }
 
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata) {
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, int numberOfDrivers) {
 	
 	int i, res;
 	char *city;
@@ -248,10 +244,13 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_form
 			{
 				// if not, insert
 				cityRides = malloc(sizeof(CityRides));
-				cityRides->cityRidesArray = g_ptr_array_sized_new(200000);
-				cityRides->driverSumArray = NULL;
-				g_ptr_array_add(cityRides->cityRidesArray, temp);
-				g_hash_table_insert(cityTable, city, cityRides);
+				cityRides->cityRidesArray = g_ptr_array_sized_new(RIDES_PER_CITY);
+				cityRides->driverSumArray = g_ptr_array_new_full(numberOfDrivers, freeRidesRating); // criar novo array com info de drivers sobre a cidade específica
+				g_ptr_array_set_size(cityRides->driverSumArray,numberOfDrivers); // o tamanho do array tem de ser definido, apesar de ja ter sido alocado o espaço para o tamanho necessário; o array tem de ser inicializado a NULL para todos os pointers, feito por g_ptr_array_set_size
+				cityRides->driverSumArray = addDriverInfo(cityRides->driverSumArray, temp); // adiciona a informação da ride ao array com info dos drivers
+
+				g_ptr_array_add(cityRides->cityRidesArray, temp); // adiciona a nova ride ao cityRidesarray (pointer array com rides de uma cidade)
+				g_hash_table_insert(cityTable, city, cityRides); // insere a nova cityRide (estrutura de uma cidade) na hash table (com pointers para cada estrutura de uma cidade)
 
 				memset(cityRides->distance, 0, sizeof(int) * 3);
 				memset(cityRides->total, 0, sizeof(int) * 3);
@@ -260,6 +259,7 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_form
 			{
 				// if yes, append to all the other data
 				g_ptr_array_add(cityRides->cityRidesArray, temp);
+				cityRides->driverSumArray = addDriverInfo(cityRides->driverSumArray, temp); // adiciona  a informação da ride ao array com info dos drivers
 				carClass = getDriverCar(getDriverPtrByID(driverdata, temp->driver));
 				cityRides->total[carClass] ++;
 				cityRides->distance[carClass] += temp->distance;
@@ -322,8 +322,9 @@ driverRatingInfo *appendDriverInfo(driverRatingInfo *currentArrayStruct, RidesSt
 	short int *ridesTracker = (short int *)currentArrayStruct->ridesNumber;
 	ridesTracker[1] += currentRide->distance;
 
-	//como assumo que o array de rides recebido já está sorted, não é preciso comparar se novas inserções têm datas mais recentes, pois serão sempre
-	currentArrayStruct->mostRecRideDate = currentRide->date;
+	//comparar se novas inserções têm datas mais recentes
+	if (compDates(currentArrayStruct->mostRecRideDate,currentRide->date) < 0)
+		currentArrayStruct->mostRecRideDate = currentRide->date;
 
     return (currentArrayStruct);
 }
@@ -435,7 +436,6 @@ void freeRidesPtrArray (void * data) {
 void freeRidesRating(void *drivesRating) {
 	driverRatingInfo *currentArrayStruct = (driverRatingInfo *)drivesRating;
 	free(currentArrayStruct->ratingChart);
-	//free(currentArrayStruct->mostRecRideDate);
 	free(currentArrayStruct->ridesNumber);
 	free(currentArrayStruct);
 }
@@ -521,6 +521,7 @@ GPtrArray * buildRidesbyDriverSorted (GPtrArray * driverInfoArray) {
 	return driverRatingArray;
 }
 
+//## usado só quando se tem multithreading!!
 //constroi o resumo da info de um driver para um dado conjunto de rides (utilizado em rides de cada cidade, daí o nome de momento)
 GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int numberOfDrivers) {
 	gint i, numberOfRides = ridesInCity->len; // já é dinâmico
@@ -537,6 +538,7 @@ GPtrArray * buildRidesByDriverInCity(GPtrArray * ridesInCity, int numberOfDriver
 	return driverInfoArray;
 }
 
+//a diferença em relação a newDriverGlobalInfo é receber uma struct de tipo diferente, daí ter contas um pouco diferentes
 driverRatingInfo *newDriverGlobalInfo(driverRatingInfo *currentDriverInfo) {
 	driverRatingInfo * newStruct = malloc(sizeof(driverRatingInfo));
 	newStruct->driverNumber = currentDriverInfo->driverNumber;
@@ -549,13 +551,13 @@ driverRatingInfo *newDriverGlobalInfo(driverRatingInfo *currentDriverInfo) {
 	return newStruct;		
 }
 
+//a diferença em relação a appenDriverGlobalInfo é receber uma struct de tipo diferente, daí ter contas um pouco diferentes
 driverRatingInfo * appendDriverGlobalInfo(driverRatingInfo *currentGlobalArrayStruct, driverRatingInfo * currentCityArrayStruct) {
 	short int i;
 	unsigned int * ratingsTo, * ratingsFrom;
 	Date CityMostRecRideDate = currentCityArrayStruct->mostRecRideDate; // teste de um driver n ter informação na cidade é data == NULL
 	Date GlobalMostRecRideDate = currentGlobalArrayStruct->mostRecRideDate;
-	if (compDates(CityMostRecRideDate, GlobalMostRecRideDate) >= 0) {
-		//free(&lobalMostRecRideDate);
+	if (compDates(CityMostRecRideDate, GlobalMostRecRideDate) > 0) {
 		currentGlobalArrayStruct->mostRecRideDate = CityMostRecRideDate;
 	}
 	ratingsTo = (unsigned int *)currentGlobalArrayStruct->ratingChart;
@@ -569,10 +571,18 @@ driverRatingInfo * appendDriverGlobalInfo(driverRatingInfo *currentGlobalArraySt
 	return currentGlobalArrayStruct;
 }
 
-//pega na info resumidos de cada driver para uma cidade e adiciona-a à info de cada driver global
+// organizar estruturas relativas a cada cidade: ordenar rides por data, ordenar info de drivers por parâmetros da Q2
+void OrderStatisticsInCity(CityRides *rides) {
+	g_ptr_array_sort(rides->cityRidesArray, compareRidesByDate); // ordenar rides por data (usado nas Q4,Q5,Q6,Q7,Q9)
+	g_ptr_array_sort(rides->driverSumArray,sort_byRatings_7); // ordenação da info (resumida antes) sobre drivers de uma cidade (usado na query 7)
+}
+
+// obtém médias globais de cada driver
+// COMO: pega nas informações acumuladas de cada driver de cada cidade e adiciona-a à info de cada driver global
+// aproveita-se o loop desta função para: calcular as médias de cada driver em cada cidade e dar sort de cada cidade segundo os parâmetro da Q7
 GPtrArray * buildRidesByDriverGlobal(GHashTable * cityTable, int numberOfDrivers) {
-	int i,j;
-	driverRatingInfo * newStruct, * currentCityArrayStruct, * currentGlobalArrayStruct;
+	int j;
+	driverRatingInfo * currentCityArrayStruct, * currentGlobalArrayStruct;
 
 	//criar structs com valores a 0 em cada posição, para acumular valores nessa posição depois
 	// !! outra forma mais eficiente sem meter NULL com set_size?
@@ -581,28 +591,32 @@ GPtrArray * buildRidesByDriverGlobal(GHashTable * cityTable, int numberOfDrivers
 
 	GHashTableIter iter;
 	gpointer value;
-	guint num_keys = g_hash_table_size(cityTable);
+
 	g_hash_table_iter_init (&iter, cityTable);
-	for (i = 0; g_hash_table_iter_next (&iter, NULL, &value) && i <= (int)num_keys; i++) {	
+	while(g_hash_table_iter_next (&iter, NULL, &value)){ // para cada cidade
 		CityRides * cityData = (CityRides * ) value;
 		GPtrArray * driverInfoInCityArray = cityData->driverSumArray;
-		for (j=0;j<numberOfDrivers;j++) {
+		for (j=0;j<numberOfDrivers;j++) { // para cada driver de uma cidade
 				currentGlobalArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverInfoGlobalArray, j);
 				currentCityArrayStruct = (driverRatingInfo *) g_ptr_array_index(driverInfoInCityArray, j);
-			if (currentCityArrayStruct != NULL) {
-				if (currentGlobalArrayStruct == NULL) { // seria mais simples correr um loop inicial em que inicia com valores da cityatual, ou valores ocos se NULL a cityatual?
-					newStruct = newDriverGlobalInfo(currentCityArrayStruct);
-					g_ptr_array_index(driverInfoGlobalArray, j) = newStruct;
-				} else{
-					currentGlobalArrayStruct = appendDriverGlobalInfo(currentGlobalArrayStruct,currentCityArrayStruct);
+			if (currentCityArrayStruct != NULL) { // se o driver tiver informação numa dada cidade
+				if (currentGlobalArrayStruct == NULL) {  // se no array global ainda não have informação desse driver
+					g_ptr_array_index(driverInfoGlobalArray, j) = newDriverGlobalInfo(currentCityArrayStruct); // cria uma estrutura nova com informação desse driver
+				} else { // se no array global já havia informação desse driver
+					currentGlobalArrayStruct = appendDriverGlobalInfo(currentGlobalArrayStruct,currentCityArrayStruct); // acrescenta ao array global a informação desse driver
 				}
+				sumValues(currentCityArrayStruct); // aproveita-se o loop para calcular médias finais do driver de uma cidade
+			}
+			else {
+				g_ptr_array_index(driverInfoInCityArray, j) = newOpaqueDriverInfo(j + 1); // aproveita-se o loop para construir uma estrutura opaca para drivers NULL (necessário para o sort)
 			}
 		}
-		//cálculo das médias e ordenação da info sobre drivers para cada cidade individualmente (usado na query 7)
-		cityData->driverSumArray=getPresentableValues(driverInfoInCityArray); // meter com MT também?? 
-		g_ptr_array_sort(cityData->driverSumArray,sort_byRatings_7); // meter com MT também??
+		// aproveita-se o loop para organizar estruturas relativas a cada cidade
+		OrderStatisticsInCity(cityData);
 	}
-	driverInfoGlobalArray = getPresentableValues(driverInfoGlobalArray);
+
+	// cálculo das médias finais do driver de uma cidade, só possível no fim do loop anterior, quando toda a informação é obtida
+	driverInfoGlobalArray = getPresentableValues(driverInfoGlobalArray); 
 	return driverInfoGlobalArray;
 }
 
@@ -825,13 +839,13 @@ void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToF
 			if (!dataState) {
 			unsigned int * ratings = (unsigned int *)currentDriver->ratingChart;
 			//NumberOfRides não foi calculado ainda, só depois de getPresentableValues, por isso não é incluído no print
-			fprintf(fp, "driverNumber:%d, mostRecdate: %d/%d/%hd, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n",\
+			fprintf(fp, "driverNumber:%d, mostRecdate: %d/%d/%u, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n",\
 				currentDriver->driverNumber, GET_DATE_DAY(currentDriver->mostRecRideDate), GET_DATE_MONTH(currentDriver->mostRecRideDate),\
 				GET_DATE_YEAR(currentDriver->mostRecRideDate), ratings[0], ratings[1], ratings[2], ratings[3], ratings[4], currentDriver->ridesNumber[1]);
 			}
 			else {
-				fprintf(fp,"driverNumber:%d,mostRecdate: %d/%d/%hd, avgRating:%f, ridesN:%d, distTotal:%d\n",currentDriver->driverNumber,\
-					GET_DATE_DAY(currentDriver->mostRecRideDate), GET_DATE_MONTH(currentDriver->mostRecRideDate), GET_DATE_YEAR(currentDriver->mostRecRideDate),\
+				fprintf(fp,"driverNumber:%d,mostRecdate: %d/%d/%u, avgRating:%f, ridesN:%d, distTotal:%d\n",currentDriver->driverNumber,\
+					GET_DATE_DAY(currentDriver->mostRecRideDate), GET_DATE_MONTH(currentDriver->mostRecRideDate),GET_DATE_YEAR(currentDriver->mostRecRideDate),\
 					*(double *)currentDriver->ratingChart,(int) currentDriver->ridesNumber[0],(int) currentDriver->ridesNumber[1]);
 			}
 		}
