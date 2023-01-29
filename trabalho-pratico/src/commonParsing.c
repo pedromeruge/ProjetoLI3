@@ -139,19 +139,17 @@ inline int compDates(Date dateA, Date dateB) {
 }
 
 int p_getDate(FILE *ptr, void *res) {
-	char tempBuffer[BUFF_SIZE];
+	char tempBuffer[BUFF_SIZE], *buffer, *endptr;
 	writeString(ptr, tempBuffer);
 	if (tempBuffer[0] == '\0') return 0;
-	int chars_parsed;
 	uint32_t year;
 	uint8_t month, day;
-	if (sscanf(tempBuffer, "%2hhu/%2hhu/%4u%n", &day, &month, &year, &chars_parsed) != 3 ||
-		tempBuffer[chars_parsed] != '\0' ||
-		(day < 1 || day > 31) ||
-		(month < 1 || month > 12)
-	) {
-		return 0;
-	}
+	day = (uint8_t)strtol(tempBuffer, &endptr, 10);
+	if (*endptr != '/' || day < 1 || day > 31) return 0;
+	month = (uint8_t)strtol(endptr + 1, &buffer, 10);
+	if (*buffer != '/' || month < 1 || month > 12) return 0;
+	year = (uint32_t)strtol(buffer + 1, &endptr, 10);
+	if (*endptr != '\0') return 0;
 	*(Date *)res = (Date) (year << 16 | month << 8 | day);
 	return 1;
 }
