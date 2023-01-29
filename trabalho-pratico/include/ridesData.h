@@ -25,7 +25,7 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 void freeRidesData(RidesData *); // limpa a estrutura de dados das rides
 
 // funções de rides associadas a cidades
-const CityRides *getRidesByCity(const RidesData *, const char *);       // devolve todas as rides associadas a uma cidade
+const CityRides *getRidesByCity(const RidesData *, const char *);       // devolve todas as rides associadas a uma cidade (ou NULL se a cidade não existir)
 guint getNumberOfCityRides(const CityRides *);              // devolve o número de rides para uma cidade
 const RidesStruct *getCityRidesByIndex(const CityRides *, guint); // devolve uma ride de uma cidade
 const int *getRidesDistance(const CityRides *rides); // devolve distance[] de uma cidade

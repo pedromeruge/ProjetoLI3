@@ -182,10 +182,6 @@ inline int getUserTotalDistance (const UserStruct* user) {
 	return (user->distance[0] + user->distance[1] + user->distance[2]);
 }
 
-void sort_userarray (const UserData * data) {
-	g_ptr_array_sort(data->userDistanceArray, userDistComp); 
-}
-
 gint userDistComp (gconstpointer a, gconstpointer b) {
     UserStruct * user1 = *(UserStruct **) a, * user2 = *(UserStruct **) b;
     short int * distance1 = user1->distance, * distance2 = user2->distance; 
@@ -197,6 +193,11 @@ gint userDistComp (gconstpointer a, gconstpointer b) {
         } else return result;
     } else return result;
 }
+
+void sort_userarray (const UserData * data) {
+	g_ptr_array_sort(data->userDistanceArray, userDistComp); 
+}
+
 
 char * userTopN (const UserData * data, int N) {
     int i, dist;

@@ -10,20 +10,17 @@ typedef struct UserStruct UserStruct;
 //estrutura de dados com informações de todos os users
 typedef struct UserData UserData;
 
-//funções para criar e destruir estrutura de dados de users
-UserData * getUserData(FILE *ptr); // retorna a estrutura de dados de rides 
-void freeUserData(UserData * userdata); // limpa a estrutura de dados das rides
+//funções para criar, manipular e destruir a estrutura de dados de users
+UserData * getUserData(FILE *ptr); // retorna a estrutura de dados de users
+void freeUserData(UserData * userdata); // limpa a estrutura de dados de users 
+void add_user_info (const UserData* data, const DriverData* driverdata, const char* name, int driver, int distance, int score, float tip,  Date date); // adiciona informação de um user à estrutura de dados de users
+void sort_userarray (const UserData * data); // ordena a estrutura de dados de users com base nos parâmetros da Q3
 
-//receber a informação de um user
-UserStruct * getUserPtrByUsername(const UserData *, const char *);
-
-void add_user_info (const UserData* data, const DriverData* driverdata, const char* name, int driver, int distance, int score, float tip,  Date date);
-
-void sort_userarray (const UserData * data);
-
-gint userDistComp (gconstpointer a, gconstpointer b);
-
+//devolve uma string com informações sobre os top N users
 char * userTopN (const UserData * data, int N);
+
+//receber a informação de um user(ou NULL se a cidade não existir)
+UserStruct * getUserPtrByUsername(const UserData *, const char *);
 
 //funções para aceder a informações de cada user
             //getUserName -> tem de já ser sabido, para poder aceder a outras informações do user
