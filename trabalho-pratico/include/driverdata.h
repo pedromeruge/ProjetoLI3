@@ -10,7 +10,7 @@ typedef struct DriverStruct DriverStruct;
 typedef struct DriverData DriverData;
 
 //funções de criar e destruir estrutura de dados dos drivers
-DriverData * getDriverData(FILE *ptr); // retorna a estrutura de dados de drivers
+DriverData * getDriverData(FILE *ptr, char *buffer); // retorna a estrutura de dados de drivers
 void freeDriverData(DriverData * data); // limpa a estrutura de drivers
 
 // receber a informação de um driver

@@ -64,6 +64,8 @@ int p_getID(char *buffer, int *bp, void *res);
 int p_getDate(char *buffer, int *bp, void *res);
 int p_getPayMethod(char *buffer, int *bp, void *res);
 int p_getAccountStatus(char *buffer, int *bp, void *res);
+int p_checkEmpty(char *buffer, int *bp, void *res);
+int p_getCarClass(char *buffer, int *bp, void *res);
 
 // int p_getPayMethod(FILE *ptr, void *res);
 // int p_getAccountStatus(FILE *ptr, void *res);

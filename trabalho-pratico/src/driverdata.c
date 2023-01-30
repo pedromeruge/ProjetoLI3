@@ -38,7 +38,7 @@ struct parse_func_struct {
 
 void freeDriversPtrArray(void * data);
 
-SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *invalid)
+SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *invalid, int *bp, int *sp, char *buffer)
 {
 	int i, res;
 
@@ -47,7 +47,7 @@ SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *inv
 
 	for (i = 0; i < SIZE; i++)
 	{
-		if ((res = parse_with_format(ptr, (void *)&driverStructArray[i], format, NULL, NULL, NULL)) == 0)
+		if ((res = parse_with_format(ptr, (void *)&driverStructArray[i], format, bp, sp, buffer)) == 0)
 		{
 			(*invalid)++;
 		} else if (res == -1) { //EOF
@@ -64,7 +64,7 @@ SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *inv
 	return resArray;
 }
 
-DriverData * getDriverData(FILE *ptr)
+DriverData * getDriverData(FILE *ptr, char *buffer)
 {
 	DriverData * newDriverData = malloc(sizeof(DriverData));
 	GPtrArray * driverarray = g_ptr_array_new_with_free_func(freeDriversPtrArray);
@@ -72,18 +72,19 @@ DriverData * getDriverData(FILE *ptr)
 
 	parse_format format;
 
-	parse_func_struct *format_array = NULL;
-	// parse_func_struct format_array[N_OF_FIELDS] = {
-	// 	{ p_getDriverID, 0, 0 }, // os dados disto nunca sao escritos, é só para ver se é NULL
-	// 	{ p_getName, offsetof(DriverStruct, name), 1, },
-	// 	{ p_getDate, offsetof(DriverStruct, birthdate), 0, },
-	// 	{ p_getGender, offsetof(DriverStruct, gender), 0, },
-	// 	{ p_getCarClass, offsetof(DriverStruct, carClass), 0, },
-	// 	{ p_getLicensePlate, offsetof(DriverStruct, licensePlate), 1, },
-	// 	{ p_getCity,offsetof(DriverStruct, city), 1, },
-	// 	{ p_getDate, offsetof(DriverStruct, accountCreation), 0, },
-	// 	{ p_getAccountStatus, offsetof(DriverStruct, status), 0, },
-	// };
+	parse_func_struct format_array[N_OF_FIELDS] = {
+		{ p_checkEmpty, 0, 0 }, // os dados disto nunca sao escritos, é só para ver se é vazio ou não
+		{ p_getString, offsetof(DriverStruct, name), 1, },
+		{ p_getDate, offsetof(DriverStruct, birthdate), 0, },
+		{ p_getGender, offsetof(DriverStruct, gender), 0, },
+		{ p_getCarClass, offsetof(DriverStruct, carClass), 0, },
+		{ p_getString, offsetof(DriverStruct, licensePlate), 1, },
+		{ p_getString, offsetof(DriverStruct, city), 1, },
+		{ p_getDate, offsetof(DriverStruct, accountCreation), 0, },
+		{ p_getAccountStatus, offsetof(DriverStruct, status), 0, },
+	};
+
+	int bp = 0, sp = 0;
 
 	// que confusao nao sei fazer nomes
 	format.format_array = format_array;
@@ -91,11 +92,11 @@ DriverData * getDriverData(FILE *ptr)
 
 	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
-	secondaryArray = getDrivers(ptr, &format, &invalid);
+	secondaryArray = getDrivers(ptr, &format, &invalid, &bp, &sp, buffer);
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(driverarray, secondaryArray);
-		secondaryArray = getDrivers(ptr, &format, &invalid);
+		secondaryArray = getDrivers(ptr, &format, &invalid, &bp, &sp, buffer);
 	}
 
 	newDriverData->driverArray = driverarray;

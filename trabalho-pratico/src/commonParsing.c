@@ -97,14 +97,14 @@ void writeString(FILE *ptr, char *buffer)
 int p_getID(char *buffer, int *bp, void *res) {
 	char *endptr;
 	int val = (int)strtol(buffer, &endptr, 10);
-	// if buffer[0] ?== ';'????
+	// if buffer[0] == ';'????
 	if (endptr == buffer) {
 		(*bp) ++;
 		return 0;
 	}
 	*(int *)res = val;
 	(*bp) += (endptr - buffer) + 1;
-	return 0;
+	return 1;
  }
 
 int p_getString(char *buffer, int *bp, void *res) {
@@ -191,6 +191,56 @@ int p_getAccountStatus(char *buffer, int *bp, void *res) {
 	}
 	return i;
 }
+
+// checks empty up until;, not \n!!!!!
+int p_checkEmpty(char *buffer, int *bp, void *res) {
+	int i;
+	for (i = 0; buffer[i] != ';'; i++);
+	(*bp) += i + 1;
+	return i;
+}
+
+// OTIMIZAR???????????
+int p_getCarClass(char *buffer, int *bp, void *res) {
+	int i;
+	for (i = 0; buffer[i] != ';'; i++);
+	(*bp) += i + 1;
+	if (i != 0) {
+		//car class é 0, 1 ou 2 (basic/green/premium)
+		*(unsigned char *)res = (tolower(buffer[0]) - 97) / 6;
+		if (strncasecmp("basic", buffer, 5) != 0 &&
+			strncasecmp("green", buffer, 5) != 0 &&
+			strncasecmp("premium", buffer, 7) != 0)
+			{
+				i = 0; 
+			}
+	}
+	return i;
+}
+
+// int p_getCarClass(FILE *ptr, void *res) {
+// 	// *(unsigned char *)res = (fgetc(ptr) - 97) / 6;
+// 	// while (fgetc(ptr) != ';');
+// 	char str[BUFF_SIZE];
+// 	writeString(ptr, str);
+// 	if (str[0] == '\0') return 0;
+// 	int i;
+// 	for(i = 0; str[i]; i++){
+// 		str[i] = tolower(str[i]);
+// 	}
+// 	//car class é 0, 1 ou 2 (basic/green/premium)
+// 	*(unsigned char *)res = (str[0] - 97) / 6;
+// 	if (strncmp("basic", str, 5) == 0 ||
+// 		strncmp("green", str, 5) == 0 ||
+// 		strncmp("premium", str, 7) == 0)
+// 	{
+// 			return 1;
+// 	}
+// 	// else
+// 	return 0;
+// }
+
+
 // int p_getAccountStatus(FILE *ptr, void *res) {
 // 	char str[BUFF_SIZE];
 // 	writeString(ptr, str);
@@ -310,28 +360,6 @@ inline int compDates(Date dateA, Date dateB) {
 // 	return 1;
 // }
 
-// int p_getCarClass(FILE *ptr, void *res) {
-// 	// *(unsigned char *)res = (fgetc(ptr) - 97) / 6;
-// 	// while (fgetc(ptr) != ';');
-// 	char str[BUFF_SIZE];
-// 	writeString(ptr, str);
-// 	if (str[0] == '\0') return 0;
-// 	int i;
-// 	for(i = 0; str[i]; i++){
-// 		str[i] = tolower(str[i]);
-// 	}
-// 	//car class é 0, 1 ou 2 (basic/green/premium)
-// 	*(unsigned char *)res = (str[0] - 97) / 6;
-// 	if (strncmp("basic", str, 5) == 0 ||
-// 		strncmp("green", str, 5) == 0 ||
-// 		strncmp("premium", str, 7) == 0)
-// 	{
-// 			return 1;
-// 	}
-// 	// else
-// 	return 0;
-// }
-
 // int p_getLicensePlate(FILE *ptr, void *res) {
 // 	*(char **)res = loadString(ptr);
 // 	if (*(char **)res == NULL) return 0;
@@ -391,6 +419,10 @@ int parse_with_format(FILE *ptr, void *data, const parse_format *format, int *bp
 	do {
 		current = array[i];
 		res = current.func(buffer + *bp, bp, field_ptr + current.offset);
+		if (res == 0) {
+			printf("%d\n", i);
+			exit(1);
+		}
 		i++;
 	} while (i < (const int) format->len && res > 0);
 
@@ -406,7 +438,8 @@ int parse_with_format(FILE *ptr, void *data, const parse_format *format, int *bp
 		// skip da linha
 		// se for a ultima funçao assumimos que ela ja deu skip ate ao fim da linha e nao fazemos nada
 		if (i != format->len) {
-			while (fgetc(ptr) != '\n');
+			for (i = 0; buffer[i] != '\n'; i++);
+			(*bp) += i + 1;
 		}
 
 		// free a todos os campos que nao sejam null e que levaram parse até agora

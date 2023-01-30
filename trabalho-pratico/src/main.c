@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 
 	UserData *users = getUserData(files[0], main_buffer);
 
-	// DriverData *drivers = getDriverData(files[1]);
+	DriverData *drivers = getDriverData(files[1], main_buffer);
 
 	// RidesData *rides = getRidesData(files[2], users, drivers);
 
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
 	fclose(files[3]);
 
 	freeUserData(users);
-	// freeDriverData(drivers);
+	freeDriverData(drivers);
 	// freeRidesData(rides);
 	free(files);
 	free(main_buffer);
