@@ -170,18 +170,19 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	
 	parse_format format;
 
-	parse_func_struct format_array[N_OF_FIELDS] = {
-		{ p_getID, offsetof(RidesStruct, ID), 0, },
-		{ p_getDate, offsetof(RidesStruct, date), 0, },
-		{ p_getDriver, offsetof(RidesStruct, driver), 0, },
-		{ p_getName, offsetof(RidesStruct, user), 1, },
-		{ p_getCity, offsetof(RidesStruct, city), 1, },
-		{ p_getDistance, offsetof(RidesStruct, distance), 0, },
-		{ p_getScoreUser,offsetof(RidesStruct, score_u), 0, },
-		{ p_getScoreDriver, offsetof(RidesStruct, score_d), 0, },
-		{ p_getTip, offsetof(RidesStruct, tip), 0, },
-		{ p_getComment, 0, 0 }, // comment nao é guardado mas temos de lhe dar skip
-	};
+	// parse_func_struct format_array[N_OF_FIELDS] = {
+	// 	{ p_getID, offsetof(RidesStruct, ID), 0, },
+	// 	{ p_getDate, offsetof(RidesStruct, date), 0, },
+	// 	{ p_getDriver, offsetof(RidesStruct, driver), 0, },
+	// 	{ p_getName, offsetof(RidesStruct, user), 1, },
+	// 	{ p_getCity, offsetof(RidesStruct, city), 1, },
+	// 	{ p_getDistance, offsetof(RidesStruct, distance), 0, },
+	// 	{ p_getScoreUser,offsetof(RidesStruct, score_u), 0, },
+	// 	{ p_getScoreDriver, offsetof(RidesStruct, score_d), 0, },
+	// 	{ p_getTip, offsetof(RidesStruct, tip), 0, },
+	// 	{ p_getComment, 0, 0 }, // comment nao é guardado mas temos de lhe dar skip
+	// };
+	parse_func_struct *format_array = NULL;
 
 	format.format_array = format_array;
 	format.len = N_OF_FIELDS;
@@ -230,7 +231,7 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_form
 
 	for (i = 0; i < SIZE; i++) {
 
-		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format)) == 1) {
+		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format, NULL, NULL, NULL)) == 1) {
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 

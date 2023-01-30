@@ -35,7 +35,12 @@ typedef uint32_t Date;
 #define GET_DATE_MONTH(date) ((date & (uint32_t)0x0000FF00) >> 8)
 #define GET_DATE_DAY(date) (date & (uint32_t)0x000000FF)
 
-typedef int parse_func (FILE *ptr, void *res);
+// returns:
+// 0 se houver erro
+// > 0 se nao
+typedef int parse_func (char *buffer, int *bp, void *res);
+
+#define SIZE_OF_READ_BUFFER (1 << 12)
 
 // esta struct tem de ser conhecida para módulos exteriores
 typedef struct {
@@ -53,26 +58,33 @@ typedef struct {
 void writeString(FILE *ptr, char *buffer);
 int compDates(Date dateA, Date dateB);
 
-int p_getPayMethod(FILE *ptr, void *res);
-int p_getAccountStatus(FILE *ptr, void *res);
-int p_getUserName(FILE *ptr, void *res);
-int p_getDate(FILE *ptr, void *res);
-int p_getDriver(FILE *ptr, void *res);
-int p_getName(FILE *ptr, void *res);
-int p_getCity(FILE *ptr, void *res);
-int p_getDistance(FILE *ptr, void *res);
-int p_getScoreUser(FILE *ptr, void *res);
-int p_getScoreDriver(FILE *ptr, void *res);
-int p_getTip(FILE *ptr, void *res);
-int p_getGender(FILE *ptr, void *res);
-int p_getCarClass(FILE *ptr, void *res);
-int p_getLicensePlate(FILE *ptr, void *res);
-int p_getID(FILE *ptr, void *res);
-int p_getDriverID(FILE *ptr, void *res);
-int p_getComment(FILE *ptr, void *res);
+int p_getString(char *buffer, int *bp, void *res);
+int p_getGender(char *buffer, int *bp, void *res);
+int p_getID(char *buffer, int *bp, void *res);
+int p_getDate(char *buffer, int *bp, void *res);
+int p_getPayMethod(char *buffer, int *bp, void *res);
+int p_getAccountStatus(char *buffer, int *bp, void *res);
+
+// int p_getPayMethod(FILE *ptr, void *res);
+// int p_getAccountStatus(FILE *ptr, void *res);
+// int p_getUserName(FILE *ptr, void *res);
+// int p_getDate(FILE *ptr, void *res);
+// int p_getDriver(FILE *ptr, void *res);
+// int p_getName(FILE *ptr, void *res);
+// int p_getCity(FILE *ptr, void *res);
+// int p_getDistance(FILE *ptr, void *res);
+// int p_getScoreUser(FILE *ptr, void *res);
+// int p_getScoreDriver(FILE *ptr, void *res);
+// int p_getTip(FILE *ptr, void *res);
+// int p_getGender(FILE *ptr, void *res);
+// int p_getCarClass(FILE *ptr, void *res);
+// int p_getLicensePlate(FILE *ptr, void *res);
+// int p_getID(FILE *ptr, void *res);
+// int p_getDriverID(FILE *ptr, void *res);
+// int p_getComment(FILE *ptr, void *res);
 Date atoDate(const char *str);
 
-int parse_with_format(FILE *ptr, void *data, const parse_format *format);
+int parse_with_format(FILE *ptr, void *data, const parse_format *format, int *bp, int *sp, char *buffer);
 void dumpWithFormat(void *data, parse_format *format);
 
 #endif

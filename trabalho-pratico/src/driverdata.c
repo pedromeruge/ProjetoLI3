@@ -47,7 +47,7 @@ SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *inv
 
 	for (i = 0; i < SIZE; i++)
 	{
-		if ((res = parse_with_format(ptr, (void *)&driverStructArray[i], format)) == 0)
+		if ((res = parse_with_format(ptr, (void *)&driverStructArray[i], format, NULL, NULL, NULL)) == 0)
 		{
 			(*invalid)++;
 		} else if (res == -1) { //EOF
@@ -72,17 +72,18 @@ DriverData * getDriverData(FILE *ptr)
 
 	parse_format format;
 
-	parse_func_struct format_array[N_OF_FIELDS] = {
-		{ p_getDriverID, 0, 0 }, // os dados disto nunca sao escritos, é só para ver se é NULL
-		{ p_getName, offsetof(DriverStruct, name), 1, },
-		{ p_getDate, offsetof(DriverStruct, birthdate), 0, },
-		{ p_getGender, offsetof(DriverStruct, gender), 0, },
-		{ p_getCarClass, offsetof(DriverStruct, carClass), 0, },
-		{ p_getLicensePlate, offsetof(DriverStruct, licensePlate), 1, },
-		{ p_getCity,offsetof(DriverStruct, city), 1, },
-		{ p_getDate, offsetof(DriverStruct, accountCreation), 0, },
-		{ p_getAccountStatus, offsetof(DriverStruct, status), 0, },
-	};
+	parse_func_struct *format_array = NULL;
+	// parse_func_struct format_array[N_OF_FIELDS] = {
+	// 	{ p_getDriverID, 0, 0 }, // os dados disto nunca sao escritos, é só para ver se é NULL
+	// 	{ p_getName, offsetof(DriverStruct, name), 1, },
+	// 	{ p_getDate, offsetof(DriverStruct, birthdate), 0, },
+	// 	{ p_getGender, offsetof(DriverStruct, gender), 0, },
+	// 	{ p_getCarClass, offsetof(DriverStruct, carClass), 0, },
+	// 	{ p_getLicensePlate, offsetof(DriverStruct, licensePlate), 1, },
+	// 	{ p_getCity,offsetof(DriverStruct, city), 1, },
+	// 	{ p_getDate, offsetof(DriverStruct, accountCreation), 0, },
+	// 	{ p_getAccountStatus, offsetof(DriverStruct, status), 0, },
+	// };
 
 	// que confusao nao sei fazer nomes
 	format.format_array = format_array;

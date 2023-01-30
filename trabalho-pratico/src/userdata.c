@@ -40,9 +40,12 @@ void freeTableData(void *userData)
 	//free(data->birthdate);
 	//free(data->accountCreation);
 	free(data);
+
 }
 
-UserData *getUserData(FILE *ptr)
+void dumpUser(UserStruct *user);
+
+UserData *getUserData(FILE *ptr, char *buffer)
 {
 	UserData *data = malloc(sizeof(UserData));
 	GPtrArray *array = g_ptr_array_sized_new(50000);
@@ -55,13 +58,13 @@ UserData *getUserData(FILE *ptr)
 	parse_format format;
 
 	parse_func_struct format_array[N_OF_FIELDS] = {
-		{ p_getUserName, offsetof(UserStruct, username), 1, },
-		{ p_getName, offsetof(UserStruct, name), 1, },
+		{ p_getString, offsetof(UserStruct, username), 1, },
+		{ p_getString, offsetof(UserStruct, name), 1, },
 		{ p_getGender, offsetof(UserStruct, gender), 0, },
 		{ p_getDate, offsetof(UserStruct, birthdate), 0, },
 		{ p_getDate, offsetof(UserStruct, accountCreation), 0, },
 		{ p_getPayMethod, 0, 0, }, // este offset nao interessa
-		// o parametro é inútil mas temos de fazer check para ver se está vazio, a função nunca escreve nada na struct do user
+		// // o parametro é inútil mas temos de fazer check para ver se está vazio, a função nunca escreve nada na struct do user
 		{ p_getAccountStatus, offsetof(UserStruct, status), 0, },
 	};
 
@@ -72,18 +75,22 @@ UserData *getUserData(FILE *ptr)
 	int res = 1;
 	int num = 0;
 	int invalid = 0;
+	int bp = 0, sp = 0;
 
 	while (1) //(res != -1) // acaba por ser inutil por causa da condiçao do break
 	{
 		userstruct = malloc(sizeof(UserStruct));
-		if ((res = parse_with_format(ptr, userstruct, &format)) == 1)
+		if ((res = parse_with_format(ptr, userstruct, &format, &bp, &sp, buffer)) == 1)
 		{
+			// dumpUser(userstruct);
+
 			if (userstruct->status == 1) g_ptr_array_add(array, userstruct); // só adiciona se for ativo
 			memset((char *)userstruct + offsetof(UserStruct, score), 0, (sizeof(float) + (2 * sizeof(int)) + (6 * sizeof(short int))));
 			username = userstruct->username;
 			if (g_hash_table_insert(table, username, userstruct) == FALSE)
 			{
 				fprintf(stderr, "Username already existed\n");
+				// printf("Buffer: %s\n %d %d\n", buffer, bp, sp);
 				exit(5);
 			}
 		} else {
@@ -219,4 +226,11 @@ char * userTopN (const UserData * data, int N) {
         offset += snprintf(result + offset, STR_BUFF_SIZE, "%s;%s;%d\n", username, name, dist);
     }
     return result;
+}
+
+void dumpUser(UserStruct *user) {
+	printf("%s %s %u %u/%u/%u %u/%u/%u %u\n",
+	user->username, user->name, user->gender, GET_DATE_DAY(user->birthdate), GET_DATE_MONTH(user->birthdate), GET_DATE_YEAR(user->birthdate),
+	GET_DATE_DAY(user->accountCreation), GET_DATE_MONTH(user->accountCreation), GET_DATE_YEAR(user->accountCreation), user->status);
+	fflush(stdout);
 }

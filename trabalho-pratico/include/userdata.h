@@ -11,7 +11,7 @@ typedef struct UserStruct UserStruct;
 typedef struct UserData UserData;
 
 //funções para criar, manipular e destruir a estrutura de dados de users
-UserData * getUserData(FILE *ptr); // retorna a estrutura de dados de users
+UserData * getUserData(FILE *ptr, char *buffer); // retorna a estrutura de dados de users
 void freeUserData(UserData * userdata); // limpa a estrutura de dados de users 
 void add_user_info (const UserData* data, const DriverData* driverdata, const char* name, int driver, int distance, int score, float tip,  Date date); // adiciona informação de um user à estrutura de dados de users
 void sort_userarray (const UserData * data); // ordena a estrutura de dados de users com base nos parâmetros da Q3

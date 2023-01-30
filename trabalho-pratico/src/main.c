@@ -12,27 +12,29 @@ int main(int argc, char **argv)
 	// caso seja facultado o ficheiro e as querries no terminal - fase 1
 	FILE **files = open_cmdfiles(argc, argv); // array com pointers para os ficheiros {users,drivers,rides,queries} // o último valor do array é NULL no modo interativo
 
-	UserData *users = getUserData(files[0]);
+	char *main_buffer = malloc(SIZE_OF_READ_BUFFER);
 
-	DriverData *drivers = getDriverData(files[1]);
+	UserData *users = getUserData(files[0], main_buffer);
 
-	RidesData *rides = getRidesData(files[2], users, drivers);
+	// DriverData *drivers = getDriverData(files[1]);
 
-	printf("Finished loading\n");
+	// RidesData *rides = getRidesData(files[2], users, drivers);
 
-	int ret;
-	if (files[3] == NULL)
-		ret = interactRequests(users, drivers, rides);
-	else
-		ret = batchRequests(files[3], users, drivers, rides);
+	// printf("Finished loading\n");
 
-	if (ret)
-	{
-		fprintf(stderr, "Error reading query requests, return value: %d\n", ret);
-		return 2;
-	}
+	// int ret;
+	// if (files[3] == NULL)
+	// 	ret = interactRequests(users, drivers, rides);
+	// else
+	// 	ret = batchRequests(files[3], users, drivers, rides);
 
-	printf("\nFinished queries\n");
+	// if (ret)
+	// {
+	// 	fprintf(stderr, "Error reading query requests, return value: %d\n", ret);
+	// 	return 2;
+	// }
+
+	// printf("\nFinished queries\n");
 
 	fclose(files[0]);
 	fclose(files[1]);
@@ -40,11 +42,12 @@ int main(int argc, char **argv)
 	fclose(files[3]);
 
 	freeUserData(users);
-	freeDriverData(drivers);
-	freeRidesData(rides);
+	// freeDriverData(drivers);
+	// freeRidesData(rides);
 	free(files);
+	free(main_buffer);
 
-	printf("Finished freeing\n");
+	// printf("Finished freeing\n");
 
 	return 0;
 }
