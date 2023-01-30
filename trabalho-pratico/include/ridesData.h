@@ -59,12 +59,6 @@ short int getDriverRidesNumber(const driverRatingInfo *);
 int getDriverNumber(const driverRatingInfo *);
 short int getDriverDistTraveled(const driverRatingInfo *);
 
-// funções para dar sort ao array
-gint sort_byRatings_2 (gconstpointer a, gconstpointer b); // função que compara dois elementos de um array com base em avaliação média, data de viagem mais recente e nº do condutor ( em ordem crescente), por esta ordem de importância
-gint sort_byRatings_7 (gconstpointer a, gconstpointer b); // função que compara dois elementos de um array com base em avaliação média, nº do condutor (em ordem decrescente)
-
-//void qSortArray(const ridesByDriver *driverRatingArray, gint (*sortFunction)(gconstpointer a, gconstpointer b));
-
 //devolve os top N elementos de um array ordenado, dadas funções do resultado a escrever para uma string
 // TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)
 //static char * topN(const ridesByDriver * driverRatingArray, int N, DriverData *driverData);
