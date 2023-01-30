@@ -18,9 +18,9 @@ int main(int argc, char **argv)
 
 	DriverData *drivers = getDriverData(files[1], main_buffer);
 
-	// RidesData *rides = getRidesData(files[2], users, drivers);
+	RidesData *rides = getRidesData(files[2], users, drivers, main_buffer);
 
-	// printf("Finished loading\n");
+	printf("Finished loading\n");
 
 	// int ret;
 	// if (files[3] == NULL)
@@ -43,11 +43,11 @@ int main(int argc, char **argv)
 
 	freeUserData(users);
 	freeDriverData(drivers);
-	// freeRidesData(rides);
+	freeRidesData(rides);
 	free(files);
 	free(main_buffer);
 
-	// printf("Finished freeing\n");
+	printf("Finished freeing\n");
 
 	return 0;
 }

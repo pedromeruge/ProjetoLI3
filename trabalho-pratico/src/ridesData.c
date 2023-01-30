@@ -68,7 +68,7 @@ struct RidesData {
 void freeCityRides(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, int numberOfDrivers);
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, int numberOfDrivers, int *bp, int *sp, char *buffer);
 
 driverRatingInfo * * buildRidesbyDriverSorted (driverRatingInfo **, int);
 driverRatingInfo * * buildRidesByDriverInCity(GPtrArray *, int);
@@ -157,7 +157,7 @@ void multiThreadedCityRides(GHashTable *cityTable, const DriverData *driverdata,
 
 }
 
-RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata) {
+RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata, char *buffer) {
 
 	int numberOfDrivers = getNumberOfDrivers(driverdata); // número de drivers, necessário para construir arrays com info de cada driver (Q1,Q2,Q7)
 
@@ -170,19 +170,18 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	
 	parse_format format;
 
-	// parse_func_struct format_array[N_OF_FIELDS] = {
-	// 	{ p_getID, offsetof(RidesStruct, ID), 0, },
-	// 	{ p_getDate, offsetof(RidesStruct, date), 0, },
-	// 	{ p_getDriver, offsetof(RidesStruct, driver), 0, },
-	// 	{ p_getName, offsetof(RidesStruct, user), 1, },
-	// 	{ p_getCity, offsetof(RidesStruct, city), 1, },
-	// 	{ p_getDistance, offsetof(RidesStruct, distance), 0, },
-	// 	{ p_getScoreUser,offsetof(RidesStruct, score_u), 0, },
-	// 	{ p_getScoreDriver, offsetof(RidesStruct, score_d), 0, },
-	// 	{ p_getTip, offsetof(RidesStruct, tip), 0, },
-	// 	{ p_getComment, 0, 0 }, // comment nao é guardado mas temos de lhe dar skip
-	// };
-	parse_func_struct *format_array = NULL;
+	parse_func_struct format_array[N_OF_FIELDS] = {
+		{ p_getID, offsetof(RidesStruct, ID), 0, },
+		{ p_getDate, offsetof(RidesStruct, date), 0, },
+		{ p_getID, offsetof(RidesStruct, driver), 0, },
+		{ p_getString, offsetof(RidesStruct, user), 1, },
+		{ p_getString, offsetof(RidesStruct, city), 1, },
+		{ p_getShortPositiveInt, offsetof(RidesStruct, distance), 0, },
+		{ p_getShortPositiveInt,offsetof(RidesStruct, score_u), 0, },
+		{ p_getShortPositiveInt, offsetof(RidesStruct, score_d), 0, },
+		{ p_getTip, offsetof(RidesStruct, tip), 0, },
+		{ p_checkEmptyNewline, 0, 0 }, // comment nao é guardado mas temos de lhe dar skip
+	};
 
 	format.format_array = format_array;
 	format.len = N_OF_FIELDS;
@@ -190,11 +189,13 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	int invalid = 0;
 	while (fgetc(ptr) != '\n'); // avançar a primeira linha (tbm podia ser um seek hardcoded)
 
-	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, numberOfDrivers);
+	int bp = 0, sp = 0;
+
+	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, numberOfDrivers, &bp, &sp, buffer);
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(ridesArray, secondaryArray);
-		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, numberOfDrivers);
+		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, numberOfDrivers, &bp, &sp, buffer);
 	}
 
 	int num = (ridesArray->len - 1) * SIZE;
@@ -219,7 +220,7 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	return data;
 }
 
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, int numberOfDrivers) {
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, int numberOfDrivers, int *bp, int *sp, char *buffer) {
 	
 	int i, res;
 	char *city;
@@ -231,7 +232,7 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_form
 
 	for (i = 0; i < SIZE; i++) {
 
-		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format, NULL, NULL, NULL)) == 1) {
+		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format, bp, sp, buffer)) == 1) {
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
 

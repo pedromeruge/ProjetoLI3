@@ -14,6 +14,7 @@ int main (int argc, char **argv) {
 	double cpu_time_used;
 	struct timespec start, finish, delta;
 	char buffer[128];
+	char *main_buffer = malloc(SIZE_OF_READ_BUFFER);
 
 	if (argc == 2) { // testar o tempo de load, mais nada
 		FILE ** files = open_cmdfiles(argc,argv);
@@ -104,6 +105,7 @@ int main (int argc, char **argv) {
 	freeDriverData(drivers);
 	freeRidesData(rides);
 	free(files);
+	free(main_buffer);
 
 	cpu_end = clock();
 	clock_gettime(CLOCK_REALTIME, &finish);

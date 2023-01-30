@@ -21,7 +21,7 @@ typedef struct driverRatingInfo driverRatingInfo;
 typedef struct RidesData RidesData;
 
 // funções de criar e destruir estrutura de dados de rides
-RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata); // retorna a estrutura de dados de rides
+RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata, char *buffer); // retorna a estrutura de dados de rides
 void freeRidesData(RidesData *); // limpa a estrutura de dados das rides
 
 // funções de rides associadas a cidades

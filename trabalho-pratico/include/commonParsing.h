@@ -66,24 +66,10 @@ int p_getPayMethod(char *buffer, int *bp, void *res);
 int p_getAccountStatus(char *buffer, int *bp, void *res);
 int p_checkEmpty(char *buffer, int *bp, void *res);
 int p_getCarClass(char *buffer, int *bp, void *res);
+int p_getShortPositiveInt(char *buffer, int *bp, void *res);
+int p_getTip(char *buffer, int *bp, void *res);
+int p_checkEmptyNewline(char *buffer, int *bp, void *res);
 
-// int p_getPayMethod(FILE *ptr, void *res);
-// int p_getAccountStatus(FILE *ptr, void *res);
-// int p_getUserName(FILE *ptr, void *res);
-// int p_getDate(FILE *ptr, void *res);
-// int p_getDriver(FILE *ptr, void *res);
-// int p_getName(FILE *ptr, void *res);
-// int p_getCity(FILE *ptr, void *res);
-// int p_getDistance(FILE *ptr, void *res);
-// int p_getScoreUser(FILE *ptr, void *res);
-// int p_getScoreDriver(FILE *ptr, void *res);
-// int p_getTip(FILE *ptr, void *res);
-// int p_getGender(FILE *ptr, void *res);
-// int p_getCarClass(FILE *ptr, void *res);
-// int p_getLicensePlate(FILE *ptr, void *res);
-// int p_getID(FILE *ptr, void *res);
-// int p_getDriverID(FILE *ptr, void *res);
-// int p_getComment(FILE *ptr, void *res);
 Date atoDate(const char *str);
 
 int parse_with_format(FILE *ptr, void *data, const parse_format *format, int *bp, int *sp, char *buffer);

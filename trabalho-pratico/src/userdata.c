@@ -90,6 +90,7 @@ UserData *getUserData(FILE *ptr, char *buffer)
 			if (g_hash_table_insert(table, username, userstruct) == FALSE)
 			{
 				fprintf(stderr, "Username already existed\n");
+				// printf("buffer: %.512s\n", buffer + bp - 256);
 				// printf("Buffer: %s\n %d %d\n", buffer, bp, sp);
 				exit(5);
 			}

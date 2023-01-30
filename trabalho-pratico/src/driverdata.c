@@ -44,9 +44,10 @@ SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *inv
 
 	SecondaryDriverArray *resArray = malloc(sizeof(SecondaryDriverArray));
 	DriverStruct * driverStructArray = resArray->array;
-
+	// int old , new;
 	for (i = 0; i < SIZE; i++)
 	{
+		// old = atoi(buffer + *bp);
 		if ((res = parse_with_format(ptr, (void *)&driverStructArray[i], format, bp, sp, buffer)) == 0)
 		{
 			(*invalid)++;
@@ -57,6 +58,9 @@ SecondaryDriverArray *getDrivers(FILE *ptr, const parse_format *format, int *inv
 			}
 			break;
 		}
+		// new = atoi(buffer + *bp);
+		// printf("%d %d\n", old, new);
+		// if (new - old != 1) printf("%d %d\n", old, new);
 	}
 
 	if (resArray != NULL) resArray->len = i;
