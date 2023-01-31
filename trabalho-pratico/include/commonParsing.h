@@ -40,7 +40,7 @@ typedef uint32_t Date;
 // > 0 se nao
 typedef int parse_func (char *buffer, int *bp, void *res);
 
-#define SIZE_OF_READ_BUFFER (1 << 12)
+#define SIZE_OF_READ_BUFFER (1 << 16)
 
 // esta struct tem de ser conhecida para módulos exteriores
 typedef struct {
