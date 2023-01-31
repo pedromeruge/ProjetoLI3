@@ -23,11 +23,11 @@ int main (int argc, char **argv) {
 		cpu_start = clock();
 		clock_gettime(CLOCK_REALTIME, &start);
 
-		UserData * users = getUserData(files[0]);
+		UserData * users = getUserData(files[0], main_buffer);
 	
-		DriverData* drivers = getDriverData(files[1]);
+		DriverData* drivers = getDriverData(files[1], main_buffer);
 
-		RidesData * rides = getRidesData(files[2], users, drivers);
+		RidesData * rides = getRidesData(files[2], users, drivers, main_buffer);
 
 		cpu_end = clock();
 		clock_gettime(CLOCK_REALTIME, &finish);
@@ -71,11 +71,11 @@ int main (int argc, char **argv) {
 	cpu_start = clock();
 	clock_gettime(CLOCK_REALTIME, &start);
 
-	UserData * users = getUserData(files[0]);
+	UserData * users = getUserData(files[0], main_buffer);
 	
-	DriverData * drivers = getDriverData(files[1]);
+	DriverData * drivers = getDriverData(files[1], main_buffer);
 
-	RidesData * rides = getRidesData(files[2], users, drivers);
+	RidesData * rides = getRidesData(files[2], users, drivers, main_buffer);
 
 	cpu_end = clock();
 	clock_gettime(CLOCK_REALTIME, &finish);
