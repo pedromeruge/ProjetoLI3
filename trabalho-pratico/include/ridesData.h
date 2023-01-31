@@ -12,10 +12,12 @@ typedef struct RidesStruct RidesStruct;
 typedef struct CityRides CityRides;
 
 // estrutura de dados com informações de todas as rides, divido em riders e ordenada com base em posição no ficheiro de input
-typedef struct ridesByDriver ridesByDriver;
+typedef struct ridesByDriverCity ridesByDriverCity;
+typedef struct ridesByDriverGlobal ridesByDriverGlobal;
 
 // informação resumida de todas as rides sobre um driver
-typedef struct driverRatingInfo driverRatingInfo;
+typedef struct driverRatingInfoGlobal driverRatingInfoGlobal;
+typedef struct driverRatingInfoCity driverRatingInfoCity;
 
 // estrtura de dados com informações de todas as rides, ordenada com base em posição no ficheiro de input
 typedef struct RidesData RidesData;
@@ -46,18 +48,22 @@ void dumpDriverInfoArray (char *, GPtrArray *, char *, int dataStatus);
 // CityRides * cityIteratorGetRides(CityIterator *); // devolve o CityRides* associado à cidade atual
 
 // funções de rides associadas a drivers
-const ridesByDriver *getRidesByDriver(const RidesData *);
-const ridesByDriver *getRidesByDriverSorted(const RidesData *);
-const ridesByDriver *getRidesByDriverInCity(const CityRides * );
-const driverRatingInfo *getDriverInfo(const ridesByDriver *, guint); // devolve a informação de um driver para todas as rides
-int getridesByDriverArraySize(const ridesByDriver *); // mudar para unsigned int ??
+const ridesByDriverGlobal *getRidesByDriverGlobal(const RidesData *);
+const ridesByDriverGlobal *getRidesByDriverGlobalSorted(const RidesData *);
+const ridesByDriverCity *getRidesByDriverCity(const CityRides *);
+const driverRatingInfoGlobal *getDriverInfoGlobal(const ridesByDriverGlobal *, guint); // devolve a informação de um driver global
+const driverRatingInfoCity *getDriverInfoCity(const ridesByDriverCity *, guint); // devolve a informação de um driver para uma cidade
+int getRidesByDriverGlobalArraySize(const ridesByDriverGlobal *); // mudar para unsigned int ??
+int getRidesByDriverCityArraySize(const ridesByDriverCity *); // mudar para unsigned int ??
 
-double getDriverAvgRating(const driverRatingInfo *);
-double getDriverTipsTotal(const driverRatingInfo *);
-Date getDriverMostRecRideDate(const driverRatingInfo *);
-short int getDriverRidesNumber(const driverRatingInfo *);
-int getDriverNumber(const driverRatingInfo *);
-short int getDriverDistTraveled(const driverRatingInfo *);
+double getDriverGlobalAvgRating(const driverRatingInfoGlobal *);
+double getDriverCityAvgRating(const driverRatingInfoCity *);
+double getDriverTipsTotal(const driverRatingInfoGlobal *);
+Date getDriverMostRecRideDate(const driverRatingInfoGlobal *);
+short int getDriverRidesNumber(const driverRatingInfoGlobal *);
+int getDriverNumberGlobal(const driverRatingInfoGlobal *);
+int getDriverNumberCity(const driverRatingInfoCity *);
+short int getDriverDistTraveled(const driverRatingInfoGlobal *);
 
 //devolve os top N elementos de um array ordenado, dadas funções do resultado a escrever para uma string
 // TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)

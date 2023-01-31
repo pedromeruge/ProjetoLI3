@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include "commonParsing.h"
 
-char * topN(const ridesByDriver * driverRatingArray, int N, const DriverData *driverData);
+char * topNGlobal(const ridesByDriverGlobal * driverRatingArray, int N, const DriverData *driverData);
+char * topNCity(const ridesByDriverCity * driverRatingArray, int N, const DriverData *driverData);
 
 #endif 

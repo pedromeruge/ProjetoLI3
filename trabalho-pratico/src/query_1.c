@@ -19,13 +19,13 @@ double driver_total_earned(int idstr, RidesData *ridesdata, DriverData *driverDa
     unsigned int distance[3] = {0, 0, 0}, numRides[3] = {0, 0, 0};
     DriverStruct *currentDriver = getDriverPtrByID(driverData, idstr);
     unsigned char carClass = getDriverCar(currentDriver);
-    const ridesByDriver *ridesInf = getRidesByDriver(ridesdata);
-    const driverRatingInfo *driver_r_Inf = getDriverInfo(ridesInf, idstr);
+    const ridesByDriverGlobal *ridesInf = getRidesByDriverGlobal(ridesdata);
+    const driverRatingInfoGlobal *driver_r_Inf = getDriverInfoGlobal(ridesInf, idstr);
     tip = getDriverTipsTotal(driver_r_Inf);
     distance[carClass] = getDriverDistTraveled(driver_r_Inf);
     numRides[carClass] = getDriverRidesNumber(driver_r_Inf);
     total_spent = ((double)(numRides[0] * 3.25 + numRides[1] * 4 + numRides[2] * 5.2 + distance[0] * 0.62 + distance[1] * 0.79 + distance[2] * 0.94) + tip);
-    free((ridesByDriver *)ridesInf);
+    free((ridesByDriverGlobal *)ridesInf);
     return total_spent;
 }
 
@@ -37,11 +37,11 @@ char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, Rid
 		if (testDriverBounds(driverData, numero) == 1) return NULL;
         DriverStruct *driverInf = getDriverPtrByID(driverData, numero);
 		if (driverInf == NULL) return NULL;
-        const ridesByDriver *ridesInf = getRidesByDriver(ridesData);
-        const driverRatingInfo *driver_r_Inf = getDriverInfo(ridesInf, numero);
+        const ridesByDriverGlobal *ridesInf = getRidesByDriverGlobal(ridesData);
+        const driverRatingInfoGlobal *driver_r_Inf = getDriverInfoGlobal(ridesInf, numero);
         if (getDriverStatus(driverInf) == INACTIVE)
         {
-            free((ridesByDriver *)ridesInf);
+            free((ridesByDriverGlobal *)ridesInf);
             return NULL;
         }
         else
@@ -50,9 +50,9 @@ char *query_1(char * inputStr[], UserData *userData, DriverData *driverData, Rid
             Date birthdate = getDriverBirthdate(driverInf);
             char *driverResult = malloc(STR_BUFF_SIZE * sizeof(char));
             snprintf(driverResult, STR_BUFF_SIZE, "%s;%c;%d;%.3f;%d;%.3f\n", d_name, getDriverGender(driverInf), getAge(birthdate), 
-            getDriverAvgRating(driver_r_Inf), getDriverRidesNumber(driver_r_Inf), driver_total_earned(numero, ridesData, driverData));
+            getDriverGlobalAvgRating(driver_r_Inf), getDriverRidesNumber(driver_r_Inf), driver_total_earned(numero, ridesData, driverData));
             free(d_name);
-            free((ridesByDriver *)ridesInf);
+            free((ridesByDriverGlobal *)ridesInf);
             return driverResult;
         }
     }

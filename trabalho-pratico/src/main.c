@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	fclose(files[0]);
 	fclose(files[1]);
 	fclose(files[2]);
-	fclose(files[3]);
+	if (files[3] != NULL) fclose(files[3]);
 
 	freeUserData(users);
 	freeDriverData(drivers);
