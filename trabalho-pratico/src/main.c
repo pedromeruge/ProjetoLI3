@@ -22,19 +22,19 @@ int main(int argc, char **argv)
 
 	printf("Finished loading\n");
 
-	// int ret;
-	// if (files[3] == NULL)
-	// 	ret = interactRequests(users, drivers, rides);
-	// else
-	// 	ret = batchRequests(files[3], users, drivers, rides);
+	int ret;
+	if (files[3] == NULL)
+		ret = interactRequests(users, drivers, rides);
+	else
+		ret = batchRequests(files[3], users, drivers, rides);
 
-	// if (ret)
-	// {
-	// 	fprintf(stderr, "Error reading query requests, return value: %d\n", ret);
-	// 	return 2;
-	// }
+	if (ret)
+	{
+		fprintf(stderr, "Error reading query requests, return value: %d\n", ret);
+		return 2;
+	}
 
-	// printf("\nFinished queries\n");
+	printf("\nFinished queries\n");
 
 	fclose(files[0]);
 	fclose(files[1]);
