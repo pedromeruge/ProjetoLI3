@@ -4,7 +4,7 @@
 
 #define N_OF_FIELDS 9
 
-#define SIZE 10000
+#define SIZE (1 << 14)
 
 #define DRIVER_IS_VALID(driver) (driver->name != NULL)
 
@@ -29,6 +29,7 @@ typedef struct {
 
 struct DriverData {
 	GPtrArray* driverArray;
+	unsigned int numberOfDrivers;
 };
 
 struct parse_func_struct {
@@ -109,6 +110,7 @@ DriverData * getDriverData(FILE *ptr, char *buffer)
 	secondaryArray = g_ptr_array_index(driverarray, driverarray->len - 1);
 	num += secondaryArray->len;
 	printf("Total number of drivers: %d\nNumber of invalid drivers: %d\n", num, invalid);
+	newDriverData->numberOfDrivers = num;
 
 	return newDriverData;
 }
@@ -148,25 +150,18 @@ DriverStruct *getDriverPtrByID(const DriverData * data, guint ID)
 	// deixou de ser checked aqui
 	// if (i > array->len) return NULL;
 	SecondaryDriverArray *secondaryArray = g_ptr_array_index(array, i);
-	DriverStruct * result = &(secondaryArray->array[ID - SIZE * i]);
+	DriverStruct * result = &(secondaryArray->array[ID & (SIZE - 1)]);
 	return DRIVER_IS_VALID(result) ? result : NULL;
 }
 
 // devolve o número de drivers no ficheiro de input; função necessária para criar arrays sobre drivers, no ridesData.c
-int getNumberOfDrivers (const DriverData * driverData) { 
-	GPtrArray * driverArray = driverData->driverArray;
-	int num = (driverArray->len - 1) * SIZE;
-	SecondaryDriverArray * secondaryArray = g_ptr_array_index(driverArray, driverArray->len - 1);
-	num += secondaryArray->len;
-	return num;
+inline int getNumberOfDrivers (const DriverData * driverData) {
+	return driverData->numberOfDrivers;
 }
 
 // 1 se ultrapassar bounds
 inline int testDriverBounds(const DriverData *data, guint ID) {
-	GPtrArray *array = data->driverArray;
-	ID -= 1;
-	guint i = ID / SIZE;
-	return (i > array->len) ? 1 : 0; 
+	return (ID - 1 > data->numberOfDrivers) ? 1 : 0;
 }
 
 inline char *getDriverName(const DriverStruct *driver)

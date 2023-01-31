@@ -6,7 +6,7 @@
 // buffer ja vem com offset
 int p_getID(char *buffer, int *bp, void *res) {
 	char *endptr;
-	int val = (int)strtol(buffer, &endptr, 10);
+	int val = (int)strtoul(buffer, &endptr, 10);
 	// if buffer[0] == ';'????
 	if (endptr == buffer) {
 		(*bp) ++;
@@ -243,8 +243,8 @@ int parse_with_format(FILE *ptr, void *data, const parse_format *format, int *bp
 		}
 		// pode acontecer o parse nao ter avançado o suficiente para sequer chegar ao campo que tem de ficar a NULL
 		if (!flag) {
-			for (; i < (const int)format->len; i++) {
-				current = array[i];
+			for (; j < (const int)format->len; j++) {
+				current = array[j];
 				info = (void **)(field_ptr + current.offset);
 				if (current.should_free) {
 					*info = NULL;

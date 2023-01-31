@@ -3,7 +3,7 @@
 
 #define RIDE_STR_BUFF 32
 #define N_OF_FIELDS 10
-#define SIZE 100000
+#define SIZE (1 << 17)
 #define RIDES_PER_CITY 200000
 #define RIDE_IS_VALID(ride) (ride->user != NULL)
 
@@ -833,15 +833,17 @@ void dumpDriverInfoArray (char * filename, GPtrArray * driverInfo, char * addToF
 }
 
 // devolve a struct(dados) associada à ride número i
+// esta função nunca é chamada????
 RidesStruct * getRidePtrByID(const RidesData *data, guint ID)
 {
-	ID -= 1; // para a primeira ride passar a ser 0
-	guint i = ID / SIZE;
-	GPtrArray *array = data->ridesArray;
-	SecondaryRidesArray *secondaryArray = g_ptr_array_index(array, i);
+	exit(5);
+	// ID -= 1; // para a primeira ride passar a ser 0
+	// guint i = ID / SIZE;
+	// GPtrArray *array = data->ridesArray;
+	// SecondaryRidesArray *secondaryArray = g_ptr_array_index(array, i);
 
-	RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
-	return (RIDE_IS_VALID(result)) ? result : NULL;
+	// RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
+	// return (RIDE_IS_VALID(result)) ? result : NULL;
 }
 
 inline int getRideID(const RidesStruct * ride) {

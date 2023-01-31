@@ -21,9 +21,10 @@ typedef struct {
 //função que constroi a string final, a partir do array já ordenado com base nos parâmetros fornecidos
 char * printArrayToStr(const GPtrArray * ridesArray) {
     int i, arrayLen = ridesArray->len;
-    char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * arrayLen); // malloc muito grande, talvez particionar em array de strings com BUFFER_SIZE (1000 talvez?)
-    // if (resultStr == NULL) return NULL; // if malloc fails
-    resultStr[0] = '\0';
+	// malloc(0) pode não ser NULL
+    if (arrayLen == 0) return NULL;
+	char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * arrayLen); // malloc muito grande, talvez particionar em array de strings com BUFFER_SIZE (1000 talvez?)
+	resultStr[0] = '\0';
     char * rideCity;
     Date rideDate;
     RidesStruct * currentRide = NULL;
