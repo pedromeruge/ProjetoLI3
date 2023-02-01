@@ -52,14 +52,16 @@ void dumpCityRides (char *, GHashTable *, CityRides *, GPtrArray *);
 // CityRides * cityIteratorGetRides(CityIterator *); // devolve o CityRides* associado à cidade atual
 
 // funções de rides associadas a drivers
-const driversInfo *getDriversInfo(const RidesData *);
-const fullDriverInfo *getDriverInfo(const driversInfo *, guint); // devolve a informação de um driver global
-//int getDriversInfoArraySize(const driversInfo *); // mudar para unsigned int ??
 
+//funções que devolvem arrays
 const driversRating *getDriversRatingGlobal(const RidesData *);
 const driversRating *getDriversRatingCity (const CityRides *);
+
+//funções que devolvem structs
+const fullDriverInfo *getDriverGlobalInfoByID(const RidesData *, guint); // devolve a informação de um driver global
 const partialDriverInfo *getDriverRating(const driversRating *, guint); // mudar para unsigned int
 
+//funções que acedem a elementos das structs
 double getDriverGlobalAvgRating(const fullDriverInfo *);
 double getDriverTipsTotal(const fullDriverInfo *);
 Date getDriverMostRecRideDate(const fullDriverInfo *);
