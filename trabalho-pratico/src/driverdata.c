@@ -14,10 +14,9 @@ struct DriverStruct
 	char *name;
 	Date birthdate;
 	unsigned char gender;
-	// estes podem todos ser mudados para alguma coisa melhor
 	unsigned char carClass; // é usado o primeiro char da palavra para converter em 0, 1 ou 2
 	char *licensePlate;
-	char *city;
+	// char *city; // não usados
 	Date accountCreation;
 	unsigned char status;
 };
@@ -84,7 +83,7 @@ DriverData * getDriverData(FILE *ptr, char *buffer)
 		{ p_getGender, offsetof(DriverStruct, gender), 0, },
 		{ p_getCarClass, offsetof(DriverStruct, carClass), 0, },
 		{ p_getString, offsetof(DriverStruct, licensePlate), 1, },
-		{ p_getString, offsetof(DriverStruct, city), 1, },
+		{ p_checkEmpty, 0, 0}, // os dados disto nunca sao escritos, é só para ver se é vazio ou não
 		{ p_getDate, offsetof(DriverStruct, accountCreation), 0, },
 		{ p_getAccountStatus, offsetof(DriverStruct, status), 0, },
 	};
@@ -133,7 +132,7 @@ void freeDriversPtrArray(void * data) {
 			free(block->name);
 			//free(&block->birthdate);
 			free(block->licensePlate);
-			free(block->city);
+			//free(block->city);
 			//free(&block->accountCreation);
 		}
 	}
@@ -189,10 +188,10 @@ inline char *getDriverPlate(const DriverStruct *driver)
 	return strndup(driver->licensePlate, DRIVER_STR_BUFF);
 }
 
-inline char *getDriverCity(const DriverStruct *driver)
-{
-	return strndup(driver->city, DRIVER_STR_BUFF);
-}
+// inline char *getDriverCity(const DriverStruct *driver)
+// {
+// 	return strndup(driver->city, DRIVER_STR_BUFF);
+// }
 
 //ver modularidade depois!
 inline Date getDriverAccCreation(const DriverStruct *driver)

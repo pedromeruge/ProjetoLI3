@@ -11,15 +11,20 @@ typedef struct RidesStruct RidesStruct;
 // estrutura de dados com informações de todas as rides, divido em cidades e ordenada com base em data
 typedef struct CityRides CityRides;
 
-// estrutura de dados com informações de todas as rides, divido em riders e ordenada com base em posição no ficheiro de input
-typedef struct ridesByDriverCity ridesByDriverCity;
-typedef struct ridesByDriverGlobal ridesByDriverGlobal;
+//informações resumida de cada driver, abrange todas as rides (avaliação média, número, número de rides, total viajado, tips total, data mais recente de viagem)
+typedef struct fullDriverInfo fullDriverInfo;
+//informações de todas a rides para cada driver, pode abranger todas as rides, ou apenas as de uma cidade (avaliação média, número)
+typedef struct partialDriverInfo partialDriverInfo;
 
 // informação resumida de todas as rides sobre um driver
-typedef struct driverRatingInfoGlobal driverRatingInfoGlobal;
-typedef struct driverRatingInfoCity driverRatingInfoCity;
+typedef struct driversInfo driversInfo;
+typedef struct driversRating driversRating;
 
-// estrtura de dados com informações de todas as rides, ordenada com base em posição no ficheiro de input
+//aceder a uma struct particular
+// typedef struct driverInfo driverInfo;
+// typedef struct driverRating driverRating;
+
+// estrtura de dados com informações de todas as rides
 typedef struct RidesData RidesData;
 
 // funções de criar e destruir estrutura de dados de rides
@@ -41,29 +46,30 @@ void searchCityRidesByDate(const CityRides *rides, Date dateA, Date dateB, int *
 
 //funções de debug
 void dumpCityRides (char *, GHashTable *, CityRides *, GPtrArray *);
-void dumpDriverInfoArray (char *, GPtrArray *, char *, int dataStatus);
 
 // CityIterator * cityIteratorInit(RidesData *); // retorna um iterador (precisa de free depois)
 // gboolean cityIteratorNext(CityIterator *); // itera pelas cidades
 // CityRides * cityIteratorGetRides(CityIterator *); // devolve o CityRides* associado à cidade atual
 
 // funções de rides associadas a drivers
-const ridesByDriverGlobal *getRidesByDriverGlobal(const RidesData *);
-const ridesByDriverGlobal *getRidesByDriverGlobalSorted(const RidesData *);
-const ridesByDriverCity *getRidesByDriverCity(const CityRides *);
-const driverRatingInfoGlobal *getDriverInfoGlobal(const ridesByDriverGlobal *, guint); // devolve a informação de um driver global
-const driverRatingInfoCity *getDriverInfoCity(const ridesByDriverCity *, guint); // devolve a informação de um driver para uma cidade
-int getRidesByDriverGlobalArraySize(const ridesByDriverGlobal *); // mudar para unsigned int ??
-int getRidesByDriverCityArraySize(const ridesByDriverCity *); // mudar para unsigned int ??
+const driversInfo *getDriversInfo(const RidesData *);
+const fullDriverInfo *getDriverInfo(const driversInfo *, guint); // devolve a informação de um driver global
+//int getDriversInfoArraySize(const driversInfo *); // mudar para unsigned int ??
 
-double getDriverGlobalAvgRating(const driverRatingInfoGlobal *);
-double getDriverCityAvgRating(const driverRatingInfoCity *);
-double getDriverTipsTotal(const driverRatingInfoGlobal *);
-Date getDriverMostRecRideDate(const driverRatingInfoGlobal *);
-short int getDriverRidesNumber(const driverRatingInfoGlobal *);
-int getDriverNumberGlobal(const driverRatingInfoGlobal *);
-int getDriverNumberCity(const driverRatingInfoCity *);
-short int getDriverDistTraveled(const driverRatingInfoGlobal *);
+const driversRating *getDriversRatingGlobal(const RidesData *);
+const driversRating *getDriversRatingCity (const CityRides *);
+const partialDriverInfo *getDriverRating(const driversRating *, guint); // mudar para unsigned int
+
+double getDriverGlobalAvgRating(const fullDriverInfo *);
+double getDriverTipsTotal(const fullDriverInfo *);
+Date getDriverMostRecRideDate(const fullDriverInfo *);
+short int getDriverRidesNumber(const fullDriverInfo *);
+int getDriverNumberGlobal(const fullDriverInfo *);
+short int getDriverDistTraveled(const fullDriverInfo *);
+
+double getDriverAvgRating(const partialDriverInfo *);
+int getDriverNumber(const partialDriverInfo *);
+int getDriversRatingArraySize(const driversRating *); // mudar para unsigned int ??
 
 //devolve os top N elementos de um array ordenado, dadas funções do resultado a escrever para uma string
 // TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)

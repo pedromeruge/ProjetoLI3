@@ -216,7 +216,7 @@ void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[])
     (queryNumber != -1) ? printQueryOutput(splitQueryResults, 1, segmMaxSizes, numberOfPages, queryNumber, windows) 
                         : printHelpCommands(splitQueryResults,1, numberOfPages, windows);
 
-    if (numberOfPages == 1) return; // se o número de páginas for apenas 1, volta para interactRequests
+    //if (numberOfPages == 1) return; // se o número de páginas for apenas 1, volta para interactRequests // removido, afetava help!!
 
     refreshWindow(input,"Page:");
 
