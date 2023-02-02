@@ -5,44 +5,12 @@
 
 #define STR_BUFF_SIZE 50
 
-// typedef struct {
-//     const RidesStruct * currentRide;
-//     int rideID;
-// } RidesStructWithID;
-
+//struct passada à build_func para usar no iterateOverCities
 typedef struct {
 	Date dateStart, 
          dateEnd;
     GPtrArray * ridesInTimeFrame;
 } DataStruct;
-
-//meter no query_common_funcs a receber tipos diferentes: da Q9 e da Q8
-// não pode ser igual a topN porque essa função escreve padrão diferente na string, e lê do fim para o início
-//função que constroi a string final, a partir do array já ordenado com base nos parâmetros fornecidos
-char * printArrayToStr(const GPtrArray * ridesArray) {
-    int i, arrayLen = ridesArray->len;
-	// malloc(0) pode não ser NULL
-    if (arrayLen == 0) return NULL;
-	char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * arrayLen); // malloc muito grande, talvez particionar em array de strings com BUFFER_SIZE (1000 talvez?)
-	resultStr[0] = '\0';
-    char * rideCity;
-    Date rideDate;
-    RidesStruct * currentRide = NULL;
-
-	int offset = 0;
-
-    for(i = 0 ; i < arrayLen; i++) {
-        currentRide = (RidesStruct *) g_ptr_array_index(ridesArray,i);
-        rideDate = getRideDate(currentRide);
-        rideCity = getRideCity(currentRide);
-		offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%0*d/%0*d/%u;%d;%s;%.3f\n", 12, getRideID(currentRide), 2, GET_DATE_DAY(rideDate), 2, GET_DATE_MONTH(rideDate), GET_DATE_YEAR(rideDate), getRideDistance(currentRide), rideCity, getRideTip(currentRide));
-
-		//free(rideDate);
-		free(rideCity);
-    }
-    
-    return resultStr;
-}
 
 //se esta função passasse para ridesData seria mais rapida, tirando os get !
 // função que faz o sort do array de rides, conforme os parâmetros fornecidos
@@ -70,7 +38,7 @@ gint sort_9 (gconstpointer a, gconstpointer b) {
 }
 
 // função que acrescenta a um array novo todas as rides que entrem no intervalo de tempo fornecido, em que o user tenha dado gorjeta
-//função usada em iterateOverCities; 
+//função usada em iterateOverCities
 void build_func (const CityRides *rides, void *otherData) {
     DataStruct * data = (DataStruct *)otherData;
     Date dateStart = data->dateStart,
@@ -82,11 +50,11 @@ void build_func (const CityRides *rides, void *otherData) {
 
     searchCityRidesByDate(rides, dateStart, dateEnd, &startDatePos, &endDatePos);
 
-    if ((startDatePos | endDatePos) < 0) return; // é preciso??
-    for (i = startDatePos; i <= endDatePos; i++) { // mal!!! // tem de se incluir int nas ridesStruct
+    if ((startDatePos | endDatePos) < 0) return;
+    for (i = startDatePos; i <= endDatePos; i++) {
         currentRide = getCityRidesByIndex(rides, i);
         if (getRideTip(currentRide) > 0) { // se o user tiver dado tip
-            g_ptr_array_add(ridesInTimeFrame, (gpointer)currentRide); // da para usar g_bytes_new_static?
+            g_ptr_array_add(ridesInTimeFrame, (gpointer)currentRide);
         }
     }
 }
@@ -94,14 +62,14 @@ void build_func (const CityRides *rides, void *otherData) {
 char * query_9 (char * inputStr[], UserData *userData, DriverData *driverData, RidesData *ridesData) {
     Date dateA = atoDate(inputStr[0]), dateB = atoDate(inputStr[1]);
 
-	GPtrArray * m_ridesInTimeFrame = g_ptr_array_new_with_free_func(NULL); // mudar para new full
-    DataStruct data = {.dateStart = dateA, .dateEnd = dateB, .ridesInTimeFrame = m_ridesInTimeFrame};
+	GPtrArray * myRidesInTimeFrame = g_ptr_array_new_full(1000,NULL); // função de free é NULL, porque são apenas pointers para rides, levam free noutro sítio
+    DataStruct data = {.dateStart = dateA, .dateEnd = dateB, .ridesInTimeFrame = myRidesInTimeFrame};
 
     iterateOverCities(ridesData,(void *) &data, build_func);
-    g_ptr_array_sort(m_ridesInTimeFrame, sort_9);
+    g_ptr_array_sort(myRidesInTimeFrame, sort_9);
 
-    char * result = printArrayToStr(m_ridesInTimeFrame);
+    char * result = printArrayToStr(myRidesInTimeFrame);
 
-    g_ptr_array_free(m_ridesInTimeFrame,TRUE);
+    g_ptr_array_free(myRidesInTimeFrame,TRUE);
     return result;
 }

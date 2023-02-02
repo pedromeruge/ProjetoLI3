@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	if (ret)
 	{
 		fprintf(stderr, "Error reading query requests, return value: %d\n", ret);
-		return 2;
+		return 1;
 	}
 
 	printf("\nFinished queries\n");

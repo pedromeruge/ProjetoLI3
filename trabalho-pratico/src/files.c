@@ -32,7 +32,7 @@ FILE **open_cmdfiles(int argc, char **argv) {
 	char fileName[FILEPATH_SIZE], // buffer para o nome de cada ficheiro de input a abrir
 	     * array[N_OF_INPUT_FILES+1] = {"/users.csv","/drivers.csv","/rides.csv",queryFileName};
 	FILE ** filePtrArray = malloc(sizeof(FILE *) *(N_OF_INPUT_FILES+1));
-	if (filePtrArray == NULL) exit(4);
+	filePtrArray[3] == NULL; // se o ficheiro de input nunca for carregado (modo interativo), fica NULL
 
 	for(i = 0; i < numberOfInputFiles; i++) {
 		if (i < N_OF_INPUT_FILES) { // só concatena os ficheiros de dados de input; não concantena o ficheiro das queries de input
