@@ -44,13 +44,13 @@ char * queryAssign(char * queryInputs[], UserData * userData, DriverData * drive
     query_func *queryList[9] = {query_1, query_2, query_3, query_4, query_5, query_6, query_7, NOP, query_9};
 
     //### print de debug para os input de uma query
-	//printf("%d:%d ", commandN,(*queryInputs[0]) - 49 + 1);
+	//if (commandN != 0) printf("%d:%d ", commandN,(*queryInputs[0]) - 49 + 1);
     //### 
 
     return (queryList[(*queryInputs[0]) - 49](queryInputs+1, userData, driverData, ridesData)); // -48 para dar o numero correto, -1 para a query 1 dar no lugar 0
 }
 
-//valida o comando para query recebido
+//valida o comando para query recebido (primeiro caractér é um número de 1 a 9,quries disponíveis;tem número de argumentos correto para a respetiva query)
 int validQueryInput (char * queryInput, char * inputSplit[], int * queryNumber) {
     int queryArgs[TOTAL_QUERIES_NUMBER] = {1,1,1,1,2,3,2,2,2};
     int queryNArgs = queryInputSplit(queryInput,inputSplit);
@@ -197,13 +197,8 @@ GArray * splitStringMaxParam(char * queryResult, int numberOfLines, int * * arra
 // NOTA: a partição em páginas é feita dentro do modo interativo (e não diretamente no output das queries) para não afetar o cálculo do tempo no modo batch, ainda que seja mais eficiente no modo batch 
 void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[]) {
 
-    WINDOW //* tabs = windows[0],
-    //* outputBorder = windows[1],
-    * output = windows[3],
-    //* inputBorder = windows[3],
-    * input = windows[5];
+    WINDOW * output = windows[3],* input = windows[5];
 
-    
     //separação da string em segmentos, um para cada página; cálculo dos caractéres necessários para cada parâmetro (apenas quando escreve output de uma query)
     int * segmMaxSizes = NULL;
     GArray * splitQueryResults = (queryNumber != -1) ? splitStringMaxParam(queryResult,getmaxy(output)-5, &segmMaxSizes) 
@@ -216,16 +211,17 @@ void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[])
     (queryNumber != -1) ? printQueryOutput(splitQueryResults, 1, segmMaxSizes, numberOfPages, queryNumber, windows) 
                         : printHelpCommands(splitQueryResults,1, numberOfPages, windows);
 
-    //if (numberOfPages == 1) return; // se o número de páginas for apenas 1, volta para interactRequests // removido, afetava help!!
+    //if (numberOfPages == 1) return; // se o número de páginas for apenas 1, interação diferente?
 
     refreshWindow(input,"Page:");
 
-    char * strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE); // buffer de cada linha lida
+    char * strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida
+         * validInputEnd; // pointer para usar no strtol para saber se input é correto
     int i;
 
     while (wgetnstr(input,strBuffer, INPUT_STR_BUFF_SIZE) == OK) {// recebe continuamente input
         wclear(output);
-        if ((i = atoi(strBuffer))>0 && i <= numberOfPages && strBuffer[1] == '\0') { // se o input for válido, escreve o output da pagina pedida
+        if ((i = strtol(strBuffer,&validInputEnd,10))>0 && i <= numberOfPages && validInputEnd[0] == '\0') { // se o input for válido, escreve o output da pagina pedida
             (queryNumber != -1) ? printQueryOutput(splitQueryResults, i, segmMaxSizes, numberOfPages, queryNumber, windows) 
                                 : printHelpCommands(splitQueryResults, i ,numberOfPages, windows);
         }
@@ -355,8 +351,7 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
     char *strBuffer = malloc(sizeof(char) * INPUT_STR_BUFF_SIZE), // buffer de cada linha lida
          *queryResult = NULL, // guarda a string resultante de cada querry
          *queryInputSplit[MAX_QUERY_INPUTS+1]; // array com segmentos de input para uma query, atualizado por queryInputSplit
-    int commandN = 1, // só para debug, pode-se remover depois
-        queryNumber;
+    int queryNumber;
 
 
     while (wgetnstr(input,strBuffer, INPUT_STR_BUFF_SIZE) == OK) { // receber input no terminal
@@ -367,7 +362,7 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
             helpCommands(allWindows);
         }
         else if (validQueryInput(strBuffer,queryInputSplit,&queryNumber)) { // se o input for um número para uma query
-            queryResult = queryAssign(queryInputSplit,userData,driverData,ridesData,commandN);
+            queryResult = queryAssign(queryInputSplit,userData,driverData,ridesData,0); // string resultante da query
 
             if (queryResult == NULL) { //  resultado da query é NULL
                 werase(output);
@@ -385,7 +380,6 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
         // recriar linha de input com apenas a string "Input:"
         refreshWindow(input,"Input:");
         //manter linha de output, para ver o resultado, enquanto não adiciona novo input
-        //removi debug da queryAssign, estava a afetar a window de input !!, quando reformular a validação de input, tirar de coentário !
     }
 
     int i;
