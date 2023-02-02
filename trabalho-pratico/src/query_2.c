@@ -13,11 +13,8 @@ char * query_2 (char * inputStr[], UserData *userData, DriverData * driverData, 
 	int num = atoi(inputStr[0]);
 	if (num == 0) return NULL;
 
-    const driversRating * driverRatingArray = getDriversRatingGlobal (ridesData);
-    
-    char * result = topN(driverRatingArray,num, driverData);
-
-    free((driversRating *) driverRatingArray);
+    topNfunc getDriverRating = &getDriverGlobalRatingByID;
+    char * result = topN(ridesData, driverData, num, ridesData, getDriverRating);
 
     // NOTA: query 3 é indentica a função query_2 mas usa outros valores e outra compare func. Fazer um ptr_array com toda a informação e ordená-lo segundo a função dada talvez??
     // NOTA: a maior parte das funções de queries resume-se a "n primeiros" e "valores médios" apenas variando os parâmetros de comparação e o abrangimento dos dados de input. Estas funções mais básicas devem ser capazes de receber diferentes categorias (mais ou menos restritas) de dados e ordená-las com base nos parâmetros dados

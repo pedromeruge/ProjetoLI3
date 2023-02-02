@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include "commonParsing.h"
 
-char * topN(const driversRating * driverRatingArray, int N, const DriverData *driverData);
+typedef const partialDriverInfo * (*topNfunc)(const void * arg1, unsigned int);
+
+char * topN(const RidesData *, const DriverData *, int N, const void * funcArg1, topNfunc);
 
 #endif 

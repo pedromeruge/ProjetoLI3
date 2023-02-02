@@ -5,6 +5,9 @@
 #include "driverdata.h"
 #include "userdata.h"
 
+// estrtura de dados com informações de todas as rides
+typedef struct RidesData RidesData;
+
 // informações de uma ride
 typedef struct RidesStruct RidesStruct;
 
@@ -15,17 +18,6 @@ typedef struct CityRides CityRides;
 typedef struct fullDriverInfo fullDriverInfo;
 //informações de todas a rides para cada driver, pode abranger todas as rides, ou apenas as de uma cidade (avaliação média, número)
 typedef struct partialDriverInfo partialDriverInfo;
-
-// informação resumida de todas as rides sobre um driver
-typedef struct driversInfo driversInfo;
-typedef struct driversRating driversRating;
-
-//aceder a uma struct particular
-// typedef struct driverInfo driverInfo;
-// typedef struct driverRating driverRating;
-
-// estrtura de dados com informações de todas as rides
-typedef struct RidesData RidesData;
 
 // funções de criar e destruir estrutura de dados de rides
 RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata, char *buffer); // retorna a estrutura de dados de rides
@@ -53,13 +45,10 @@ void dumpCityRides (char *, GHashTable *, CityRides *, GPtrArray *);
 
 // funções de rides associadas a drivers
 
-//funções que devolvem arrays
-const driversRating *getDriversRatingGlobal(const RidesData *);
-const driversRating *getDriversRatingCity (const CityRides *);
-
 //funções que devolvem structs
-const fullDriverInfo *getDriverGlobalInfoByID(const RidesData *, guint); // devolve a informação de um driver global
-const partialDriverInfo *getDriverRating(const driversRating *, guint); // mudar para unsigned int
+const fullDriverInfo * getDriverGlobalInfoByID(const RidesData *, unsigned int); // devolve a informação de um driver global
+const partialDriverInfo * getDriverGlobalRatingByID(const void * ridesData, unsigned int);
+const partialDriverInfo * getDriverCityRatingByID(const void * cityData, unsigned int);
 
 //funções que acedem a elementos das structs
 double getDriverGlobalAvgRating(const fullDriverInfo *);
@@ -71,7 +60,7 @@ short int getDriverDistTraveled(const fullDriverInfo *);
 
 double getDriverAvgRating(const partialDriverInfo *);
 int getDriverNumber(const partialDriverInfo *);
-int getDriversRatingArraySize(const driversRating *); // mudar para unsigned int ??
+int getDriversRatingArraySize(const RidesData *); // idêntico para global e cidade, total ou parcial info, logo usa-se ridesData
 
 //devolve os top N elementos de um array ordenado, dadas funções do resultado a escrever para uma string
 // TODO: inclusivo de outros tipos de array (do tipo ridesByDriver apenas, para já)

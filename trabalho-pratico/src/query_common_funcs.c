@@ -2,8 +2,8 @@
 
 #define STR_BUFF_SIZE 64
 
-char * topN(const driversRating * driverRatingArray, int N, const DriverData *driverData) {
-    int i, j, driverNumber, arrayLen = getDriversRatingArraySize(driverRatingArray);
+char * topN(const RidesData * ridesData, const DriverData * driverData, int N, const void * funcArgument, const partialDriverInfo * (*getDriverRating)(const void *, unsigned int)) {
+    int i, j, driverNumber, arrayLen = getDriversRatingArraySize(ridesData);
     unsigned char driverStatus;
 	char * result = malloc( N * STR_BUFF_SIZE * sizeof(char)); // recebe free em query_requests
     result[0] = '\0';
@@ -14,7 +14,7 @@ char * topN(const driversRating * driverRatingArray, int N, const DriverData *dr
 	int offset = 0;
     
     for (i=arrayLen, j = N; j>0 && i>0 ;i--) {
-        currentArrayStruct = getDriverRating(driverRatingArray, i);
+        currentArrayStruct = (*getDriverRating)(funcArgument, i);
         driverNumber = getDriverNumber(currentArrayStruct);
         currentDriver = getDriverPtrByID(driverData,driverNumber);
         driverName = getDriverName(currentDriver);

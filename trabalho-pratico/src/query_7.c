@@ -10,11 +10,8 @@ char * query_7(char * inputStr[], UserData *userData, DriverData *driverData, Ri
     const CityRides * cityRides = getRidesByCity(ridesData,city);
     if (cityRides == NULL) return NULL;
 
-	const driversRating * driverRatingArray = getDriversRatingCity (cityRides);
-
-    char * result = topN(driverRatingArray, num, driverData);
-
-    free((driversRating *) driverRatingArray);
+    topNfunc getDriverRating = &getDriverCityRatingByID;
+    char * result = topN(ridesData, driverData, num, cityRides, getDriverRating);
 
     return result;
 }
