@@ -4,6 +4,7 @@
 #include "commonParsing.h"
 #include "driverdata.h"
 #include "userdata.h"
+#include "statistics.h"
 
 // estrtura de dados com informações de todas as rides
 typedef struct RidesData RidesData;

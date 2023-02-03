@@ -68,13 +68,16 @@ struct RidesData {
 	GHashTable *cityTable;
 	fullDriverInfo * driverInfoArray; // info de drivers ordenada por ID
 	fullDriverInfo ** driverRatingArray; // info de drivers ordenada por parâmetros da Q2
-	int numberOfDrivers; // para saber o tamanho dos arrays de ratings
+	int numberOfDrivers; // para saber o tamanho dos arrays no freeRidesData
+	GArray * femaleArray;
+	GArray * maleArray;
 };
 
 void freeCityRides(void *data);
 gint compareRidesByDate(gconstpointer, gconstpointer);
 void *buildStatisticsInCity(void *);
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, fullDriverInfo *, int numberOfDrivers, int *bp, int *sp, char *buffer);
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata,\
+const DriverData *driverdata, fullDriverInfo * driverArray, int numberOfDrivers, int *bp, int *sp, char *buffer, GArray * maleArray, GArray * femaleArray);
 
 fullDriverInfo ** buildRidesbyDriverSorted (fullDriverInfo *, int);
 partialDriverInfo * * buildRidesByDriverCity(GPtrArray *, int);
@@ -94,6 +97,11 @@ void dumpDriversInfoArray (char * filename, fullDriverInfo * driverInfo, char * 
 void dumpDriversRatingArray (char * filename, partialDriverInfo ** driverInfo, char * addToFilename, int dataState, int numberOfDrivers);
 
 RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata, char *buffer) {
+
+	RidesData *data = malloc(sizeof(RidesData));
+
+	GArray * maleArray = new_gender_array(); 
+	GArray * femaleArray = new_gender_array();
 
 	int numberOfDrivers = getNumberOfDrivers(driverdata); // número de drivers, necessário para construir arrays com info de cada driver (Q1,Q2,Q7)
 
@@ -130,11 +138,11 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 
 	int bp = 0, sp = 0;
 
-	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer);
+	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer, femaleArray, maleArray);
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(ridesArray, secondaryArray);
-		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer);
+		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer, femaleArray, maleArray);
 	}
 
 	int num = (ridesArray->len - 1) * SIZE;
@@ -148,7 +156,6 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	
 	buildRidesByDriverGlobal(cityTable,driverInfoGlobalArray, numberOfDrivers);
 
-	RidesData *data = malloc(sizeof(RidesData));
 	data->numberOfDrivers = numberOfDrivers; // usado para o freeRidesArray
 	data->ridesArray = ridesArray; // array com input do ficheiro
 	data->cityTable = cityTable; // hash table que guarda structs com: array com rides ordenandas para uma cidade key, e array com info resumida de drivers nessa cidade;
@@ -159,7 +166,8 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	return data;
 }
 
-SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata, const DriverData *driverdata, fullDriverInfo * driverArray, int numberOfDrivers, int *bp, int *sp, char *buffer) {
+SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata,\
+const DriverData *driverdata, fullDriverInfo * driverArray, int numberOfDrivers, int *bp, int *sp, char *buffer, GArray * maleArray, GArray * femaleArray) {
 	
 	int i, res;
 	char *city;
@@ -174,8 +182,10 @@ SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_form
 		if ((res = parse_with_format(ptr, (void *)&ridesStructArray[i], format, bp, sp, buffer)) == 1) {
 			city = ridesStructArray[i].city;
 			temp = &(ridesStructArray[i]);
-
+			
 			add_user_info(userdata, driverdata, temp->user, temp->driver, temp->distance, temp->score_u, temp->tip, temp->date);
+
+			add_gender_info(maleArray, femaleArray, getDriverPtrByID(driverdata, temp->driver), getUserPtrByUsername(userdata, temp->user), temp->ID);
 
 			// check if city is not already in hash table
 			if ((cityRides = g_hash_table_lookup(cityTable, city)) == NULL)
