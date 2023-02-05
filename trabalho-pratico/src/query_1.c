@@ -1,5 +1,6 @@
 #include "query_1.h"
 
+//Função que nos dá as idades tanto de users como de drivers
 char getAge(Date date)
 {
 	int day = GET_DATE_DAY(date), month = GET_DATE_MONTH(date), year = GET_DATE_YEAR(date);
@@ -12,6 +13,7 @@ char getAge(Date date)
 	return age_year;
 }
 
+//Funnçao que calcula todo o dinheiro que um driver recebeu, contando com as viagens e as tips 
 double driver_total_earned(int idstr, RidesData *ridesdata, DriverData *driverData)
 {
     double total_spent = 0;

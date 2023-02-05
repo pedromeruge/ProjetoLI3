@@ -17,6 +17,7 @@ GArray * new_gender_array () {
     return (g_array_new(FALSE, FALSE, sizeof(genderInfo)));
 }
 
+//Função que separa as rides em dois arrays e que adicona informações aos respetivos arrays 
 void add_gender_info (GArray * maleArray, GArray * femaleArray, const DriverStruct * driver, const UserStruct * user, int rideID, int driverID) {
 	unsigned char genderDriver, genderUser;
     genderDriver = getDriverGender(driver);
@@ -29,6 +30,7 @@ void add_gender_info (GArray * maleArray, GArray * femaleArray, const DriverStru
 	}
 }
 
+//Função que da sort dos arrays começando por comparar as datas de criação de contas dos drivers, usa a mesma comparação mas com os users para desempatar e por fim se se mantiver empatado desempata pelo id da viagem
 gint sort_Q8 (gconstpointer a, gconstpointer b) {
     genderInfo * gender1 = (genderInfo *) a;
     genderInfo * gender2 = (genderInfo *) b;
@@ -46,6 +48,7 @@ void sort_gender_array (GArray * genderArray) {
     g_array_sort(genderArray, sort_Q8);
 }
 
+//Função que da print dos arrays para a Q8
 char * print_array_Q8 (GArray * array, int anos) {
     uint32_t year = REFERENCE_YEAR - anos;
     uint8_t month = REFERENCE_MONTH, day = REFERENCE_DAY;
@@ -83,6 +86,7 @@ char * print_array_Q8 (GArray * array, int anos) {
     return resultStr;
 }
 
+//Binary search para encontrar o index em que o driver tenha a data target_date
 int genderInfoBSearch(GArray *array, Date target_date) {
 	int lim = array->len - 1,
 	base = 0,

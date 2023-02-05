@@ -43,13 +43,6 @@ struct partialDriverInfo {
 	int driverNumber; // tem de ser int, em large-dataset temos drivers até 100.000
 };
 
-// typedef struct {
-// 	GThread * thread;
-// 	CityRides **cityRidesPtrArray;
-// 	int len,
-// 	n_of_drivers;
-// } ThreadStruct;
-
 // cada key da GHashTable cityTable aponta para uma struct deste tipo
 // apenas entram nas cityRides entradas válidas, já que não se faz get por ID
 struct CityRides {
@@ -162,7 +155,6 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	sort_gender_array(femaleArray);
 	data->maleArray = maleArray;
 	data->femaleArray = femaleArray;
-	//dumpDriverInfoArray("query_2-ouputs",data->driverInfoArray,NULL,1, numberOfDrivers);
 	return data;
 }
 
@@ -313,6 +305,7 @@ void freeRidesData(RidesData *data)
 	GPtrArray * ridesArray = dataStruct->ridesArray;
 	g_ptr_array_free(ridesArray, TRUE);
 
+	//free dos arrays usados na Q8
 	g_array_free(dataStruct->maleArray, TRUE);	
 	g_array_free(dataStruct->femaleArray, TRUE);
 

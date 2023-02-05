@@ -190,6 +190,7 @@ inline int getUserTotalDistance (const UserStruct* user) {
 	return (user->distance[0] + user->distance[1] + user->distance[2]);
 }
 
+//Função que compara a distância percorrida dos users 
 gint userDistComp (gconstpointer a, gconstpointer b) {
     UserStruct * user1 = *(UserStruct **) a, * user2 = *(UserStruct **) b;
     short int * distance1 = user1->distance, * distance2 = user2->distance; 
@@ -202,11 +203,12 @@ gint userDistComp (gconstpointer a, gconstpointer b) {
     } else return result;
 }
 
+//Função que da sort do array que contém os users em função das suas distâncias percorridas
 void sort_userarray (const UserData * data) {
 	g_ptr_array_sort(data->userDistanceArray, userDistComp); 
 }
 
-
+//Função que pega na informação do array sorted e nos dá os N users com maior distância percorrida
 char * userTopN (const UserData * data, int N) {
     int i, dist;
     char * name, * username;
