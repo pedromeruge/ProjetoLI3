@@ -31,9 +31,9 @@ Date getUserAccCreation (const UserStruct * data); // retorna a data de criaçã
 unsigned char getUserPayMethod(const UserStruct * data); // retorna o método de pagamento de um user
 unsigned char getUserStatus (const UserStruct * data); // retorna o estado de um user
 int userIsValid(const UserStruct *user); // 1 se for valido, 0 se nao for
-double getUserTotalSpent (const UserStruct* user);
-double getAvgUserRating (const UserStruct* user);
-int getUserNumberOfRides (const UserStruct* user);
-char *getUserUsername(const UserStruct *data);
+double getUserTotalSpent (const UserStruct* user); // retorna o total que um user gastou
+double getAvgUserRating (const UserStruct* user); // retorna a avaliação média de um user
+int getUserNumberOfRides (const UserStruct* user); //retorna o número de viagens de um user
+char *getUserUsername(const UserStruct *data); // retorna o username de um user
 
 #endif
