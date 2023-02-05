@@ -66,29 +66,31 @@ struct RidesData {
 	GArray * maleArray;
 };
 
-void freeCityRides(void *data);
-gint compareRidesByDate(gconstpointer, gconstpointer);
-void *buildStatisticsInCity(void *);
+//array secundário que guarda as rides lidas do ficheiro
 SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata,\
 const DriverData *driverdata, fullDriverInfo * driverArray, int numberOfDrivers, int *bp, int *sp, char *buffer, GArray * maleArray, GArray * femaleArray);
 
-fullDriverInfo ** buildRidesbyDriverSorted (fullDriverInfo *, int);
-partialDriverInfo * * buildRidesByDriverCity(GPtrArray *, int);
-void buildRidesByDriverGlobal(GHashTable *, fullDriverInfo *, int);
+//funções de comparação
+gint compareRidesByDate(gconstpointer, gconstpointer);
 
+//info de drivers
 void addDriverInfoCity(partialDriverInfo *,RidesStruct *);
 void addDriverInfoGlobal(fullDriverInfo *,RidesStruct *);
-void appendDriverInfoCity (partialDriverInfo *, RidesStruct *);
-void getPresentableValues (fullDriverInfo **, int);
-void sumValuesCity (partialDriverInfo *, int);
-void sumValuesGlobal (fullDriverInfo *);
+void buildPresentableValuesCity (partialDriverInfo *, int);
+void buildPresentableValuesGlobal(fullDriverInfo * driverInfoArray, int numberOfDrivers);
+void buildAllDriversInfo(GHashTable *, fullDriverInfo *, int);
+fullDriverInfo ** buildDriverInfoSorted (fullDriverInfo *, int);
 
+//frees
+void freeCityRides(void *data);
 void freeRidesPtrArray (void *);
-void freeRidesRatingCity(partialDriverInfo **, int);
 
-void dumpDriversInfoArray (char * filename, fullDriverInfo * driverInfo, char * addToFilename, int dataState, int numberOfDrivers);
-void dumpDriversRatingArray (char * filename, partialDriverInfo ** driverInfo, char * addToFilename, int dataState, int numberOfDrivers);
+// void dumpDriversInfoArray (char * filename, fullDriverInfo * driverInfo, char * addToFilename, int dataState, int numberOfDrivers);
+// void dumpDriversRatingArray (char * filename, partialDriverInfo ** driverInfo, char * addToFilename, int dataState, int numberOfDrivers);
 
+
+//função principal onde são lidas todas as rides do ficheiro e construídas todas as estruturas associadas a rides
+// devolve uma struct com as estruturas criadas
 RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *driverdata, char *buffer) {
 
 	RidesData *data = malloc(sizeof(RidesData));
@@ -102,10 +104,10 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	GPtrArray * ridesArray = g_ptr_array_new_with_free_func(freeRidesPtrArray);
 	SecondaryRidesArray * secondaryArray;
 
-	//inicializa uma hash table
+	//inicializa uma hash table que organiza as rides por cidades
 	GHashTable *cityTable = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, freeCityRides); // keys levam malloc do array normal, nao vou dar free aqui;
 	
-	//inicializa um array com info de drivers global, é um array (sem pointers) porque não leva sort, há outro array que aponta para este, e esse é que é sorted, não este!
+	//inicializa um array com info de cada driver para o global das rides
 	fullDriverInfo * driverInfoGlobalArray = calloc(numberOfDrivers,sizeof(fullDriverInfo)); // calloc inicial do array, para evitar checks depois
 	if (driverInfoGlobalArray == NULL) fprintf(stderr,"Não consegui alocar o array");
 	parse_format format;
@@ -143,13 +145,13 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	num += secondaryArray->len;
 	printf("Total number of rides: %d\nNumber of invalid rides: %d\n", num, invalid);
 	
-	buildRidesByDriverGlobal(cityTable,driverInfoGlobalArray, numberOfDrivers);
+	buildAllDriversInfo(cityTable,driverInfoGlobalArray, numberOfDrivers);
 
 	data->numberOfDrivers = numberOfDrivers; // usado para o freeRidesArray
 	data->ridesArray = ridesArray; // array com input do ficheiro
 	data->cityTable = cityTable; // hash table que guarda structs com: array com rides ordenandas para uma cidade key, e array com info resumida de drivers nessa cidade;
 	data->driverInfoArray = driverInfoGlobalArray; // array com informação de drivers resumida global
-	data->driverRatingArray = buildRidesbyDriverSorted(driverInfoGlobalArray,numberOfDrivers);
+	data->driverRatingArray = buildDriverInfoSorted(driverInfoGlobalArray,numberOfDrivers);
 	sort_userarray(userdata);
 	sort_gender_array(maleArray);
 	sort_gender_array(femaleArray);
@@ -158,6 +160,8 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	return data;
 }
 
+//array secundário que guarda as rides lidas do ficheiro, faz parte do array 2D
+// é nesta função que se acrescenta informação de cada ride às outras estruturas criadas sobre as rides, para usar nas queries
 SecondaryRidesArray *getRides(FILE *ptr, GHashTable *cityTable, const parse_format *format, int *invalid, const UserData *userdata,\
 const DriverData *driverdata, fullDriverInfo * driverArray, int numberOfDrivers, int *bp, int *sp, char *buffer, GArray * maleArray, GArray * femaleArray) {
 	
@@ -205,7 +209,6 @@ const DriverData *driverdata, fullDriverInfo * driverArray, int numberOfDrivers,
 				cityRides->total[carClass] ++;
 				cityRides->distance[carClass] += temp->distance;
 			}
-			
 
 		} else if (res == -1) {// se chegarmos a EOF
 				if (i == 0) {
@@ -241,7 +244,7 @@ void addDriverInfoCity(partialDriverInfo * driverInfoArray, RidesStruct *current
 	//currentArrayStruct->driverNumber = currentRide->driver // esta atribuição é feita apenas no loop final, para não ser repetida aqui e lá
 }
 
-void getPresentableValuesGlobal(fullDriverInfo * driverInfoArray, int numberOfDrivers)
+void buildPresentableValuesGlobal(fullDriverInfo * driverInfoArray, int numberOfDrivers)
 {
 	int i, j;
 	unsigned int * ratings, numRides = 0;
@@ -265,7 +268,7 @@ void getPresentableValuesGlobal(fullDriverInfo * driverInfoArray, int numberOfDr
 	}
 }
 
-void sumValuesCity (partialDriverInfo * currentArrayStruct, int driverNumber) {
+void buildPresentableValuesCity (partialDriverInfo * currentArrayStruct, int driverNumber) {
 	currentArrayStruct->driverNumber = driverNumber;
 	unsigned int * ratings = currentArrayStruct->ratings.chart,
                    numRides = 0, j;
@@ -384,7 +387,7 @@ gint sort_byRatings_7 (const void * a, const void * b) {
     return result;
 }
 
-fullDriverInfo ** buildRidesbyDriverSorted (fullDriverInfo * driverInfoArray, int numberOfDrivers) {
+fullDriverInfo ** buildDriverInfoSorted (fullDriverInfo * driverInfoArray, int numberOfDrivers) {
 	fullDriverInfo ** driverRatingArray = malloc(numberOfDrivers * sizeof(fullDriverInfo *)); // copia leve do outro array, só queremos copiar os pointers e ordenar os pointers, não se mexe nas rides em si
 	int i;
 	fullDriverInfo * offsetArray = driverInfoArray;
@@ -412,10 +415,10 @@ void OrderStatisticsInCity(CityRides *city, int numberOfDrivers) {
 	qsort(city->driverSumArray, numberOfDrivers, sizeof(partialDriverInfo), sort_byRatings_7); // ordenação da info (resumida antes) sobre drivers de uma cidade (usado na query 7)
 }
 
-// obtém médias globais de cada driver
+// obtém médias de cada driver para cada cidade e para o global das rides
 // COMO: pega nas informações acumuladas de cada driver de cada cidade e adiciona-a à info de cada driver global
 // aproveita-se o loop desta função para: calcular as médias de cada driver em cada cidade e dar sort de cada cidade segundo os parâmetro da Q7
-void buildRidesByDriverGlobal(GHashTable * cityTable, fullDriverInfo * driverInfoGlobalArray, int numberOfDrivers) {
+void buildAllDriversInfo(GHashTable * cityTable, fullDriverInfo * driverInfoGlobalArray, int numberOfDrivers) {
 	int j;
 	partialDriverInfo * currentCityArrayStruct;
 	fullDriverInfo * currentGlobalArrayStruct;
@@ -432,16 +435,15 @@ void buildRidesByDriverGlobal(GHashTable * cityTable, fullDriverInfo * driverInf
 		for (j=0;j<numberOfDrivers;j++) { // para cada driver de uma cidade
 				currentGlobalArrayStruct = &driverInfoGlobalArray [j];
 				currentCityArrayStruct = &driverInfoInCityArray[j];
-				copyDriverGlobal(currentGlobalArrayStruct,currentCityArrayStruct); // acrescenta ao array global a informação desse driver
-				sumValuesCity(currentCityArrayStruct, j+1); // aproveita-se o loop para calcular médias finais do driver de uma cidade
+				copyDriverGlobal(currentGlobalArrayStruct,currentCityArrayStruct); // acrescenta ao array global a informação de um driver presente numa determinada cidade
+				buildPresentableValuesCity(currentCityArrayStruct, j+1); // aproveita-se o loop para calcular médias finais do driver de uma cidade
 		}
 		// aproveita-se o loop para organizar estruturas relativas a cada cidade
 		OrderStatisticsInCity(cityData,numberOfDrivers);
-		//dumpDriversRatingArray("query_7-ouputs",cityData->driverSumArray,NULL,1, numberOfDrivers);
 	}
 
 	// cálculo das médias finais do driver de uma cidade, só possível no fim do loop anterior, quando toda a informação é obtida
-	getPresentableValuesGlobal(driverInfoGlobalArray, numberOfDrivers); 
+	buildPresentableValuesGlobal(driverInfoGlobalArray, numberOfDrivers); 
 }
 
 inline double getDriverGlobalAvgRating(const fullDriverInfo *currentArrayStruct)
@@ -672,7 +674,7 @@ void dumpCityRides (char * filename, GHashTable * cityTable, CityRides * rides, 
 	}
 }
 
-//dump drivesrInfoArray: dataState == 0 -> before getPresentablevalues, dataState == 1 -> after getPresentablevalues!!
+//dump drivesrInfoArray: dataState == 0 -> before buildPresentablevalues, dataState == 1 -> after buildPresentablevalues!!
 void dumpDriversInfoArray (char * filename, fullDriverInfo * driverInfo, char * addToFilename, int dataState, int numberOfDrivers) {
 	if(addToFilename != NULL) filename = strcat(filename,addToFilename);
 	FILE *fp = fopen(filename, "w");
@@ -684,7 +686,7 @@ void dumpDriversInfoArray (char * filename, fullDriverInfo * driverInfo, char * 
 		else {
 			if (!dataState) {
 			unsigned int * ratings = currentDriver->ratings.chart;
-			//NumberOfRides não foi calculado ainda, só depois de getPresentableValues, por isso não é incluído no print
+			//NumberOfRides não foi calculado ainda, só depois de buildPresentableValues, por isso não é incluído no print
 			fprintf(fp, "driverNumber:%d, mostRecdate: %d/%d/%u, avgRatings: [%d,%d,%d,%d,%d], totalTravalled:%d\n",\
 				currentDriver->driverNumber, GET_DATE_DAY(currentDriver->mostRecRideDate), GET_DATE_MONTH(currentDriver->mostRecRideDate),\
 				GET_DATE_YEAR(currentDriver->mostRecRideDate), ratings[0], ratings[1], ratings[2], ratings[3], ratings[4], currentDriver->totalTravel);
@@ -710,7 +712,7 @@ void dumpDriversRatingArray (char * filename, partialDriverInfo ** driverInfo, c
 		else {
 			if (!dataState) {
 			unsigned int * ratings = currentDriver->ratings.chart;
-			//NumberOfRides não foi calculado ainda, só depois de getPresentableValues, por isso não é incluído no print
+			//NumberOfRides não foi calculado ainda, só depois de buildPresentableValues, por isso não é incluído no print
 			fprintf(fp, "driverNumber:%d, avgRatings: [%d,%d,%d,%d,%d]\n",\
 				currentDriver->driverNumber, ratings[0], ratings[1], ratings[2], ratings[3], ratings[4]);
 			}
@@ -724,18 +726,17 @@ void dumpDriversRatingArray (char * filename, partialDriverInfo ** driverInfo, c
 }
 
 // devolve a struct(dados) associada à ride número i
-// esta função nunca é chamada????
-RidesStruct * getRidePtrByID(const RidesData *data, guint ID)
-{
-	exit(5);
-	// ID -= 1; // para a primeira ride passar a ser 0
-	// guint i = ID / SIZE;
-	// GPtrArray *array = data->ridesArray;
-	// SecondaryRidesArray *secondaryArray = g_ptr_array_index(array, i);
+// função não chega a ser chamada
+// RidesStruct * getRidePtrByID(const RidesData *data, guint ID)
+// {
+// 	// ID -= 1; // para a primeira ride passar a ser 0
+// 	// guint i = ID / SIZE;
+// 	// GPtrArray *array = data->ridesArray;
+// 	// SecondaryRidesArray *secondaryArray = g_ptr_array_index(array, i);
 
-	// RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
-	// return (RIDE_IS_VALID(result)) ? result : NULL;
-}
+// 	// RidesStruct * result = &(secondaryArray->ridesArray[ID - SIZE * i]);
+// 	// return (RIDE_IS_VALID(result)) ? result : NULL;
+// }
 
 inline int getRideID(const RidesStruct * ride) {
 	return ride->ID;
@@ -782,13 +783,13 @@ inline int rideIsValid(const RidesStruct *ride) {
 	return (ride != NULL && RIDE_IS_VALID(ride));
 }
 
-int getNumberOfRides(const RidesData * data) {
-	GPtrArray * array = data->ridesArray;
-	int num = (array->len - 1) * SIZE;
-	SecondaryRidesArray * secondaryArray = g_ptr_array_index(array, array->len - 1);
-	num += secondaryArray->len;
-	return num;
-}
+// int getNumberOfRides(const RidesData * data) {
+// 	GPtrArray * array = data->ridesArray;
+// 	int num = (array->len - 1) * SIZE;
+// 	SecondaryRidesArray * secondaryArray = g_ptr_array_index(array, array->len - 1);
+// 	num += secondaryArray->len;
+// 	return num;
+// }
 
 inline const int *getRidesDistance(const CityRides *rides) {
 	return rides->distance;

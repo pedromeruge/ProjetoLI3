@@ -23,7 +23,6 @@ char * userTopN (const UserData * data, int N);
 UserStruct * getUserPtrByUsername(const UserData *, const char *);
 
 //funções para aceder a informações de cada user
-            //getUserName -> tem de já ser sabido, para poder aceder a outras informações do user
 char * getUserName (const UserStruct * data); // retorna o nome de um user (diferente do nome de input em GetUserPtrByName)
 unsigned char getUserGender(const UserStruct *); // retorna o género de um user
 Date getUserBirthdate(const UserStruct* data); // retorna a data de nascimento de um user
@@ -35,5 +34,6 @@ double getUserTotalSpent (const UserStruct* user); // retorna o total que um use
 double getAvgUserRating (const UserStruct* user); // retorna a avaliação média de um user
 int getUserNumberOfRides (const UserStruct* user); //retorna o número de viagens de um user
 char *getUserUsername(const UserStruct *data); // retorna o username de um user
+//getUserName -> tem de já ser sabido, para poder aceder a outras informações do user
 
 #endif

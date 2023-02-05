@@ -23,7 +23,7 @@ struct DriverStruct
 
 typedef struct {
 	int len;
-	DriverStruct array[SIZE]; // já sabemos que vai levar malloc de SIZE e já, e assim usamos g_ptr_array
+	DriverStruct array[SIZE]; // sub-arrays levam malloc de tamanho SIZE fixo
 } SecondaryDriverArray;
 
 struct DriverData {
