@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	printf("\nFinished queries\n");
+	printf("Finished queries\n");
 
 	fclose(files[0]);
 	fclose(files[1]);

@@ -55,19 +55,22 @@ char * print_array_Q8 (GArray * array, int anos) {
         return NULL;
     }
     char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * len);
+    char * driverName;
+    char * userUsername;
+    char * userName;
     int offset = 0;
     for(i=0; i < len; i++) {
         genderInf = &g_array_index(array, genderInfo, i);
-        char * driverName = getDriverName(genderInf->driver);
-        char * userUsername = getUserUsername(genderInf->user);
-        char * userName = getUserName(genderInf->user);
         if (compDates(genderInf->driverDate, target_date) > 0) break;
         if (compDates(genderInf->userDate, target_date) <= 0) {
+            driverName = getDriverName(genderInf->driver);
+            userUsername = getUserUsername(genderInf->user);
+            userName = getUserName(genderInf->user);
             offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%s;%s;%s\n", 12, genderInf->driverID, driverName, userUsername, userName);
+            free(driverName);
+            free(userUsername);
+            free(userName);
         }
-    free(driverName);
-    free(userUsername);
-    free(userName);
     }
     if (offset == 0){
         free(resultStr);

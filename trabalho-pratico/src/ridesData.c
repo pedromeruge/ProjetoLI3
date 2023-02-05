@@ -317,6 +317,9 @@ void freeRidesData(RidesData *data)
 	GPtrArray * ridesArray = dataStruct->ridesArray;
 	g_ptr_array_free(ridesArray, TRUE);
 
+	g_array_free(dataStruct->maleArray, TRUE);	
+	g_array_free(dataStruct->femaleArray, TRUE);
+
 	free(dataStruct);
 }
 
