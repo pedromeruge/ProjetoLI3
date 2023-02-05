@@ -1,6 +1,6 @@
 #include "statistics.h"
 
-#define STR_BUFF_SIZE 64
+#define STR_BUFF_SIZE 128
 
 struct genderInfo {
     const UserStruct * user;
@@ -19,9 +19,9 @@ void add_gender_info (GArray * maleArray, GArray * femaleArray, const DriverStru
 	unsigned char genderDriver, genderUser;
     genderDriver = getDriverGender(driver);
 	genderUser = getUserGender(user);
-        if(genderDriver == genderUser && ((getUserStatus(user) == ACTIVE && getDriverStatus(driver)) == ACTIVE)) {
+        if(genderDriver == genderUser && getUserStatus(user) == ACTIVE && getDriverStatus(driver) == ACTIVE) {
         genderInfo currentStruct = {user, driver, driverID, rideID, getUserAccCreation(user), getDriverAccCreation(driver)};
-        if(genderDriver == M) {
+        if(genderDriver == 'M') {
 		    g_array_append_vals(maleArray, &currentStruct, 1);
 		} else g_array_append_vals(femaleArray, &currentStruct, 1);
 	}
@@ -58,10 +58,16 @@ char * print_array_Q8 (GArray * array, int anos) {
     int offset = 0;
     for(i=0; i < len; i++) {
         genderInf = &g_array_index(array, genderInfo, i);
+        char * driverName = getDriverName(genderInf->driver);
+        char * userUsername = getUserUsername(genderInf->user);
+        char * userName = getUserName(genderInf->user);
         if (compDates(genderInf->driverDate, target_date) > 0) break;
         if (compDates(genderInf->userDate, target_date) <= 0) {
-            offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%s;%s;%s\n", 12, genderInf->driverID, getDriverName(genderInf->driver), getUserUsername(genderInf->user), getUserName(genderInf->user));
+            offset += snprintf(resultStr + offset, STR_BUFF_SIZE, "%0*d;%s;%s;%s\n", 12, genderInf->driverID, driverName, userUsername, userName);
         }
+    free(driverName);
+    free(userUsername);
+    free(userName);
     }
     if (offset == 0){
         free(resultStr);
