@@ -524,6 +524,9 @@ void iterateOverCities(const RidesData *rides, void *data, void (*iterator_func)
 // coisa mais manhosa que a manhosidade
 // adaptação do bsearch que pode ou não funcionar
 // se der errado ao menos é rápido
+// usa bsearch para encontrar uma data
+// no fim, quer encontre ou não, faz um loop, dependo do 'mode', para encontrar o íncide correto a devolver
+// depende de ser start ou end, e depende se o valor encontrado é maior, menor ou igual que a 'date'
 int custom_bsearch(GPtrArray *array, Date date, int mode) {
 	int lim = array->len - 1,
 	base = 0,
@@ -581,6 +584,9 @@ int custom_bsearch(GPtrArray *array, Date date, int mode) {
 	return index;
 }
 
+// dada uma city e duas datas, modifica res_start e res_end (intervalo 'start' e 'end' a que as datas correspondem)
+// usa uma binary search modificada + certas funcionalidades para bounds checking e porque, por exemplo,
+// se várias datas forem iguais, o indice devolvido depende de se trata da data start ou end
 void searchCityRidesByDate(const CityRides * cityRides, Date dateA, Date dateB, int *res_start, int *res_end) {
 	GPtrArray *array = cityRides->cityRidesArray;
 	int len = array->len;
