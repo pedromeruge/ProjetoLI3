@@ -41,7 +41,7 @@ int queryInputSplit(char * queryInput, char *inputSplit[]) { // remover commandN
 // é da responsabilidade da caller function dar free da string
 // remover commandN no futuro, só é usado para o debug
 char * queryAssign(char * queryInputs[], UserData * userData, DriverData * driverData, RidesData * ridesData, int commandN) {
-    query_func *queryList[9] = {query_1, query_2, query_3, query_4, query_5, query_6, query_7, NOP, query_9};
+    query_func *queryList[9] = {query_1, query_2, query_3, query_4, query_5, query_6, query_7, query_8, query_9};
 
     //### print de debug para os input de uma query
 	//if (commandN != 0) printf("%d:%d ", commandN,(*queryInputs[0]) - 49 + 1);

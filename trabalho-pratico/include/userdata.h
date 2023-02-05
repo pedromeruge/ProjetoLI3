@@ -34,5 +34,6 @@ int userIsValid(const UserStruct *user); // 1 se for valido, 0 se nao for
 double getUserTotalSpent (const UserStruct* user);
 double getAvgUserRating (const UserStruct* user);
 int getUserNumberOfRides (const UserStruct* user);
+char *getUserUsername(const UserStruct *data);
 
 #endif

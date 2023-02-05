@@ -29,7 +29,7 @@ char * topN(const RidesData * ridesData, const DriverData * driverData, int N, c
     return result;
 }
 
-//função que constroi string final no formato das Q8 e Q9, a partir de um array já ordenado
+//função que constroi string final no formato da Q9, a partir de um array já ordenado
 // escreve padrão diferente de string de output, em relação a topN
 char * printArrayToStr(const GPtrArray * ridesArray) {
     int i, arrayLen = ridesArray->len;

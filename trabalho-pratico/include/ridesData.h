@@ -85,6 +85,10 @@ float getRideTip(const RidesStruct *);          // retorna a tip de uma ride
 int rideIsValid(const RidesStruct *ride); // 1 se for valido, 0 se nao for
 int getNumberOfRides(const RidesData * data);
 
+GArray * get_femaleArray (RidesData * data);
+
+GArray * get_maleArray (RidesData * data);
+
 // RidesStruct * getRideByUser(DATA data, char *name);  // not implemented
 
 #endif

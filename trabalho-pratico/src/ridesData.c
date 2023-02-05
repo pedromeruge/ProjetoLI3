@@ -162,6 +162,10 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	data->driverInfoArray = driverInfoGlobalArray; // array com informação de drivers resumida global
 	data->driverRatingArray = buildRidesbyDriverSorted(driverInfoGlobalArray,numberOfDrivers);
 	sort_userarray(userdata);
+	sort_gender_array(maleArray);
+	sort_gender_array(femaleArray);
+	data->maleArray = maleArray;
+	data->femaleArray = femaleArray;
 	//dumpDriverInfoArray("query_2-ouputs",data->driverInfoArray,NULL,1, numberOfDrivers);
 	return data;
 }
@@ -185,7 +189,7 @@ const DriverData *driverdata, fullDriverInfo * driverArray, int numberOfDrivers,
 			
 			add_user_info(userdata, driverdata, temp->user, temp->driver, temp->distance, temp->score_u, temp->tip, temp->date);
 
-			add_gender_info(maleArray, femaleArray, getDriverPtrByID(driverdata, temp->driver), getUserPtrByUsername(userdata, temp->user), temp->ID);
+			add_gender_info(maleArray, femaleArray, getDriverPtrByID(driverdata, temp->driver), getUserPtrByUsername(userdata, temp->user), temp->ID, temp->driver);
 
 			// check if city is not already in hash table
 			if ((cityRides = g_hash_table_lookup(cityTable, city)) == NULL)
@@ -794,4 +798,12 @@ inline const int *getRidesDistance(const CityRides *rides) {
 
 inline const int *getRidesTotal(const CityRides *rides) {
 	return rides->total;
+}
+
+GArray * get_maleArray (RidesData * data) {
+    return data->maleArray;
+}
+
+GArray * get_femaleArray (RidesData * data) {
+    return data->femaleArray;
 }
