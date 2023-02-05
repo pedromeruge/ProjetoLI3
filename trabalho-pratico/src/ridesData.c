@@ -138,11 +138,11 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 
 	int bp = 0, sp = 0;
 
-	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer, femaleArray, maleArray);
+	secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer, maleArray, femaleArray);
 
 	while (secondaryArray != NULL) {
 		g_ptr_array_add(ridesArray, secondaryArray);
-		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer, femaleArray, maleArray);
+		secondaryArray = getRides(ptr, cityTable, &format, &invalid, userdata, driverdata, driverInfoGlobalArray, numberOfDrivers, &bp, &sp, buffer, maleArray, femaleArray);
 	}
 
 	int num = (ridesArray->len - 1) * SIZE;
