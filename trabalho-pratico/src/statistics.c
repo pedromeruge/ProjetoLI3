@@ -1,6 +1,6 @@
 #include "statistics.h"
 
-#define STR_BUFF_SIZE 128
+#define STR_BUFF_SIZE (64 + 16)
 
 struct genderInfo {
     const UserStruct * user;
@@ -10,6 +10,8 @@ struct genderInfo {
     Date userDate;
     Date driverDate;
 };
+
+int genderInfoBSearch(GArray *array, Date target_date);
 
 GArray * new_gender_array () {
     return (g_array_new(FALSE, FALSE, sizeof(genderInfo)));
@@ -54,14 +56,16 @@ char * print_array_Q8 (GArray * array, int anos) {
     if (len == 0) {
         return NULL;
     }
-    char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * len);
+	int index = genderInfoBSearch(array, target_date);
+	// if (index == 0) return NULL; ??????
+    char * resultStr = malloc(sizeof(char)* STR_BUFF_SIZE * (index - 1));
     char * driverName;
     char * userUsername;
     char * userName;
     int offset = 0;
-    for(i=0; i < len; i++) {
+
+    for (i = 0; i < index; i++) {
         genderInf = &g_array_index(array, genderInfo, i);
-        if (compDates(genderInf->driverDate, target_date) > 0) break;
         if (compDates(genderInf->userDate, target_date) <= 0) {
             driverName = getDriverName(genderInf->driver);
             userUsername = getUserUsername(genderInf->user);
@@ -77,4 +81,43 @@ char * print_array_Q8 (GArray * array, int anos) {
         return NULL;
     }
     return resultStr;
+}
+
+int genderInfoBSearch(GArray *array, Date target_date) {
+	int lim = array->len - 1,
+	base = 0,
+	cmp = 0,
+	index = 0, len = array->len;
+	genderInfo *info;
+	for (; lim != 0; lim >>= 1) {
+		index = base + (lim >> 1);
+		info = &g_array_index(array, genderInfo, index);
+		cmp = compDates(target_date, info->driverDate);
+		if (cmp == 0) {
+			// return index;
+			break;
+		}
+		if (cmp > 0) {
+			base = index + 1; // + 1 ??? que coisa maquiavélica
+			lim--;
+		}
+	}
+
+	if (cmp == 0) { // reached target date, loop forward
+		for (; cmp == 0 && index < len; index ++) {
+			info = &g_array_index(array, genderInfo, index);
+			cmp = compDates(target_date, info->driverDate);
+		}
+	} else if (cmp < 0) { // target date < found date, loop forward
+		for (; cmp <= 0 && index < len; index ++) {
+			info = &g_array_index(array, genderInfo, index);
+			cmp = compDates(target_date, info->driverDate);
+		}
+	} else { // target date > found date, loop backwards
+		for (; cmp >= 0 && index > 0; index ++) {
+			info = &g_array_index(array, genderInfo, index);
+			cmp = compDates(target_date, info->driverDate);			
+		}
+	}
+	return index;
 }

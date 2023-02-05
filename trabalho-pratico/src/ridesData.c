@@ -149,10 +149,6 @@ RidesData * getRidesData(FILE *ptr, const UserData *userdata, const DriverData *
 	secondaryArray = g_ptr_array_index(ridesArray, ridesArray->len - 1);
 	num += secondaryArray->len;
 	printf("Total number of rides: %d\nNumber of invalid rides: %d\n", num, invalid);
-
-	//## MT para cálulco de estatística de dados para cada cidade
-	// assumimos que o nº de cidades esta bem distribuido (na fase 1 pelo menos estava)
-	//multiThreadedCityRides(cityTable, driverdata, numberOfDrivers);
 	
 	buildRidesByDriverGlobal(cityTable,driverInfoGlobalArray, numberOfDrivers);
 
