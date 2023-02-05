@@ -1,6 +1,6 @@
 #include "statistics.h"
 
-#define STR_BUFF_SIZE (64 + 16)
+#define STR_BUFF_SIZE (128)
 
 struct genderInfo {
     const UserStruct * user;
