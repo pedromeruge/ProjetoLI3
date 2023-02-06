@@ -14,7 +14,7 @@ FILE **open_cmdfiles(int argc, char **argv) {
 		dataFolderName = malloc(sizeof(char) * FILEPATH_SIZE);
 		if (dataFolderName == NULL) exit(1);
 
-		if ((fgets(dataFolderName,FILEPATH_SIZE,stdin)) == NULL) exit(2);
+		if ((fgets(dataFolderName,FILEPATH_SIZE,stdin)) == NULL) exit(2); // devia ser getline!!
 		// strcpy(dataFolderName,"Datasets/fase1/data-regular");
 		dataFolderName[strcspn(dataFolderName, "\n")] = 0; // remover o '\n' do input
 	} else if (argc == 3) {

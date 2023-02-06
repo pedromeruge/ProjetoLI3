@@ -255,7 +255,6 @@ void buildAllDriversInfo(GHashTable * cityTable, fullDriverInfo * driverInfoGlob
 	fullDriverInfo * currentGlobalArrayStruct;
 
 	//criar structs com valores a 0 em cada posição, para acumular valores nessa posição depois
-	// !! outra forma mais eficiente sem meter NULL com set_size?
 	GHashTableIter iter;
 	gpointer value;
 

@@ -169,7 +169,6 @@ GArray * splitString (char * str, int numberOfLines, int numberOfColumns) {
 // função que parte o output das queries em várias paginas, para ser mais legível
 // simultaneamente, preencha cada posição do array de ints com o nº max de caractéres ocupados pelas palavras do respetivo parâmetro. Ex: tendo 2 linhas com 2 param "asg;gasead" e "asfj;agas", o array devolvido seria [4,6];
 //supõe-se que cada linha de input (linhas acabam em \n) cabe numa linha do terminal
-// NOTA: se recebesse o nº de linhas da str, originalmente, a conta ficava mais simples, evita-se o GArray! Bastava calcular nº de '\n' na str original e somar 1 para a última linha -> não basta receber o nº de linhas, porque pode variar se uma linha inteira não couber numa janela!
 
 GArray * splitStringMaxParam(char * queryResult, int numberOfLines, int * * arrayToFill) {
     int i, newlineCounter, segmNumber, segmMaxSize,
@@ -194,7 +193,7 @@ GArray * splitStringMaxParam(char * queryResult, int numberOfLines, int * * arra
 
 // menu interativo para ler uma string em várias páginas; verifica inputs errados e devolve mensagens de erro
 // se queryNumber recebido == -1, o output de cada página não é partido em colunas (usado no menu dos "help" commands)
-// NOTA: a partição em páginas é feita dentro do modo interativo (e não diretamente no output das queries) para não afetar o cálculo do tempo no modo batch, ainda que seja mais eficiente no modo batch 
+// NOTA: a partição em páginas é feita dentro do modo interativo (e não diretamente no output das queries) para não afetar o cálculo do tempo no modo batch 
 void printResultInPages(char * queryResult, int queryNumber, WINDOW * windows[]) {
 
     WINDOW * output = windows[3],* input = windows[5];
@@ -334,7 +333,7 @@ int interactRequests(UserData *userData, DriverData *driverData, RidesData *ride
     initscr(); //iniciar o ncurses
 
     int maxX,maxY;
-    getmaxyx(stdscr,maxX, maxY); // receber o nº de de row and columns
+    getmaxyx(stdscr,maxX, maxY); // receber o nº de de rows and columns
     if (maxX< 24 || maxY < 80) {
         fprintf(stderr,"Screen size is too small! Run the program again with standard terminal size (80,24) or bigger\n");
         return 1;
@@ -406,7 +405,7 @@ int batchRequests(FILE *fp, UserData *userData, DriverData *driverData, RidesDat
 
         queryInputSplit(strBuffer,inputSplit);
         queryResult = queryAssign(inputSplit,userData, driverData, ridesData,commandN);
-		fflush(stdout);
+		fflush(stdout); // debug
 
         writeRet = writeResults(commandN, queryResult);
         if (writeRet) { // returns positivos indicam erros na função
