@@ -1,6 +1,6 @@
 #include "statistics.h"
 
-#define STR_BUFF_SIZE (128)
+#define STR_BUFF_SIZE 128
 
 struct genderInfo {
     const UserStruct * user;
@@ -67,7 +67,7 @@ char * print_array_Q8 (GArray * array, int anos) {
     char * userName;
     int offset = 0;
 
-    for (i = 0; i < index; i++) {
+    for (i = 0; i < index-1; i++) {
         genderInf = &g_array_index(array, genderInfo, i);
         if (compDates(genderInf->userDate, target_date) <= 0) {
             driverName = getDriverName(genderInf->driver);
